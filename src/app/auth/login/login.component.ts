@@ -2,7 +2,7 @@ import { Component, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoginEffectsService } from '../login-effects.service'; // Importa il servizio
+import { LoginEffectsService } from '../login-effects.service'; 
 
 @Component({
   selector: 'app-login',
@@ -37,9 +37,19 @@ export class LoginComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     if (this.isBrowser) {
-      this.loginEffects.applyLoginEffects(); // Applica gli effetti SOLO nel browser
+      this.loginEffects.applyLoginEffects();
     }
   }
+
+  toggleForm() {
+    if (this.isBrowser) {
+      const mainElement = document.querySelector('main');
+      if (mainElement) {
+        mainElement.classList.toggle('sign-up-mode');
+      }
+    }
+  }
+  
 
   onSubmit() {
     if (this.loginForm.valid) {

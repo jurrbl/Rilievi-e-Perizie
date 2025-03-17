@@ -13,7 +13,8 @@
           <div class="heading">
             <h2>Benvenuto</h2>
             <h6>Non sei registrato?</h6>
-            <a href="#" class="toggle">Registrati</a>
+            <a href="#" class="toggle" (click)="toggleForm()">Registrati</a>
+            
           </div>
 
           <div class="actual-form">
@@ -54,7 +55,8 @@
           <div class="heading">
             <h2>Inizia da oggi</h2>
             <h6>Hai già un account?</h6>
-            <a href="#" class="toggle">Accedi</a>
+            <a href="#" class="toggle" (click)="toggleForm()">Accedi</a>
+            
           </div>
 
           <div class="actual-form">
@@ -81,9 +83,9 @@
       <!-- Sezione Immagini e Slider -->
       <div class="carousel">
         <div class="images-wrapper">
-          <img src="Perizie-2-scaled.jpg" class="image img-1 show" alt="Perizia 1" />
-          <img src="Perizie-1-scaled.jpg" class="image img-2" alt="Perizia 2" />
-          <img src="Perizie-3-scaled.jpg" class="image img-3" alt="Perizia 3" />
+          <img src="Perizie-2-scaled.jpg" class="image img-1 show" alt="Perizia 1" id="imageSliderCarousel" />
+          <img src="Perizie-1-scaled.jpg" class="image img-2" alt="Perizia 2"      id="imageSliderCarousel" />
+          <img src="Perizie-3-scaled.jpg" class="image img-3" alt="Perizia 3"      id="imageSliderCarousel" />
         </div>
 
         <div class="text-slider">

@@ -73,6 +73,7 @@ main {
   cursor: pointer;
   transition: all 0.3s ease;
   width: 100%;
+  margin-top: -30px;
 }
 
 .google-btn i {
@@ -263,7 +264,7 @@ label {
   border: none;
   cursor: pointer;
   border-radius: 0.8rem;
-  font-size: 0.8rem;
+  font-size: 16px;
   margin-bottom: 2rem;
   transition: 0.3s;
 }
@@ -274,6 +275,8 @@ label {
 
 .text {
   color: #bbb;
+  margin-top: 10px;
+  
   font-size: 0.7rem;
 }
 
@@ -284,6 +287,7 @@ label {
 
 .text a:hover {
   color: #8371fd;
+  cursor: pointer;
 }
 
 main.sign-up-mode form.sign-in-form {
@@ -313,6 +317,7 @@ main.sign-up-mode .carousel {
   height: max-content;
   width: 55%;
   left: 45%;
+  height: 100%;
   top: 0;
   background-color: #ffe0d2;
   border-radius: 2rem;
@@ -323,30 +328,29 @@ main.sign-up-mode .carousel {
   transition: 0.8s ease-in-out;
 }
 
-
-
-.images-wrapper {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr;
-  position: relative;
-  overflow: hidden;
-  border-radius: 20px;
-}
-
-.images-wrapper img {
+.image{
+  position: absolute;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-  z-index: 1; /* Mantiene le immagini sopra lo sfondo */
 }
+
+.text-slider {
+  position: absolute;
+  width: 100%;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: black;
+  font-size: 2rem;
+  text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+  font-weight: bold;
+  z-index: 2;
+  border-radius: 8px;
+}
+
+
 
 .images-wrapper img.show {
   opacity: 1;
@@ -501,4 +505,27 @@ main.sign-up-mode .carousel {
   form {
     padding: 1rem 2rem 1.5rem;
   }
+}
+
+
+main {
+  transition: transform 0.8s ease-in-out;
+}
+
+main.animating {
+  transform: scale(1.02); /* Effetto di zoom leggero */
+}
+
+form.sign-up-form {
+  transform: translateX(100%);
+  transition: transform 0.8s ease-in-out;
+}
+
+main.sign-up-mode form.sign-in-form {
+  transform: translateX(-100%);
+  transition: transform 0.8s ease-in-out;
+}
+
+main.sign-up-mode form.sign-up-form {
+  transform: translateX(0%);
 }
