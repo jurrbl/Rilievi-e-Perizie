@@ -1,66 +1,373 @@
-.home-container {
-    max-width: 900px;
-    margin: auto;
-    padding: 20px;
+  /* Importa il font Sansation */
+  @import url("https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap");
+
+  * {
+    font-family: "Noto Sans", serif;
   }
-  
-  header {
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* Impedisce lo scroll della pagina principale */
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    flex: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    background: black;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  }
+
+  /* Sidebar Menu con Scroll */
+  .sidebar-menu {
+    flex-grow: 1; /* Permette il riempimento verticale */
+    overflow-y: auto; /* Scroll se necessario */
+    margin-top: 20px;
+  }
+
+
+  /* ANIMAZIONE SIDEBAR */
+  .sidebar-animation-enter {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  .sidebar-animation-enter-active {
+    transform: translateX(0);
+    opacity: 1;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+
+  .sidebar-animation-exit {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  .sidebar-animation-exit-active {
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+
+  /* ANIMAZIONE DROPDOWN */
+  .dropdown-animation-enter {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+  }
+
+  .dropdown-animation-enter-active {
+    opacity: 1;
+    max-height: 200px;
+    transition: opacity 0.2s ease-in-out, max-height 0.2s ease-in-out;
+  }
+
+  .dropdown-animation-exit {
+    opacity: 1;
+    max-height: 200px;
+  }
+
+  .dropdown-animation-exit-active {
+    opacity: 0;
+    max-height: 0;
+    transition: opacity 0.2s ease-in-out, max-height 0.2s ease-in-out;
+  }
+
+
+
+
+
+
+  /* Header */
+  .sidebar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-  
-  .logout-btn {
-    background-color: red;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-  }
-  
-  .upload-section {
-    text-align: center;
-    margin: 20px 0;
-  }
-  
-  .upload-btn {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .perizie-list {
-    margin-top: 20px;
-  }
-  
-  .perizia-card {
-    border: 1px solid #ddd;
-    padding: 15px;
     margin-bottom: 10px;
   }
-  
-  .perizia-card img {
-    width: 100%;
-    max-width: 200px;
-    display: block;
-    margin-top: 10px;
+
+  /* Titolo Sidebar */
+  .sidebar-title {
+    font-weight: 500;
+    font-size: 25px;
+    color: #ffffff;
+    margin: 0 auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    filter: drop-shadow(3px 3px 5px rgba(0, 0, 0, 1));
   }
-  
-  .perizia-card button {
-    background-color: #28a745;
-    color: white;
+
+  /* Bottone Chiudi Sidebar */
+  .sidebar-close {
+    background: none;
     border: none;
-    padding: 8px;
+    font-size: 18px;
+    color: #e3e0ea;
     cursor: pointer;
   }
-  
-  .map-container {
+
+  /* Bottone per Aprire Sidebar */
+  .sidebar-toggle {
+    position: fixed !important;
+    top: 15px;
+    left: 15px;
+    color: black;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 1100;
+    background: none;
+    border: none;
+  }
+
+  .sidebar-toggle-icon {
+    font-size: 24px;
+  }
+
+  /* Barra di Ricerca */
+  .sidebar-search {
+    width: 90%;
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #5c5470;
+  }
+
+  .sidebar-search-icon {
+    color: white;
+    font-size: 18px;
+    margin-right: 5px;
+  }
+
+  .sidebar-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .sidebar-search-input::placeholder {
+    color: #ffffff;
+    text-indent: 15px;
+  }
+
+  /* Menu */
+  .sidebar-section-title {
+    font-size: 16px;
+    color: #ffffff;
+    margin-bottom: 20px;
+  }
+
+  /* Icona Dropdown */
+  .sidebar-dropdown-icon {
+    margin-left: auto;
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .sidebar-dropdown-icon.open {
+    transform: rotate(180deg);
+  }
+
+  /* Voci di Menu */
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #ffffff;
+    padding: 10px 8px;
+    transition: background 0.3s;
+    cursor: pointer;
+    border-radius: 0px;
+  }
+
+  /* Linea Separazione */
+  .sidebar-item.sidebar-contacts,
+  .sidebar-item.sidebar-documentation,
+  .sidebar-item.sidebar-settings {
+    border-bottom: 1px solid #5c5470;
     margin-top: 20px;
-    height: 300px;
-    background: lightgray;
-    text-align: center;
-    line-height: 300px;
+  }
+
+  /* Hover */
+  .sidebar-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .sidebar-item .sidebar-icon {
+    margin-right: 10px;
+    font-size: 20px;
+  }
+
+  /* Dropdown */
+  .dropdown-menu {
+    margin-left: 20px;
+    transition: max-height 0.3s ease-in-out;
+  }
+
+
+  
+
+  .dropdown-item {
+    font-size: 14px;
+    padding: 8px 10px;
+    transition: background 0.3s;
+    margin-top: 20px;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+  
+  /* Dropdown */
+  .dropdown-menu {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out;
+  }
+  
+  /* Quando il dropdown è aperto */
+  .dropdown-menu.open {
+    display: block;
+    opacity: 1;
+  }
+
+  
+
+  /* PROFILO */
+  .sidebar-profile {
+    border-top: 1px solid #5c5470;
+    padding-top: 10px; /* Riduce lo spazio sopra */
+    padding-bottom: 5px; /* Riduce lo spazio sotto */
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    margin-bottom: 10px; /* Riduce lo spazio tra il profilo e il logout */
+  }
+
+  .sidebar-profile-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sidebar-profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+
+  .sidebar-profile-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-left: 10px;
+  }
+
+  .sidebar-profile-role {
+    font-size: 12px;
+    color: #5c5470;
+    margin-left: 10px;
+  }
+
+  /* LOGOUT - FISSATO IN BASSO */
+  .sidebar-logout {
+    width: 100%; /* OCCUPA TUTTA LA LARGHEZZA DELLA SIDEBAR */
+    max-width: 100%; /* Evita che superi la sidebar */
+    padding: 12px;
+    background: #5c5470;
+    border-radius: 8px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centra il testo */
+    margin-top: auto; /* Lo tiene in basso */
+    box-sizing: border-box; /* Assicura che padding non lo faccia sbordare */
+    white-space: nowrap; /* Evita il testo su più righe */
+    overflow: hidden; /* Impedisce fuoriuscite */
+    text-overflow: ellipsis; /* Mostra i "..." se serve */
+    margin-bottom: 50px;
+    
+  }
+
+
+  .sidebar-logout .sidebar-icon {
+    margin-right: 5px;
+    font-size: 15px;
+    
+  }
+
+  /* MAIN CONTENT - Scorrimento senza sidebar */
+  .main-content {
+    margin-left: 230px;
+    width: calc(100% - 230px);
+    height: 100vh;
+    overflow-y: auto; /* Scrolla quando necessario */
+    padding: 20px;
+    background: #e3e0ea;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    
+    /* Sidebar con Scroll se Dropdown Aperto */
+  
+    .sidebar:has(x) {
+      overflow-y: auto;
+    }
+    
+    /* Profilo */
+    .sidebar-profile {
+      border-top: none;
+    }
+
+    /* Logout */
+    .sidebar-logout {
+      margin-bottom: 50px;
+    }
+
+    /* Contenuto principale quando la sidebar è chiusa */
+    .main-content {
+      margin-left: 0;
+      width: 100%;
+    }
+
+  }
+
+
+  @media (max-width: 915px) and (orientation: landscape) {
+    .sidebar {
+      height: 100vh; /* Assicura che la sidebar non si estenda oltre lo schermo */
+      overflow-y: auto; /* Abilita lo scroll automatico solo se necessario */
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start; /* Mantiene il contenuto allineato sopra */
+    }
+
+    .sidebar-menu {
+      max-height: calc(100vh - 150px); /* Calcola l'altezza massima per evitare scroll manuale */
+      overflow-y: auto; /* Aggiunge lo scroll automatico SOLO al menu */
+    }
+
+    .dropdown-menu {
+      display: block !important;
+      max-height: none !important;
+      opacity: 1 !important;
+      transition: none; /* Rimuove le animazioni che potrebbero causare problemi */
+    }
+
+    .sidebar-profile {
+      margin-top: auto; /* Mantiene il profilo e il logout in basso */
+    }
   }
   

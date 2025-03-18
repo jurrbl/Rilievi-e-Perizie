@@ -1,31 +1,38 @@
-<div class="home-container">
-  <header>
-    <h1>Le mie Perizie</h1>
-    <button class="logout-btn" (click)="logout()">Logout</button>
-  </header>
+<!-- Bottone per aprire la sidebar -->
+<button class="sidebar-toggle" (click)="toggleSidebar()">
+  ☰
+</button>
 
-  <section class="upload-section">
-    <button class="upload-btn" (click)="openUploadModal()">➕ Aggiungi Perizia</button>
-  </section>
+<!-- Sidebar -->
+<nav class="sidebar" [ngClass]="{ 'open': isOpen }">
+  <div class="sidebar-header">
+    <h1 class="sidebar-title">Rilievi e Perizie</h1>
+    <button class="sidebar-close" (click)="toggleSidebar()">✖</button>
 
-  <section class="perizie-list">
-    <h2>Storico Perizie</h2>
-    <div *ngIf="perizie.length > 0; else noPerizie">
-      <div *ngFor="let perizia of perizie" class="perizia-card">
-        <h3>{{ perizia.codice_perizia }}</h3>
-        <p><strong>Data:</strong> {{ perizia.data }}</p>
-        <p><strong>Descrizione:</strong> {{ perizia.descrizione }}</p>
-        <img *ngIf="perizia.immagine" [src]="perizia.immagine" alt="Foto perizia" />
-        <button (click)="visualizzaDettagli(perizia)">Dettagli</button>
+  </div>
+
+  <!-- Menu -->
+  <div class="sidebar-menu">
+    <h2 class="sidebar-section-title">Dashboard</h2>
+
+
+    <a class="sidebar-item" routerLink="/contacts">📇 Dashboard</a>
+    <a class="sidebar-item" routerLink="/documentation">📄 Le Mie Perizie</a>
+    <a class="sidebar-item" routerLink="/settings">⚙️ Mappa</a>
+  </div>
+
+  <!-- Profilo -->
+  <div class="sidebar-profile">
+    <h2 class="sidebar-section-title">Profilo</h2>
+    <div class="sidebar-profile-container">
+      <img src="assets/avatar.png" alt="Avatar" class="sidebar-profile-img">
+      <div>
+        <h3 class="sidebar-profile-name">Belba Jurgen</h3>
+        <p class="sidebar-profile-role">Creatore</p>
       </div>
     </div>
-    <ng-template #noPerizie>
-      <p>Non hai ancora effettuato perizie.</p>
-    </ng-template>
-  </section>
+  </div>
 
-  <section class="map-container">
-    <h2>📍 Mappa Perizie</h2>
-    <div id="map"></div>
-  </section>
-</div>
+  <!-- Logout -->
+  <a class="sidebar-logout" routerLink="/login">🚪 Logout</a>
+</nav>
