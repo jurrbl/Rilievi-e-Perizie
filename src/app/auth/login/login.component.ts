@@ -2,7 +2,7 @@ import { Component, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoginEffectsService } from '../login-effects.service'; 
+import { LoginEffectsService } from '../login-effects.service';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +13,7 @@ import { LoginEffectsService } from '../login-effects.service';
 })
 export class LoginComponent implements AfterViewInit {
   loginForm: FormGroup;
-  registerForm : FormGroup;
+  registerForm: FormGroup;
   isBrowser: boolean;
 
   constructor(
@@ -28,6 +28,7 @@ export class LoginComponent implements AfterViewInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+
     this.registerForm = this.fb.group({
       username: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
@@ -43,13 +44,14 @@ export class LoginComponent implements AfterViewInit {
 
   toggleForm() {
     if (this.isBrowser) {
-      const mainElement = document.querySelector('main');
-      if (mainElement) {
-        mainElement.classList.toggle('sign-up-mode');
-      }
+      setTimeout(() => {
+        const mainElement = document.querySelector('main');
+        if (mainElement) {
+          mainElement.classList.toggle('sign-up-mode');
+        }
+      }, 50);
     }
   }
-  
 
   onSubmit() {
     if (this.loginForm.valid) {
@@ -57,15 +59,19 @@ export class LoginComponent implements AfterViewInit {
       if (email === 'admin@test.com') {
         this.router.navigate(['/admin']);
       } else {
-        this.router.navigate(['/user']);
+        this.router.navigate(['/home']);
       }
     }
   }
 
   loginWithGoogle() {
-    // Implementa il login con Google
+    console.log("Login con Google in sviluppo...");
   }
 
-
-  onRegister(){}
+  onRegister() {
+    if (this.registerForm.valid) {
+      console.log("Registrazione completata", this.registerForm.value);
+      this.toggleForm();
+    }
+  }
 }

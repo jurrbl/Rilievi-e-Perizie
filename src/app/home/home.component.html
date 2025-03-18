@@ -1,0 +1,31 @@
+<div class="home-container">
+  <header>
+    <h1>Le mie Perizie</h1>
+    <button class="logout-btn" (click)="logout()">Logout</button>
+  </header>
+
+  <section class="upload-section">
+    <button class="upload-btn" (click)="openUploadModal()">➕ Aggiungi Perizia</button>
+  </section>
+
+  <section class="perizie-list">
+    <h2>Storico Perizie</h2>
+    <div *ngIf="perizie.length > 0; else noPerizie">
+      <div *ngFor="let perizia of perizie" class="perizia-card">
+        <h3>{{ perizia.codice_perizia }}</h3>
+        <p><strong>Data:</strong> {{ perizia.data }}</p>
+        <p><strong>Descrizione:</strong> {{ perizia.descrizione }}</p>
+        <img *ngIf="perizia.immagine" [src]="perizia.immagine" alt="Foto perizia" />
+        <button (click)="visualizzaDettagli(perizia)">Dettagli</button>
+      </div>
+    </div>
+    <ng-template #noPerizie>
+      <p>Non hai ancora effettuato perizie.</p>
+    </ng-template>
+  </section>
+
+  <section class="map-container">
+    <h2>📍 Mappa Perizie</h2>
+    <div id="map"></div>
+  </section>
+</div>

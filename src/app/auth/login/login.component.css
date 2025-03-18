@@ -412,6 +412,19 @@ main.sign-up-mode .carousel {
   border-radius: 1rem;
 }
 
+@media (max){
+  .carousel{
+    display: none;
+  }
+}
+
+@media (max-width: 1100px)
+{
+  .box{
+    margin-bottom: 350px;
+  }
+}
+
 @media (max-width: 850px) {
   .box {
     height: auto;
@@ -464,7 +477,7 @@ main.sign-up-mode .carousel {
     height: auto;
     width: 100%;
     padding: 3rem 2rem;
-    display: flex;
+    display: none;
   }
 
   .images-wrapper {
