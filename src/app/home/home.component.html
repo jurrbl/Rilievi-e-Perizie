@@ -1,38 +1,5 @@
-<!-- Bottone per aprire la sidebar -->
-<button class="sidebar-toggle" (click)="toggleSidebar()">
-  ☰
-</button>
+<app-sidebar></app-sidebar> <!-- ✅ Sidebar caricata -->
 
-<!-- Sidebar -->
-<nav class="sidebar" [ngClass]="{ 'open': isOpen }">
-  <div class="sidebar-header">
-    <h1 class="sidebar-title">Rilievi e Perizie</h1>
-    <button class="sidebar-close" (click)="toggleSidebar()">✖</button>
-
-  </div>
-
-  <!-- Menu -->
-  <div class="sidebar-menu">
-    <h2 class="sidebar-section-title">Dashboard</h2>
-
-
-    <a class="sidebar-item" routerLink="/contacts">📇 Dashboard</a>
-    <a class="sidebar-item" routerLink="/documentation">📄 Le Mie Perizie</a>
-    <a class="sidebar-item" routerLink="/settings">⚙️ Mappa</a>
-  </div>
-
-  <!-- Profilo -->
-  <div class="sidebar-profile">
-    <h2 class="sidebar-section-title">Profilo</h2>
-    <div class="sidebar-profile-container">
-      <img src="assets/avatar.png" alt="Avatar" class="sidebar-profile-img">
-      <div>
-        <h3 class="sidebar-profile-name">Belba Jurgen</h3>
-        <p class="sidebar-profile-role">Creatore</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Logout -->
-  <a class="sidebar-logout" routerLink="/login">🚪 Logout</a>
-</nav>
+<div class="content">
+  <router-outlet></router-outlet> <!-- ✅ Qui verranno caricati Dashboard, Perizie, Mappa -->
+</div>
