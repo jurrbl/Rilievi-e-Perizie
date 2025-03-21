@@ -17,7 +17,7 @@ export const routes: Routes = [
   {path: 'a', component: HomeComponent },
   // ✅ La sidebar appare SOLO in "home" e i componenti cambiano dentro
   { path: 'home', component: HomeComponent, children: [
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // ✅ Quando entri, parte da Dashboard
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, 
     { path: 'dashboard', component: DashboardComponent },
     { path: 'perizie', component: PerizieComponent },
     { path: 'mappa', component: MappaComponent }

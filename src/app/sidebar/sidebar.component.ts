@@ -5,13 +5,12 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css'] // Corretto! ❌ "styleUrl" → ✅ "styleUrls"
+  styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent {
   isOpen = false;
   isDropdownOpen = false;
 
-  // Toggle apertura/chiusura sidebar
   toggleSidebar() {
     this.isOpen = !this.isOpen;
     const sidebar = document.querySelector('.sidebar');
@@ -27,9 +26,8 @@ export class SidebarComponent {
     }
   }
 
-  // Toggle apertura/chiusura dropdown
   toggleDropdown(event: Event) {
-    event.stopPropagation(); // Evita chiusure accidentali della sidebar
+    event.stopPropagation(); 
     this.isDropdownOpen = !this.isDropdownOpen;
   }
 }

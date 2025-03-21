@@ -13,38 +13,5 @@ import { SidebarComponent } from '../sidebar/sidebar.component'; // ✅ Importa 
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
-  isOpen = false;
-  isDropdownOpen = false;
-
-  // Toggle apertura/chiusura sidebar
-  toggleSidebar() {
-    this.isOpen = !this.isOpen;
-    const sidebar = document.querySelector('.sidebar');
-
-    if (sidebar) {
-      if (this.isOpen) {
-        sidebar.classList.add('open');
-        sidebar.classList.remove('close');
-      } else {
-        sidebar.classList.add('close');
-        sidebar.classList.remove('open');
-      }
-    }
-  }
-
-
-  // Toggle apertura/chiusura dropdown
-  toggleDropdown(event: Event) {
-    event.stopPropagation(); // Evita chiusure accidentali della sidebar
-    this.isDropdownOpen = !this.isDropdownOpen;
-  }
-
-  // Chiudi sidebar cliccando fuori
-  @HostListener('document:click', ['$event'])
-  closeSidebar(event: Event) {
-    const sidebar = document.querySelector('.sidebar');
-    if (this.isOpen && sidebar && !sidebar.contains(event.target as Node)) {
-      this.isOpen = false;
-    }
-  }
+ 
 }

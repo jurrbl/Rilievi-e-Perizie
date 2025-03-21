@@ -16,17 +16,17 @@
   /* SIDEBAR */
 /* SIDEBAR */
 .sidebar {
-  position: fixed;
-  top: 0;
-  left: -280px; /* Sidebar chiusa di default */
-  width: 280px;
-  height: 100vh;
-  background: black;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  z-index: 1000;
-  transition: left 0.3s ease-in-out;
+  position: fixed !important;
+  top: 0 !important;
+  left: 280px !important;
+  width: 280px !important;
+  height: 100vh !important;
+  background: black !important;
+  padding: 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  z-index: 1000 !important;
+  transition: left 0.3s ease-in-out !important;
 }
 
 /* Quando la sidebar è aperta */
