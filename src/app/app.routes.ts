@@ -10,14 +10,13 @@ import { MappaComponent } from './mappa/mappa.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' }, // ✅ All'avvio va sul login
-  { path: 'login', component: LoginComponent }, // ✅ Mostra il login senza sidebar
-  { path: 'admin', component: AdminComponent }, // ✅ Sezione admin senza sidebar
-  { path: 'sidebar', component: SidebarComponent }, //
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
+  { path: 'admin', component: AdminComponent },
+  { path: 'sidebar', component: SidebarComponent }, 
   {path: 'a', component: HomeComponent },
-  // ✅ La sidebar appare SOLO in "home" e i componenti cambiano dentro
   { path: 'home', component: HomeComponent, children: [
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, 
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     { path: 'dashboard', component: DashboardComponent },
     { path: 'perizie', component: PerizieComponent },
     { path: 'mappa', component: MappaComponent }

@@ -1,17 +1,12 @@
-import { Component, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgClass } from '@angular/common';
-import { NgIf } from '@angular/common';
+import { Component } from '@angular/core';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 import { RouterModule } from '@angular/router';
-import { SidebarComponent } from '../sidebar/sidebar.component'; // ✅ Importa la sidebar
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [NgClass, NgIf, RouterModule, SidebarComponent],
+  imports: [SidebarComponent, RouterModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent {
- 
-}
+export class HomeComponent {}

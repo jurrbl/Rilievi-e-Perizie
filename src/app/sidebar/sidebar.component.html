@@ -1,7 +1,5 @@
-
 <!-- Sidebar -->
-<nav class="sidebar close">
-  <p>ciao</p>
+<nav class="sidebar close" #sidebar>
   <div class="sidebar-header">
     <h1 class="sidebar-title">Rilievi e Perizie</h1>
     <button class="sidebar-close" (click)="toggleSidebar()">✖</button>
@@ -10,8 +8,25 @@
   <!-- Menu -->
   <div class="sidebar-menu">
     <h2 class="sidebar-section-title">Dashboard</h2>
-    <a class="sidebar-item" routerLink="dashboard" routerLinkActive="active">📄 Dashboard</a>
-    <a class="sidebar-item" routerLink="perizie" routerLinkActive="active">📂 Le Mie Perizie</a>
-    <a class="sidebar-item" routerLink="mappa" routerLinkActive="active">🗺️ Mappa</a>
+    <a class="sidebar-item" routerLink="/home/dashboard" routerLinkActive="active">📄 Dashboard</a>
+    <a class="sidebar-item" routerLink="/home/perizie" routerLinkActive="active">📂 Le Mie Perizie</a>
+    <a class="sidebar-item" routerLink="/home/mappa" routerLinkActive="active">🗺️ Mappa</a>
   </div>
+
+  <div class="sidebar-profile">
+    <h2 class="sidebar-section-title">Profile</h2>
+    <div class="sidebar-profile-container">
+      <img src="../../../public/favicon.ico" alt="user-logo" class="sidebar-profile-img">
+      <div>
+        <h3 class="sidebar-profile-name">Belba Jurgen</h3>
+        <p class="sidebar-profile-role">Creatore</p>
+      </div>
+    </div>
+  </div>
+
+  <a class="sidebar-logout" routerLink="/login">🚪 Logout</a>
+
 </nav>
+
+<!-- Profile -->
+

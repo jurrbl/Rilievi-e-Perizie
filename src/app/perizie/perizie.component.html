@@ -1,1 +1,40 @@
-<p>perizie works!</p>
+<div class="perizie-container">
+  <h2 class="page-title">📂 Le Mie Perizie</h2>
+
+  <!-- Filtro -->
+  <div class="filter-section">
+    <input type="text" placeholder="🔎 Cerca per codice..." [(ngModel)]="searchQuery">
+    <input type="date" [(ngModel)]="filterDate">
+    <select [(ngModel)]="filterStatus">
+      <option value="">Tutte</option>
+      <option value="completata">Completata ✅</option>
+      <option value="in_corso">In Corso 🕒</option>
+      <option value="annullata">Annullata ❌</option>
+    </select>
+  </div>
+
+  <!-- Elenco delle perizie -->
+  <div class="perizie-list">
+    <div *ngFor="let perizia of filteredPerizie()" class="perizia-card">
+      <h3>{{ perizia.codice }}</h3>
+      <p>📅 {{ perizia.data | date:'dd/MM/yyyy' }}</p>
+      <p>📍 {{ perizia.luogo }}</p>
+      <p>📝 {{ perizia.descrizione }}</p>
+      <button (click)="viewDetails(perizia)">👀 Dettagli</button>
+    </div>
+  </div>
+
+  <!-- Modale per i dettagli -->
+  <div class="modal" *ngIf="selectedPerizia">
+    <div class="modal-content">
+      <h2>Dettagli Perizia: {{ selectedPerizia.codice }}</h2>
+      <p>📍 Luogo: {{ selectedPerizia.luogo }}</p>
+      <p>📝 Descrizione: {{ selectedPerizia.descrizione }}</p>
+      <p>📷 Foto:</p>
+      <div class="image-gallery">
+        <img *ngFor="let img of selectedPerizia.foto" [src]="img" alt="Foto Perizia">
+      </div>
+      <button (click)="closeDetails()">❌ Chiudi</button>
+    </div>
+  </div>
+</div>

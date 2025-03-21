@@ -1,0 +1,79 @@
+.perizie-container {
+  padding: 20px;
+  color: white;
+}
+
+.page-title {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.filter-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filter-section input, .filter-section select {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.perizie-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.perizia-card {
+  background: #222;
+  padding: 15px;
+  border-radius: 10px;
+  width: 250px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.perizia-card h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.perizia-card p {
+  margin: 5px 0;
+}
+
+.perizia-card button {
+  background: #8371fd;
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Modale */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  color: black;
+}
+
+.image-gallery img {
+  width: 100px;
+  height: auto;
+  margin: 5px;
+}

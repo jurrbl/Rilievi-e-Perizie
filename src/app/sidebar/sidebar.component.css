@@ -10,23 +10,36 @@
   body {
     height: 100%;
     margin: 0;
+    padding: 0;
     overflow: hidden; /* Impedisce lo scroll della pagina principale */
   }
 
-  /* SIDEBAR */
-/* SIDEBAR */
+/*
 .sidebar {
-  position: fixed !important;
+   position: fixed;
   top: 0 !important;
-  left: 280px !important;
+  left: -380px !important;
   width: 280px !important;
   height: 100vh !important;
   background: black !important;
-  padding: 20px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  z-index: 1000 !important;
-  transition: left 0.3s ease-in-out !important;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  z-index: 300000;
+  transition: left 0.3s ease-in-out;
+} */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px; /* 🔴 Sidebar nascosta inizialmente */
+  width: 280px;
+  height: 100vh;
+  background: black;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  transition: left 0.3s ease-in-out; /* ✅ Animazione fluida */
 }
 
 /* Quando la sidebar è aperta */
@@ -34,10 +47,35 @@
   left: 0;
 }
 
-/* Quando la sidebar è chiusa */
+/* Quando la sidebar è chiusa, mostra solo il riquadro con la "X" */
 .sidebar.close {
-  left: -380px;
+  left: -329px; /* 🔴 Rende visibile solo una piccola parte */
+
 }
+
+/* ✅ Riquadro visibile con la X */
+.sidebar .sidebar-close {
+  position: absolute;
+  top: 10px;
+  right: -56px; /* 🔴 Sposta la X fuori dalla sidebar */
+  width: 40px;
+  height: 40px;
+  background: black;
+  color: white;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  justify-content: center;
+  cursor: pointer;
+  transition: right 0.3s ease-in-out;
+
+}
+
+/* Quando la sidebar è aperta, sposta la X dentro */
+.sidebar.open .sidebar-close {
+  right: 10px;
+}
+
 #barscmn {
   font-size: 24px;
   color: black; /* Cambia il colore per adattarlo alla tua UI */
@@ -47,6 +85,18 @@
   padding: 10px;
 }
 
+.sidebar-toggle {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  color: white;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 1101;
+  transition: transform 0.3s ease-in-out;
+}
 
 
 
@@ -70,6 +120,8 @@
   color: #e3e0ea;
   cursor: pointer;
 }
+
+
 
 
   /* Sidebar Menu con Scroll */
@@ -227,7 +279,9 @@
   .sidebar-item {
     display: flex;
     align-items: center;
-    font-size: 14px;
+    text-decoration: none;
+    font-size: 18px;
+    margin-top: 5px;
     color: #ffffff;
     padding: 10px 8px;
     transition: background 0.3s;
@@ -341,6 +395,7 @@
     overflow: hidden; /* Impedisce fuoriuscite */
     text-overflow: ellipsis; /* Mostra i "..." se serve */
     margin-bottom: 50px;
+    text-decoration: none;
 
   }
 

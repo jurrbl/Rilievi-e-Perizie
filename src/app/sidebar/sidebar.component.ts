@@ -1,33 +1,28 @@
-import { Component } from '@angular/core';
-
+import { Component, ViewChild, ElementRef } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { NgClass } from '@angular/common';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [],
+  imports: [RouterModule, NgClass],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent {
   isOpen = false;
-  isDropdownOpen = false;
+
+  @ViewChild('sidebar') sidebar!: ElementRef;
 
   toggleSidebar() {
     this.isOpen = !this.isOpen;
-    const sidebar = document.querySelector('.sidebar');
-
-    if (sidebar) {
+    if (this.sidebar) {
       if (this.isOpen) {
-        sidebar.classList.add('open');
-        sidebar.classList.remove('close');
+        this.sidebar.nativeElement.classList.add('open');
+        this.sidebar.nativeElement.classList.remove('close');
       } else {
-        sidebar.classList.add('close');
-        sidebar.classList.remove('open');
+        this.sidebar.nativeElement.classList.add('close');
+        this.sidebar.nativeElement.classList.remove('open');
       }
     }
-  }
-
-  toggleDropdown(event: Event) {
-    event.stopPropagation(); 
-    this.isDropdownOpen = !this.isDropdownOpen;
   }
 }
