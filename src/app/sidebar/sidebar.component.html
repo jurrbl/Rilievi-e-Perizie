@@ -1,32 +1,91 @@
-<!-- Sidebar -->
-<nav class="sidebar close" #sidebar>
-  <div class="sidebar-header">
-    <h1 class="sidebar-title">Rilievi e Perizie</h1>
-    <button class="sidebar-close" (click)="toggleSidebar()">✖</button>
+<div
+  class="hidden md:flex h-screen bg-zinc-900 text-white flex-col justify-between transition-all duration-300 overflow-hidden"
+  [ngClass]="{
+    'w-[300px]': open || !animate,
+    'w-[80px]': !open && animate
+  }"
+  (mouseenter)="setOpen(true)"
+  (mouseleave)="setOpen(false)"
+>
+  <!-- Logo -->
+  <div class="flex items-center gap-3 px-4 py-6">
+    <div class="bg-white w-6 h-6 rounded shrink-0"></div>
+    <span
+      class="text-xl font-semibold transition-all duration-300 whitespace-nowrap overflow-hidden"
+      [class.opacity-0]="!open && animate"
+      [class.w-0]="!open && animate"
+      [class.ml-0]="!open && animate"
+      [class.ml-2]="open || !animate"
+    >
+      Rilievi e Perizie
+    </span>
   </div>
 
-  <!-- Menu -->
-  <div class="sidebar-menu">
-    <h2 class="sidebar-section-title">Dashboard</h2>
-    <a class="sidebar-item" routerLink="/home/dashboard" routerLinkActive="active">📄 Dashboard</a>
-    <a class="sidebar-item" routerLink="/home/perizie" routerLinkActive="active">📂 Le Mie Perizie</a>
-    <a class="sidebar-item" routerLink="/home/mappa" routerLinkActive="active">🗺️ Mappa</a>
-  </div>
+  <!-- Navigazione -->
+  <nav class="flex flex-col gap-2 px-2">
+    <!-- Dashboard -->
+    <a
+      routerLink="dashboard"
+      class="flex items-center h-10 px-4 py-2 hover:bg-zinc-800 rounded-md transition-colors duration-200"
+    >
+      <span class="text-lg w-6 text-center">📊</span>
+      <span
+        class="text-sm font-medium transition-all duration-300 whitespace-nowrap overflow-hidden"
+        [class.opacity-0]="!open && animate"
+        [class.w-0]="!open && animate"
+        [class.ml-0]="!open && animate"
+        [class.ml-2]="open || !animate"
+      >
+        Dashboard
+      </span>
+    </a>
 
-  <div class="sidebar-profile">
-    <h2 class="sidebar-section-title">Profile</h2>
-    <div class="sidebar-profile-container">
-      <img src="../../../public/favicon.ico" alt="user-logo" class="sidebar-profile-img">
-      <div>
-        <h3 class="sidebar-profile-name">Belba Jurgen</h3>
-        <p class="sidebar-profile-role">Creatore</p>
-      </div>
+    <!-- Mappa -->
+    <a
+      routerLink="mappa"
+      class="flex items-center h-10 px-4 py-2 hover:bg-zinc-800 rounded-md transition-colors duration-200"
+    >
+      <span class="text-lg w-6 text-center">🗺️</span>
+      <span
+        class="text-sm font-medium transition-all duration-300 whitespace-nowrap overflow-hidden"
+        [class.opacity-0]="!open && animate"
+        [class.w-0]="!open && animate"
+        [class.ml-0]="!open && animate"
+        [class.ml-2]="open || !animate"
+      >
+        Mappa
+      </span>
+    </a>
+
+    <!-- Perizie -->
+    <a
+      routerLink="perizie"
+      class="flex items-center h-10 px-4 py-2 hover:bg-zinc-800 rounded-md transition-colors duration-200"
+    >
+      <span class="text-lg w-6 text-center">📁</span>
+      <span
+        class="text-sm font-medium transition-all duration-300 whitespace-nowrap overflow-hidden"
+        [class.opacity-0]="!open && animate"
+        [class.w-0]="!open && animate"
+        [class.ml-0]="!open && animate"
+        [class.ml-2]="open || !animate"
+      >
+        Perizie
+      </span>
+    </a>
+  </nav>
+
+  <!-- Profilo -->
+  <div class="flex items-center gap-3 px-4 py-6">
+    <img src="https://i.pravatar.cc/40" alt="Utente" class="w-10 h-10 rounded-full shrink-0" />
+    <div
+      class="text-sm transition-all duration-300 whitespace-nowrap overflow-hidden"
+      [class.opacity-0]="!open && animate"
+      [class.w-0]="!open && animate"
+      [class.ml-0]="!open && animate"
+      [class.ml-2]="open || !animate"
+    >
+      <p class="font-semibold">Belba Jurgen</p>
     </div>
   </div>
-
-  <a class="sidebar-logout" routerLink="/login">🚪 Logout</a>
-
-</nav>
-
-<!-- Profile -->
-
+</div>

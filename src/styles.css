@@ -3,3 +3,7 @@
 * {
   font-family: 'Montserrat', sans-serif !important;
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

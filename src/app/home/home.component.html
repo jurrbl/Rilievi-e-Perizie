@@ -1,7 +1,13 @@
-<div class="container">
+<div class="flex min-h-screen bg-white dark:bg-zinc-950 text-white">
   <app-sidebar></app-sidebar>
 
-  <div class="main-content">
-    <router-outlet></router-outlet>
+  <div
+    class="transition-all duration-300 flex-1 p-6"
+    [ngClass]="{
+      'ml-[0]': sidebarOpen || !animate,
+      'ml-[80px]': !sidebarOpen && animate
+    }"
+  >
+    <router-outlet />
   </div>
 </div>

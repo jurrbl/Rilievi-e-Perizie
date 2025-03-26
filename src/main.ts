@@ -1,7 +1,15 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
-import { appRoutingProviders } from '../src/app/app.routes';
+import { faGauge, faMap, faFolder, faUser } from '@fortawesome/free-solid-svg-icons';
+import { provideRouter } from '@angular/router';
+import { routes } from './app/app.routes'; // solo se usi routing
+import { provideHttpClient } from '@angular/common/http';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 bootstrapApplication(AppComponent, {
-  providers: [appRoutingProviders]
-}).catch(err => console.error(err));
+  providers: [
+    provideAnimations(),
+    provideHttpClient(),
+    provideRouter(routes) 
+  ]
+});
