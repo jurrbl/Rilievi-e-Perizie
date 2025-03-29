@@ -2,7 +2,8 @@ import { Component, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LoginEffectsService } from '../login-effects.service';
+
+declare const gapi: any;
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,6 @@ export class LoginComponent implements AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private loginEffects: LoginEffectsService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -38,7 +38,7 @@ export class LoginComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     if (this.isBrowser) {
-      this.loginEffects.applyLoginEffects();
+      this.initializeGoogleAuth();
     }
   }
 
@@ -64,14 +64,39 @@ export class LoginComponent implements AfterViewInit {
     }
   }
 
-  loginWithGoogle() {
-    console.log("Login con Google in sviluppo...");
-  }
-
   onRegister() {
     if (this.registerForm.valid) {
       console.log("Registrazione completata", this.registerForm.value);
       this.toggleForm();
     }
+  }
+
+  initializeGoogleAuth() {
+    gapi.load('auth2', () => {
+      const auth2 = gapi.auth2.init({
+        client_id: '494287917430-rtudqvlh033mrc90rq767q35puaj22tl.apps.googleusercontent.com',
+        cookiepolicy: 'single_host_origin',
+      });
+
+      const element = document.querySelector('.google-btn');
+      if (element) {
+        auth2.attachClickHandler(element, {},
+          (googleUser: any) => {
+            const profile = googleUser.getBasicProfile();
+            console.log('✅ Google Login Success:', {
+              id: profile.getId(),
+              name: profile.getName(),
+              email: profile.getEmail()
+            });
+
+            // Qui puoi navigare o chiamare un'API per salvare nel DB
+            this.router.navigate(['/home']);
+          },
+          (error: any) => {
+            console.error('❌ Google Login Failed', error);
+          }
+        );
+      }
+    });
   }
 }

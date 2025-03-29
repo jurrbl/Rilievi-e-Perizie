@@ -1,4 +1,5 @@
 <main>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <div class="box">
     <div class="inner-box">
@@ -30,11 +31,10 @@
 
             <button type="submit" class="sign-btn" [disabled]="loginForm.invalid">Sign In</button>
             <div class="google-login">
-              <button class="google-btn" (click)="loginWithGoogle()">
+              <a class="google-btn" href="http://localhost:3000/api/auth/google">
                 <i class="fa-brands fa-google"></i> Sign in with Google
-              </button>
+              </a>
             </div>
-
             <p class="text">
               Dimenticato password?
               <a href="#">Richiedine una nuova</a>

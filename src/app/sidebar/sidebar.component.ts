@@ -13,6 +13,7 @@ import { RouterLink } from '@angular/router';
 export class SidebarComponent {
   open = false;
   animate = true;
+  name = "";
 
   setOpen(value: boolean) {
     this.open = value;
