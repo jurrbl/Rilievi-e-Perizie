@@ -1,16 +1,29 @@
-import { Component, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+declare var gapi: any;
 
-declare const gapi: any;
+import {
+  Component,
+  AfterViewInit,
+  Inject,
+  PLATFORM_ID,
+} from '@angular/core';
+import {
+  CommonModule,
+  isPlatformBrowser,
+} from '@angular/common';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements AfterViewInit {
   loginForm: FormGroup;
@@ -26,13 +39,13 @@ export class LoginComponent implements AfterViewInit {
 
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
     });
 
     this.registerForm = this.fb.group({
       username: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
@@ -66,37 +79,46 @@ export class LoginComponent implements AfterViewInit {
 
   onRegister() {
     if (this.registerForm.valid) {
-      console.log("Registrazione completata", this.registerForm.value);
+      console.log('Registrazione completata', this.registerForm.value);
       this.toggleForm();
     }
   }
 
   initializeGoogleAuth() {
-    gapi.load('auth2', () => {
-      const auth2 = gapi.auth2.init({
-        client_id: '494287917430-rtudqvlh033mrc90rq767q35puaj22tl.apps.googleusercontent.com',
-        cookiepolicy: 'single_host_origin',
-      });
-
-      const element = document.querySelector('.google-btn');
-      if (element) {
-        auth2.attachClickHandler(element, {},
-          (googleUser: any) => {
-            const profile = googleUser.getBasicProfile();
-            console.log('✅ Google Login Success:', {
-              id: profile.getId(),
-              name: profile.getName(),
-              email: profile.getEmail()
-            });
-
-            // Qui puoi navigare o chiamare un'API per salvare nel DB
-            this.router.navigate(['/home']);
-          },
-          (error: any) => {
-            console.error('❌ Google Login Failed', error);
+    const checkGapiInterval = setInterval(() => {
+      if (typeof gapi !== 'undefined' && gapi?.load) {
+        clearInterval(checkGapiInterval);
+  
+        gapi.load('auth2', () => {
+          const auth2 = gapi.auth2.init({
+            client_id:
+              '494287917430-rtudqvlh033mrc90rq767q35puaj22tl.apps.googleusercontent.com',
+            cookie_policy: 'single_host_origin',
+          });
+  
+          const element = document.querySelector('.google-btn');
+          if (element) {
+            auth2.attachClickHandler(
+              element,
+              {},
+              (googleUser: any) => {
+                const profile = googleUser.getBasicProfile();
+                console.log('✅ Google Login Success:', {
+                  id: profile.getId(),
+                  name: profile.getName(),
+                  email: profile.getEmail(),
+                });
+  
+                window.location.href = `http://localhost:3000/api/auth/google`;
+              },
+              (error: any) => {
+                console.error('❌ Google Login Failed', error);
+              }
+            );
           }
-        );
+        });
       }
-    });
+    }, 200); // controlla ogni 200ms finché gapi è caricato
   }
+  
 }
