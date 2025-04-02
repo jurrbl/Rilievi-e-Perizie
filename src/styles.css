@@ -3,6 +3,9 @@
 * {
   font-family: 'Montserrat', sans-serif !important;
 }
+.transition-all{
+  background-color: black;
+}
 
 @tailwind base;
 @tailwind components;

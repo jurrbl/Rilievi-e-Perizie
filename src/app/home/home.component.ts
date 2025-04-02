@@ -37,8 +37,8 @@ export class HomeComponent implements OnInit {
         },
       });
 
-      // ✅ Devi incollare QUESTO blocco DENTRO ngOnInit()
-      this.dataStorage.inviaRichiesta('get', '/perizie')?.subscribe({
+     
+      this.dataStorage.inviaRichiesta('get', '/auth/perizie')?.subscribe({
         next: (res: any) => {
           this.authService.setPerizie(res.perizie ?? res); // se è array diretto, usa solo res
           this.countPerizie = res.nPerizie ?? res.length ?? 0;

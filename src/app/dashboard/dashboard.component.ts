@@ -37,15 +37,20 @@ export class DashboardComponent implements OnInit {
       this.location.replaceState(urlWithoutToken);
     }
 
-    this.username = this.authService.getUser().username; // ✅ prende automaticamente username o googleUsername
+    this.username = this.authService.getUser().username;
     /* let userKey = Object.values(this.username)[2]
     console.log('👤 Utenpreaoodsakodte:', porcodio); */
-    this.countPerizie = this.authService.getPerizie().nPerizie;
-    console.log(this.countPerizie)
-    this.role = this.authService.getUser().role; // ✅ prende automaticamente username o googleUsername
-    this.email = this.authService.getUser().email; // ✅ prende automaticamente username o googleUsername
-    this.phone = this.authService.getUser().phone; // ✅ prende automaticamente username o googleUsername
+   /*  this.countPerizie = this.authService.getPerizie().nPerizie; */
+ /*    console.log(this.countPerizie) */
+
+    console.log('Cya     ' , this.authService.getPerizie().codiceOperatore)
+    
+    this.role = this.authService.getUser().role; 
+    this.email = this.authService.getUser().email; 
+    this.phone = this.authService.getUser().phone;
+    console.log('ropt ', this.phone)
   }
+
   redirectToEmail(email: string): void {
     window.location.href = `mailto:${email}`;
   }
