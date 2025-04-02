@@ -13,7 +13,7 @@ import { AuthService } from '../auth/auth.service';
 })
 export class SidebarComponent {
   open = false;
-  animate = true;
+  animate = true; 
   name = "";
 
   username : any = "";

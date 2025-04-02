@@ -4,7 +4,7 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { AuthService } from '../auth/auth.service';
 import { DataStorageService } from '../shared/data-storage.service';
-
+  
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -16,6 +16,7 @@ export class HomeComponent implements OnInit {
   sidebarOpen = true;
   animate = true;
   username = '';
+  countPerizie = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -35,6 +36,19 @@ export class HomeComponent implements OnInit {
           console.error('Errore durante /me:', err);
         },
       });
+
+      // ✅ Devi incollare QUESTO blocco DENTRO ngOnInit()
+      this.dataStorage.inviaRichiesta('get', '/perizie')?.subscribe({
+        next: (res: any) => {
+          this.authService.setPerizie(res.perizie ?? res); // se è array diretto, usa solo res
+          this.countPerizie = res.nPerizie ?? res.length ?? 0;
+        },
+        error: (err) => {
+          console.error('❌ Errore durante /perizie:', err);
+        }
+      });
     }
   }
+
+
 }

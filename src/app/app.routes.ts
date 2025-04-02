@@ -9,11 +9,12 @@ import { PerizieComponent } from './perizie/perizie.component';
 import { MappaComponent } from './mappa/mappa.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 
+
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'admin', component: AdminComponent },
-  { path: 'sidebar', component: SidebarComponent }, 
+  { path: 'sidebar', component: SidebarComponent },
   {path: 'a', component: HomeComponent },
   { path: 'home', component: HomeComponent, children: [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
