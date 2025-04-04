@@ -1,12 +1,49 @@
+/* IMPORT FONT GOOGLE */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Tektur:wght@400..900&display=swap');
 
-* {
-  font-family: 'Montserrat', sans-serif !important;
-}
-.transition-all{
-  background-color: black;
+/* ✅ Applica font globalmente solo al body */
+body {
+  font-family: 'Montserrat', sans-serif;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
+
+/* ✅ NON toccare * (asterisco) globalmente */
+ /* ❌ rimosso: * { overflow-x: hidden; } */
+
+/* ✅ NON sovrascrivere .transition-all di Tailwind */
+ /* ❌ rimosso: .transition-all { background-color: black; } */
+
+/* ✅ Fix overflow in input numerici */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* ✅ Sidebar: nascondi scrollbar e frecce visive */
+.sidebar ::-webkit-scrollbar,
+.sidebar ::-webkit-scrollbar-button,
+.sidebar select,
+.sidebar input[type=number] {
+  display: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+}
+
+/* ✅ Fix pseudo-elementi inutili */
+.sidebar ::before,
+.sidebar ::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* ✅ TAILWIND */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

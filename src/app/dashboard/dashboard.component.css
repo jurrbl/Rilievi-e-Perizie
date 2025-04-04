@@ -2,3 +2,6 @@
   height: 100%;
   background-color: rgb(24 24 27 / var(--tw-bg-opacity, 1)) !important; /* Tailwind bg-zinc-900 */
 }
+body{
+  overflow-x :hidden;
+}

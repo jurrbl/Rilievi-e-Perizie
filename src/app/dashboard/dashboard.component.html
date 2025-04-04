@@ -22,7 +22,7 @@
 
       <!-- Email -->
       <div class="flex items-center gap-2">
-        <span class="text-blue-400">📧</span>
+        <span class="text-blue-400" id="">📧</span>
         <span class="min-w-[90px] font-semibold text-white">Email:</span>
         <span>{{email}}</span>
       </div>
@@ -43,8 +43,8 @@
       <div class="text-gray-400 text-sm">Ultimo Accesso</div>
     </div>
     <div class="bg-gray-800 p-4 rounded-lg">
-      <div class="text-xl font-semibold text-white">Ruolo Utente</div>
-      <div class="text-gray-400 text-sm">{{role}}</div>
+      <div class="text-xl font-semibold text-white">{{role}}</div>
+      <div class="text-gray-400 text-sm">Ruolo Utente</div>
     </div>
     <div class="bg-gray-800 p-4 rounded-lg cursor-pointer" (click)="redirectToEmail(email)">
       <div class="text-xl font-semibold text-white">📧 Contatta</div>
