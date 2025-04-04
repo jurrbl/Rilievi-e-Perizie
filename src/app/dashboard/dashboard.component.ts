@@ -18,6 +18,7 @@ export class DashboardComponent implements OnInit {
   username : any = "";
   email : any = "";
   phone : any = "";
+  profilePicture : string = "";
   token: string | null = null;
   countPerizie : number = 0; // Inizializza a 0 per evitare errori di undefined
 
@@ -44,10 +45,13 @@ export class DashboardComponent implements OnInit {
  /*    console.log(this.countPerizie) */
 
     console.log('Cya     ' , this.authService.getPerizie().codiceOperatore)
-    
-    this.role = this.authService.getUser().role; 
-    this.email = this.authService.getUser().email; 
+
+    this.role = this.authService.getUser().role;
+    this.email = this.authService.getUser().email;
     this.phone = this.authService.getUser().phone;
+    this.profilePicture = this.authService.getUser().profilePicture;
+
+    console.log('\n\n\n\n\n qifsha motren : ', this.profilePicture)
     console.log('ropt ', this.phone)
   }
 

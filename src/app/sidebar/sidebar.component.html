@@ -78,7 +78,11 @@
 
   <!-- Profilo -->
   <div class="flex items-center gap-3 px-4 py-6">
-    <img src="https://i.pravatar.cc/40" alt="Utente" class="w-10 h-10 rounded-full shrink-0" />
+    <img
+      [src]="profilePicture || 'assets/img/default-avatar.png'"
+      alt="Utente"
+      class="w-10 h-10 rounded-full shrink-0"
+    />
     <div
       class="text-sm transition-all duration-300 whitespace-nowrap overflow-hidden"
       [class.opacity-0]="!open && animate"
@@ -86,7 +90,7 @@
       [class.ml-0]="!open && animate"
       [class.ml-2]="open || !animate"
     >
-      <p class="font-semibold">{{username}}</p>
+      <p class="font-semibold">{{ username }}</p>
     </div>
   </div>
 </div>
