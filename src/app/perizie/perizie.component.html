@@ -2,78 +2,32 @@
   <h2 class="text-2xl font-bold mb-4">📂 Le Mie Perizie</h2>
 
   <!-- FORM AGGIUNTA PERIZIA -->
-<form
-class="mb-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3 bg-zinc-800 p-4 rounded border border-zinc-700"
-(ngSubmit)="aggiungiPerizia()"
-#periziaForm="ngForm"
->
-<input
-  type="text"
-  placeholder="Codice"
-  class="p-2 rounded bg-zinc-900 text-white border border-zinc-700"
-  required
-  [(ngModel)]="nuovaPerizia.codice"
-  name="codice"
-/>
-<input
-  type="date"
-  class="p-2 rounded bg-zinc-900 text-white border border-zinc-700"
-  required
-  [(ngModel)]="nuovaPerizia.data"
-  name="data"
-/>
-<input
-  type="text"
-  placeholder="Luogo"
-  class="p-2 rounded bg-zinc-900 text-white border border-zinc-700"
-  required
-  [(ngModel)]="nuovaPerizia.luogo"
-  name="luogo"
-/>
-<input
-  type="text"
-  placeholder="Descrizione"
-  class="p-2 rounded bg-zinc-900 text-white border border-zinc-700"
-  required
-  [(ngModel)]="nuovaPerizia.descrizione"
-  name="descrizione"
-/>
-<select
-  class="p-2 rounded bg-zinc-900 text-white border border-zinc-700"
-  required
-  [(ngModel)]="nuovaPerizia.stato"
-  name="stato"
->
-  <option value="" disabled selected>Stato</option>
-  <option value="completata">✅ Completata</option>
-  <option value="in_corso">🕒 In corso</option>
-  <option value="annullata">❌ Annullata</option>
-</select>
+  <form
+    class="mb-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3 bg-zinc-800 p-4 rounded border border-zinc-700"
+    (ngSubmit)="aggiungiPerizia()"
+    #periziaForm="ngForm"
+  >
+    <input type="text" placeholder="Codice" class="p-2 rounded bg-zinc-900 text-white border border-zinc-700" required [(ngModel)]="nuovaPerizia.codicePerizia" name="codice" />
+    <input type="date" class="p-2 rounded bg-zinc-900 text-white border border-zinc-700" required [(ngModel)]="nuovaPerizia.dataOra" name="data" />
+    <input type="text" placeholder="Latitudine" class="p-2 rounded bg-zinc-900 text-white border border-zinc-700" required [(ngModel)]="nuovaPerizia.coordinate.latitudine" name="lat" />
+    <input type="text" placeholder="Longitudine" class="p-2 rounded bg-zinc-900 text-white border border-zinc-700" required [(ngModel)]="nuovaPerizia.coordinate.longitudine" name="lon" />
+    <input type="text" placeholder="Descrizione" class="p-2 rounded bg-zinc-900 text-white border border-zinc-700" required [(ngModel)]="nuovaPerizia.descrizione" name="descrizione" />
+    <select class="p-2 rounded bg-zinc-900 text-white border border-zinc-700" required [(ngModel)]="nuovaPerizia.stato" name="stato">
+      <option value="" disabled selected>Stato</option>
+      <option value="completata">✅ Completata</option>
+      <option value="in_corso">🕒 In corso</option>
+      <option value="annullata">❌ Annullata</option>
+    </select>
 
-<button
-  type="submit"
-  class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
->
-  ➕ Aggiungi perizia
-</button>
-</form>
+    <button type="submit" class="col-span-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+      ➕ Aggiungi perizia
+    </button>
+  </form>
 
-
-  <!-- Ricerca e Filtro -->
+  <!-- Ricerca e filtro -->
   <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
-    <input
-      type="text"
-      [ngModel]="searchValue"
-      (ngModelChange)="updateSearch($event)"
-      placeholder="🔎 Cerca per codice o descrizione..."
-      class="bg-zinc-800 text-white px-4 py-2 rounded-md w-full border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-600"
-    />
-
-    <select
-      class="bg-zinc-800 text-white border border-zinc-700 px-3 py-2 rounded focus:outline-none w-full sm:w-auto"
-      [ngModel]="statusValue"
-      (ngModelChange)="updateStatus($event)"
-    >
+    <input type="text" [ngModel]="searchValue" (ngModelChange)="updateSearch($event)" placeholder="🔎 Cerca per codice o descrizione..." class="bg-zinc-800 text-white px-4 py-2 rounded-md w-full border border-zinc-700 focus:outline-none" />
+    <select class="bg-zinc-800 text-white border border-zinc-700 px-3 py-2 rounded focus:outline-none w-full sm:w-auto" [ngModel]="statusValue" (ngModelChange)="updateStatus($event)">
       <option value="">Tutti gli stati</option>
       <option value="completata">✅ Completata</option>
       <option value="in_corso">🕒 In corso</option>
@@ -87,76 +41,92 @@ class="mb-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3 bg-zinc-800 p-4 rounded bor
       <thead class="bg-zinc-800 text-zinc-300">
         <tr>
           <th class="px-2 py-2 text-left">Codice</th>
-          <th class="px-2 py-2 text-left hidden xs:table-cell">Data</th>
-          <th class="px-2 py-2 text-left hidden sm:table-cell">Luogo</th>
-          <th class="px-2 py-2 text-left hidden sm:table-cell">Descrizione</th>
+          <th class="px-2 py-2 text-left">Operatore</th>
+          <th class="px-2 py-2 text-left">Data</th>
+          <th class="px-2 py-2 text-left">Coordinate</th>
+          <th class="px-2 py-2 text-left">Descrizione</th>
           <th class="px-2 py-2 text-left">Stato</th>
           <th class="px-2 py-2 text-left">Azioni</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let perizia of paginated()" class="bg-zinc-900 hover:bg-zinc-800 transition-colors">
-          <td class="px-2 py-2 font-medium text-white">{{ perizia.codice }}</td>
-          <td class="px-2 py-2 text-zinc-300 hidden xs:table-cell">
-            {{ perizia.data | date: 'dd/MM/yyyy' }}
-          </td>
-          <td class="px-2 py-2 text-zinc-300 hidden sm:table-cell">{{ perizia.luogo }}</td>
-          <td class="px-2 py-2 text-zinc-300 hidden sm:table-cell">{{ perizia.descrizione }}</td>
+          <td class="px-2 py-2 font-medium text-white">{{ perizia.codicePerizia }}</td>
+          <td class="px-2 py-2 text-zinc-300">{{ perizia.codiceOperatore }}</td>
+          <td class="px-2 py-2 text-zinc-300">{{ perizia.dataOra | date: 'short' }}</td>
+          <td class="px-2 py-2 text-zinc-300">{{ perizia.coordinate.latitudine }}, {{ perizia.coordinate.longitudine }}</td>
+          <td class="px-2 py-2 text-zinc-300">{{ perizia.descrizione }}</td>
           <td class="px-2 py-2">
-            <span
-              class="px-2 py-1 rounded text-xs font-semibold"
-              [ngClass]="{
-                'bg-green-600 text-white': perizia.stato === 'completata',
-                'bg-yellow-500 text-black': perizia.stato === 'in_corso',
-                'bg-red-600 text-white': perizia.stato === 'annullata'
-              }"
-            >
+            <span class="px-2 py-1 rounded text-xs font-semibold" [ngClass]="{
+              'bg-green-600 text-white': perizia.stato === 'completata',
+              'bg-yellow-500 text-black': perizia.stato === 'in_corso',
+              'bg-red-600 text-white': perizia.stato === 'annullata'
+            }">
               {{ perizia.stato }}
             </span>
           </td>
           <td class="px-2 py-2">
-            <button
-              class="text-white hover:text-blue-400 text-xl"
-              (click)="goToDettagli(perizia)"
-              title="Vai ai dettagli"
-            >
-            ℹ️
+            <button class="text-white hover:text-blue-400 text-xl" (click)="mostraDettagli(perizia)">
+              ℹ️
             </button>
           </td>
         </tr>
         <tr *ngIf="paginated().length === 0">
-          <td colspan="6" class="text-center py-4 text-zinc-500">Nessuna perizia trovata.</td>
+          <td colspan="7" class="text-center py-4 text-zinc-500">Nessuna perizia trovata.</td>
         </tr>
       </tbody>
     </table>
   </div>
 
+  <!-- DETTAGLI PERIZIA -->
+  <!-- Dettagli Perizia -->
+  <div *ngIf="selectedPerizia" class="mt-6 rounded-md border border-zinc-700 bg-zinc-900 p-4 text-white">
+    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+      🗂️ Dettagli Perizia: {{ selectedPerizia.codicePerizia }}
+    </h3>
+
+    <div class="grid gap-2 text-sm md:grid-cols-2">
+      <div><span class="font-semibold">🧑‍💼 Operatore:</span> {{ selectedPerizia.codiceOperatore }}</div>
+      <div><span class="font-semibold">🕒 Data/Ora:</span> {{ selectedPerizia.dataOra | date: 'short' }}</div>
+      <div>
+        <span class="font-semibold">📍 Coordinate:</span>
+        {{ selectedPerizia.coordinate.latitudine }}, {{ selectedPerizia.coordinate.longitudine }}
+      </div>
+      <div><span class="font-semibold">📝 Descrizione:</span> {{ selectedPerizia.descrizione }}</div>
+      <div><span class="font-semibold">❗ Stato:</span> {{ selectedPerizia.stato }}</div>
+    </div>
+
+    <!-- Foto -->
+    <div *ngIf="selectedPerizia.fotografie?.length" class="mt-6">
+      <h4 class="text-base font-semibold mb-2 flex items-center gap-2">📷 Fotografie:</h4>
+      <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div
+          *ngFor="let foto of selectedPerizia.fotografie"
+          class="border border-zinc-700 rounded bg-zinc-800 p-2 text-center"
+        >
+          <img
+            [src]="foto.url"
+            alt="Foto perizia"
+            class="w-full h-40 object-cover rounded mb-2"
+          />
+          <p class="text-sm text-zinc-300">{{ foto.commento }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Paginazione -->
   <div class="flex flex-col sm:flex-row justify-between items-center mt-4 text-sm text-zinc-400 gap-2">
-    <div class="text-center sm:text-left">
+    <div>
       {{ (currentPage() - 1) * perPage + 1 }} -
-      {{ Math.min(currentPage() * perPage, filtered().length) }}
-      di {{ filtered().length }} perizie
+      {{ Math.min(currentPage() * perPage, filtered().length) }} di {{ filtered().length }} perizie
     </div>
     <div class="flex gap-1 flex-wrap justify-center">
-      <button
-        (click)="prevPage()"
-        [disabled]="currentPage() === 1"
-        class="px-3 py-1 bg-zinc-800 text-white rounded disabled:opacity-30"
-      >‹</button>
-      <button
-        *ngFor="let p of [].constructor(totalPages()); let i = index"
-        (click)="goToPage(i + 1)"
-        [class.bg-blue-600]="currentPage() === i + 1"
-        class="px-3 py-1 rounded bg-zinc-700 text-white"
-      >
+      <button (click)="prevPage()" [disabled]="currentPage() === 1" class="px-3 py-1 bg-zinc-800 text-white rounded disabled:opacity-30">‹</button>
+      <button *ngFor="let p of [].constructor(totalPages()); let i = index" (click)="goToPage(i + 1)" [class.bg-blue-600]="currentPage() === i + 1" class="px-3 py-1 rounded bg-zinc-700 text-white">
         {{ i + 1 }}
       </button>
-      <button
-        (click)="nextPage()"
-        [disabled]="currentPage() === totalPages()"
-        class="px-3 py-1 bg-zinc-800 text-white rounded disabled:opacity-30"
-      >›</button>
+      <button (click)="nextPage()" [disabled]="currentPage() === totalPages()" class="px-3 py-1 bg-zinc-800 text-white rounded disabled:opacity-30">›</button>
     </div>
   </div>
 </div>

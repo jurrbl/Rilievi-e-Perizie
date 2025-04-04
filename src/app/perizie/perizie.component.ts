@@ -1,14 +1,10 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface Perizia {
-  codice: string;
-  data: Date;
-  luogo: string;
-  descrizione: string;
-  stato: string;
-}
+import { AuthService } from '../auth/auth.service';
+import { DataStorageService } from '../shared/data-storage.service';
+import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-perizie-table',
@@ -16,53 +12,83 @@ interface Perizia {
   imports: [CommonModule, FormsModule],
   templateUrl: './perizie.component.html',
 })
-export class PerizieComponent {
+export class PerizieComponent implements OnInit {
   search = signal('');
   selectedStatus = signal('');
   currentPage = signal(1);
   perPage = 5;
   Math = Math;
 
-  nuovaPerizia: Perizia = {
-    codice: '',
-    data: new Date(),
-    luogo: '',
-    descrizione: '',
-    stato: '',
-  };
+  perizie: any[] = [];
+  selectedPerizia: any = null;
 
-  aggiungiPerizia() {
-    const nuova = { ...this.nuovaPerizia, data: new Date(this.nuovaPerizia.data) };
-    this.perizie.unshift(nuova); // aggiunta in cima
-    this.nuovaPerizia = {
-      codice: '',
-      data: new Date(),
-      luogo: '',
-      descrizione: '',
-      stato: '',
-    };
-    this.currentPage.set(1); // torna alla prima pagina
-  }
-
-
-  // Questi due servono SOLO per il template (compatibili con ngModel)
   searchValue = '';
   statusValue = '';
 
-  perizie: Perizia[] = [
-    { codice: 'PZ001', data: new Date(), luogo: 'Milano', descrizione: 'Incidente stradale', stato: 'completata' },
-    { codice: 'PZ002', data: new Date(), luogo: 'Roma', descrizione: 'Danno alla proprietà', stato: 'in_corso' },
-    { codice: 'PZ003', data: new Date(), luogo: 'Napoli', descrizione: 'Verifica danni', stato: 'annullata' }
-  ];
+  nuovaPerizia: any = {
+    codicePerizia: '',
+    dataOra: new Date(),
+    coordinate: {
+      latitudine: 0,
+      longitudine: 0
+    },
+    descrizione: '',
+    stato: ''
+  };
+
+  constructor(
+    private authService: AuthService,
+    private dataStorage: DataStorageService,
+    private route: ActivatedRoute,
+    private location: Location
+  ) {}
+
+  ngOnInit(): void {
+    // Rimuovi token dall'URL e salvalo localmente
+    const token = this.route.snapshot.queryParamMap.get('token');
+    if (token) {
+      localStorage.setItem('token', token);
+      const urlWithoutToken = this.route.snapshot.pathFromRoot
+        .map(route => route.url.map(segment => segment.toString()).join('/'))
+        .join('/');
+      this.location.replaceState(urlWithoutToken);
+    }
+
+    const perizieRaw = this.authService.getPerizie();
+    if (perizieRaw && Array.isArray(perizieRaw)) {
+      this.perizie = perizieRaw.map((p: any) => ({
+        ...p,
+        dataOra: new Date(p.dataOra)
+      }));
+    }
+  }
+
+  aggiungiPerizia() {
+    const nuova = {
+      ...this.nuovaPerizia,
+      dataOra: new Date(this.nuovaPerizia.dataOra)
+    };
+    this.perizie.unshift(nuova);
+    this.nuovaPerizia = {
+      codicePerizia: '',
+      dataOra: new Date(),
+      coordinate: {
+        latitudine: 0,
+        longitudine: 0
+      },
+      descrizione: '',
+      stato: ''
+    };
+    this.currentPage.set(1);
+  }
 
   filtered = computed(() => {
     const searchTerm = this.search().toLowerCase().trim();
     const statusFilter = this.selectedStatus();
 
     return this.perizie.filter(p =>
-      (p.codice.toLowerCase().includes(searchTerm) ||
-        p.luogo.toLowerCase().includes(searchTerm) ||
-        p.descrizione.toLowerCase().includes(searchTerm)) &&
+      (p.codicePerizia?.toLowerCase().includes(searchTerm) ||
+        p.descrizione?.toLowerCase().includes(searchTerm)) &&
       (statusFilter === '' || p.stato === statusFilter)
     );
   });
@@ -90,10 +116,6 @@ export class PerizieComponent {
     this.goToPage(this.currentPage() + 1);
   }
 
-  goToDettagli(perizia: Perizia) {
-    window.location.href = `/dettagli/${perizia.codice}`;
-  }
-
   updateSearch(value: string) {
     this.searchValue = value;
     this.search.set(value);
@@ -102,5 +124,9 @@ export class PerizieComponent {
   updateStatus(value: string) {
     this.statusValue = value;
     this.selectedStatus.set(value);
+  }
+
+  mostraDettagli(perizia: any) {
+    this.selectedPerizia = perizia;
   }
 }

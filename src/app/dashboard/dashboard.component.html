@@ -9,7 +9,6 @@
   />
 
         <h2 class="text-2xl font-bold text-white">{{username}}</h2>
-        <p class="text-gray-400">{{role}}</p>
       </div>
 
 
@@ -40,12 +39,12 @@
       <div class="text-gray-400 text-sm">Perizie Totali</div>
     </div>
     <div class="bg-gray-800 p-4 rounded-lg">
-      <div class="text-3xl font-bold text-white">08:46</div>
+      <div class="text-3xl font-bold text-white">{{lastSeen}}</div>
       <div class="text-gray-400 text-sm">Ultimo Accesso</div>
     </div>
     <div class="bg-gray-800 p-4 rounded-lg">
-      <div class="text-xl font-semibold text-white">🌟 Role Model</div>
-      <div class="text-gray-400 text-sm">Esempio positivo</div>
+      <div class="text-xl font-semibold text-white">Ruolo Utente</div>
+      <div class="text-gray-400 text-sm">{{role}}</div>
     </div>
     <div class="bg-gray-800 p-4 rounded-lg cursor-pointer" (click)="redirectToEmail(email)">
       <div class="text-xl font-semibold text-white">📧 Contatta</div>
@@ -60,7 +59,6 @@
     <div class="flex justify-between items-center mb-4">
       <div class="flex items-center gap-2">
         <button class="bg-gray-700 px-3 py-1 rounded hover:bg-gray-600 text-white">⬍ Ordina</button>
-        <button class="bg-gray-700 px-3 py-1 rounded hover:bg-gray-600 text-white">🔍 Filtra</button>
       </div>
     </div>
 

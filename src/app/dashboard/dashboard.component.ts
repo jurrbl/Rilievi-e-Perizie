@@ -4,6 +4,10 @@ import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { AuthService } from '../auth/auth.service';
 
+/* installate per avere tipo 1 ora fa 2 ore fa nell'ultimo accesso */
+import { formatDistanceToNow } from 'date-fns';
+import { it } from 'date-fns/locale';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -20,7 +24,8 @@ export class DashboardComponent implements OnInit {
   phone : any = "";
   profilePicture : string = "";
   token: string | null = null;
-  countPerizie : number = 0; // Inizializza a 0 per evitare errori di undefined
+  countPerizie : number = 0;
+  lastSeen : string = "";
 
   constructor(private route: ActivatedRoute, private location: Location, private authService : AuthService, private DataStorageService  : DataStorageService) {}
 
@@ -39,20 +44,15 @@ export class DashboardComponent implements OnInit {
     }
 
     this.username = this.authService.getUser().username;
-    /* let userKey = Object.values(this.username)[2]
-    console.log('👤 Utenpreaoodsakodte:', porcodio); */
-   /*  this.countPerizie = this.authService.getPerizie().nPerizie; */
- /*    console.log(this.countPerizie) */
-
-    console.log('Cya     ' , this.authService.getPerizie().codiceOperatore)
-
+    this.countPerizie = this.authService.getPerizie().length;
     this.role = this.authService.getUser().role;
     this.email = this.authService.getUser().email;
     this.phone = this.authService.getUser().phone;
     this.profilePicture = this.authService.getUser().profilePicture;
-
-    console.log('\n\n\n\n\n qifsha motren : ', this.profilePicture)
-    console.log('ropt ', this.phone)
+    const lastSeenDate = new Date(this.authService.getUser().lastSeen);
+    this.lastSeen = this.authService.getUser().lastSeen
+  ? formatDistanceToNow(new Date(this.authService.getUser().lastSeen), { addSuffix: true, locale: it })
+  : 'Mai';
   }
 
   redirectToEmail(email: string): void {

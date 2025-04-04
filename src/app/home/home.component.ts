@@ -4,7 +4,7 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { AuthService } from '../auth/auth.service';
 import { DataStorageService } from '../shared/data-storage.service';
-  
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -25,26 +25,29 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (localStorage.getItem('token')) {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      // Recupera i dati utente
       this.dataStorage.inviaRichiesta('get', '/auth/me')?.subscribe({
         next: (res: any) => {
           console.log('👤 Utente da /auth/me:', res);
           this.authService.setUser(res);
           this.username = res.username || res.googleUsername || '';
+
+          // ✅ Solo dopo aver ricevuto l’utente, fai la chiamata per le perizie
+          this.dataStorage.inviaRichiesta('get', '/auth/perizie')?.subscribe({
+            next: (res: any) => {
+              this.authService.setPerizie(res.perizie ?? res);
+              this.countPerizie = res.nPerizie ?? res.length ?? 0;
+            },
+            error: (err) => {
+              console.error('❌ Errore durante /perizie:', err);
+            }
+          });
         },
         error: (err) => {
           console.error('Errore durante /me:', err);
-        },
-      });
-
-     
-      this.dataStorage.inviaRichiesta('get', '/auth/perizie')?.subscribe({
-        next: (res: any) => {
-          this.authService.setPerizie(res.perizie ?? res); // se è array diretto, usa solo res
-          this.countPerizie = res.nPerizie ?? res.length ?? 0;
-        },
-        error: (err) => {
-          console.error('❌ Errore durante /perizie:', err);
         }
       });
     }
