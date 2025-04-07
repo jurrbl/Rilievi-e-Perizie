@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-import { NgClass, NgIf } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
+import { NgClass, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,6 +11,9 @@ import { AuthService } from '../auth/auth.service';
   styleUrls: ['./sidebar.component.css'],
 })
 export class SidebarComponent {
+  @Input() mobileOpen: boolean = false;
+  @Output() close = new EventEmitter<void>();
+
   open = false;
   animate = true;
 
@@ -28,4 +31,9 @@ export class SidebarComponent {
   setOpen(value: boolean) {
     this.open = value;
   }
+
+ closeSidebar() {
+  this.mobileOpen = false;
+  this.close.emit();
+}
 }

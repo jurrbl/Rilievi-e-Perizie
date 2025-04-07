@@ -1,71 +1,73 @@
-#map {
-    width: 100%;
-    height: 100%;
-    border-radius: 0.75rem;
+.mappa-container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    overflow: hidden;
   }
   
-  .maplibregl-popup-content {
-    background-color: #18181b !important;
+  .sidebar {
+    width: 250px;
+    background-color: #1e1e1e;
     color: white;
-    font-size: 0.875rem;
-    border-radius: 0.5rem;
-    padding: 0.75rem;
+    padding: 1rem;
+    overflow-y: auto;
+    flex-shrink: 0;
   }
   
-  .maplibregl-popup-tip {
-    border-top-color: #18181b !important;
+  .sidebar h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
   }
   
-  body {
-    overflow-x: hidden;
-  }
-  
-  :host {
-    display: block;
+  .sidebar button {
     width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: none;
+    background-color: #333;
+    color: white;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+  
+  .sidebar button:hover {
+    background-color: #555;
+  }
+  
+  .mappa {
+    flex: 1;
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  #map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
     height: 100%;
   }
   
-  /* Marker avatar stile Instagram */
-  .custom-marker {
-    width: 50px;
-    height: 64px;
-    position: relative;
-    transform: translate(-50%, -100%);
-    cursor: pointer;
-    z-index: 10;
-  }
+  @media (max-width: 768px) {
+    .mappa-container {
+      flex-direction: column;
+    }
   
-  .marker-image {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-size: cover;
-    background-position: center;
-    border: 3px solid white;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
-  }
+    .sidebar {
+      width: 100%;
+      order: 2;
+    }
   
-  /* puntina bianca */
-  .custom-marker::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translate(-50%, 50%);
-    width: 0;
-    height: 0;
-    border: 10px solid transparent;
-    border-top-color: white;
-    border-bottom: 0;
-  }
-  .marker-image {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-size: cover;
-    background-position: center;
-    border: 3px solid white;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+    .mappa {
+      order: 1;
+      height: 60vh;
+    }
   }
   

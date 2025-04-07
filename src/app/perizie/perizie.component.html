@@ -86,22 +86,22 @@
     </h3>
 
     <div class="grid gap-2 text-sm md:grid-cols-2">
-      <div><span class="font-semibold">🧑‍💼 Operatore:</span> {{ selectedPerizia.codiceOperatore }}</div>
+      <div><span class="font-semibold">🧑 Operatore:</span> {{ selectedPerizia.codiceOperatore }}</div>
       <div><span class="font-semibold">🕒 Data/Ora:</span> {{ selectedPerizia.dataOra | date: 'short' }}</div>
       <div>
-        <span class="font-semibold">📍 Coordinate:</span>
-        {{ selectedPerizia.coordinate.latitudine }}, {{ selectedPerizia.coordinate.longitudine }}
+        <span class="font-semibold">📍  Coordinate:</span>
+        {{ selectedPerizia.coordinate.lat }}, {{ selectedPerizia.coordinate.lon }}
       </div>
       <div><span class="font-semibold">📝 Descrizione:</span> {{ selectedPerizia.descrizione }}</div>
-      <div><span class="font-semibold">❗ Stato:</span> {{ selectedPerizia.stato }}</div>
+      <div><span class="font-semibold">❗  Stato:</span> {{ selectedPerizia.stato }}</div>
     </div>
 
     <!-- Foto -->
-    <div *ngIf="selectedPerizia.fotografie?.length" class="mt-6">
+    <div *ngIf="selectedPerizia.foto?.length" class="mt-6">
       <h4 class="text-base font-semibold mb-2 flex items-center gap-2">📷 Fotografie:</h4>
       <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         <div
-          *ngFor="let foto of selectedPerizia.fotografie"
+          *ngFor="let foto of selectedPerizia.foto"
           class="border border-zinc-700 rounded bg-zinc-800 p-2 text-center"
         >
           <img

@@ -43,6 +43,10 @@ input[type=number] {
   content: none !important;
 }
 
+*{
+  overflow-x: hidden
+}
+
 /* ✅ TAILWIND */
 @tailwind base;
 @tailwind components;
