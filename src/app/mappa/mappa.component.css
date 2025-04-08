@@ -1,73 +1,24 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
 .mappa-container {
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
-    overflow: hidden;
-  }
-  
-  .sidebar {
-    width: 250px;
-    background-color: #1e1e1e;
-    color: white;
-    padding: 1rem;
-    overflow-y: auto;
-    flex-shrink: 0;
-  }
-  
-  .sidebar h3 {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-  }
-  
-  .sidebar button {
-    width: 100%;
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-    border: none;
-    background-color: #333;
-    color: white;
-    cursor: pointer;
-    border-radius: 6px;
-  }
-  
-  .sidebar button:hover {
-    background-color: #555;
-  }
-  
-  .mappa {
-    flex: 1;
-    position: relative;
-    height: 100vh;
-    overflow: hidden;
-  }
-  
-  #map {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-  }
-  
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-  }
-  
-  @media (max-width: 768px) {
-    .mappa-container {
-      flex-direction: column;
-    }
-  
-    .sidebar {
-      width: 100%;
-      order: 2;
-    }
-  
-    .mappa {
-      order: 1;
-      height: 60vh;
-    }
-  }
-  
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+#map {
+  flex-grow: 1;
+  position: relative;
+}
+
+.marker {
+  background-position: center;
+  background-size: contain;
+  border-radius: 50%;
+  cursor: pointer;
+  background-color: red;
+}

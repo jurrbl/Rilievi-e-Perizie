@@ -32,8 +32,12 @@ export class SidebarComponent {
     this.open = value;
   }
 
- closeSidebar() {
-  this.mobileOpen = false;
-  this.close.emit();
-}
+  toggleMobileSidebar() {
+    this.mobileOpen = !this.mobileOpen;
+  }
+
+  closeSidebar() {
+    this.mobileOpen = false;
+    this.close.emit();
+  }
 }

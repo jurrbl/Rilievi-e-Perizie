@@ -19,6 +19,7 @@ export class PerizieComponent implements OnInit {
   perPage = 5;
   Math = Math;
 
+
   perizie: any[] = [];
   selectedPerizia: any = null;
 
@@ -108,6 +109,9 @@ export class PerizieComponent implements OnInit {
     }
   }
 
+  chiudiDettagli() {
+    this.selectedPerizia = null;
+  }
   prevPage() {
     this.goToPage(this.currentPage() - 1);
   }

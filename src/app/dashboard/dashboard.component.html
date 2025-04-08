@@ -2,68 +2,80 @@
   <!-- 👤 Employee Details -->
   <div class="flex flex-col md:flex-row justify-between items-center gap-6">
     <div class="flex items-center gap-4">
-    <img
-    [src]="profilePicture"
-    alt="User avatar"
-    class="w-20 h-20 rounded-full object-cover border-4 border-gray-700"
-  />
-
-        <h2 class="text-2xl font-bold text-white">{{username}}</h2>
-      </div>
-
+      <img
+        [src]="profilePicture"
+        alt="User avatar"
+        class="w-20 h-20 rounded-full object-cover border-4 border-gray-700"
+      />
+      <h2 class="text-2xl font-bold text-white">{{ username }}</h2>
+    </div>
 
     <div class="flex flex-col gap-2 text-sm text-gray-300">
       <!-- Telefono -->
       <div class="flex items-center gap-2">
-        <span class="text-red-500">📞</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 5h2l3.6 7.59a1 1 0 00.82.41h8.38a1 1 0 00.82-.41L21 5h2M16 11v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2" />
+        </svg>
         <span class="min-w-[90px] font-semibold text-white">Telefono:</span>
-        <span>{{phone}}</span>
+        <span>{{ phone }}</span>
       </div>
 
       <!-- Email -->
       <div class="flex items-center gap-2">
-        <span class="text-blue-400" id="">📧</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
         <span class="min-w-[90px] font-semibold text-white">Email:</span>
-        <span>{{email}}</span>
+        <span>{{ email }}</span>
       </div>
     </div>
-
-
-
   </div>
 
   <!-- 🔢 Metrics -->
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center">
     <div class="bg-gray-800 p-4 rounded-lg">
-      <div class="text-3xl font-bold text-white">{{countPerizie}}</div>
+      <div class="text-3xl font-bold text-white">{{ countPerizie }}</div>
       <div class="text-gray-400 text-sm">Perizie Totali</div>
     </div>
     <div class="bg-gray-800 p-4 rounded-lg">
-      <div class="text-3xl font-bold text-white">{{lastSeen}}</div>
+      <div class="text-3xl font-bold text-white">{{ lastSeen }}</div>
       <div class="text-gray-400 text-sm">Ultimo Accesso</div>
     </div>
     <div class="bg-gray-800 p-4 rounded-lg">
-      <div class="text-xl font-semibold text-white">{{role}}</div>
+      <div class="text-xl font-semibold text-white">{{ role }}</div>
       <div class="text-gray-400 text-sm">Ruolo Utente</div>
     </div>
     <div class="bg-gray-800 p-4 rounded-lg cursor-pointer" (click)="redirectToEmail(email)">
-      <div class="text-xl font-semibold text-white">📧 Contatta</div>
+      <div class="flex items-center justify-center gap-1 text-xl font-semibold text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M16 12H8m8 0l-4-4m4 4l-4 4m0 0H8m4 0h4" />
+        </svg>
+        Contatta
+      </div>
       <div class="text-gray-400 text-sm">Invia una mail</div>
-      <p class="mt-2 text-white text-sm">{{email}}</p>
+      <p class="mt-2 text-white text-sm">{{ email }}</p>
     </div>
   </div>
 
   <!-- 📅 Cronologia Perizie -->
   <div class="mt-6">
-    <h3 class="text-xl font-semibold mb-4">📅 Cronologia Perizie</h3>
+    <div class="flex items-center gap-2 mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10m-9 4h5m4 4H7a2 2 0 01-2-2V7a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2z" />
+      </svg>
+      <h3 class="text-xl font-semibold">Cronologia Perizie</h3>
+    </div>
+
     <div class="flex justify-between items-center mb-4">
-      <div class="flex items-center gap-2">
-        <button class="bg-gray-700 px-3 py-1 rounded hover:bg-gray-600 text-white">⬍ Ordina</button>
-      </div>
+      <button class="bg-gray-700 px-3 py-1 rounded hover:bg-gray-600 text-white">⬍ Ordina</button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- 📅 Giorno 1 -->
+      <!-- Giorno 1 -->
       <div class="bg-gray-800 p-4 rounded-lg">
         <div class="flex justify-between items-center mb-2">
           <span class="text-sm text-white">08 Marzo 2023</span>
@@ -73,7 +85,7 @@
         <p class="text-sm text-gray-400">Check Out: <span class="text-white">17:15</span></p>
       </div>
 
-      <!-- 📅 Giorno 2 -->
+      <!-- Giorno 2 -->
       <div class="bg-gray-800 p-4 rounded-lg">
         <div class="flex justify-between items-center mb-2">
           <span class="text-sm text-white">07 Marzo 2023</span>
@@ -83,7 +95,7 @@
         <p class="text-sm text-gray-400">Check Out: <span class="text-white">17:09</span></p>
       </div>
 
-      <!-- 📅 Giorno 3 -->
+      <!-- Giorno 3 -->
       <div class="bg-gray-800 p-4 rounded-lg">
         <div class="flex justify-between items-center mb-2">
           <span class="text-sm text-white">06 Marzo 2023</span>
