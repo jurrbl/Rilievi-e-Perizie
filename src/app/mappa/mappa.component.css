@@ -1,24 +1,4 @@
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-.mappa-container {
-  display: flex;
-  flex-direction: column;
+:host {
+  display: block;
   height: 100vh;
-}
-
-#map {
-  flex-grow: 1;
-  position: relative;
-}
-
-.marker {
-  background-position: center;
-  background-size: contain;
-  border-radius: 50%;
-  cursor: pointer;
-  background-color: red;
 }

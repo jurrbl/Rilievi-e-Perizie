@@ -17,7 +17,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import { LoginEffectsService } from '../login-effects.service';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -33,6 +33,7 @@ export class LoginComponent implements AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private loginEffectsService: LoginEffectsService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -52,6 +53,7 @@ export class LoginComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     if (this.isBrowser) {
       this.initializeGoogleAuth();
+      this.loginEffectsService.applyLoginEffects();
     }
   }
 
@@ -88,14 +90,14 @@ export class LoginComponent implements AfterViewInit {
     const checkGapiInterval = setInterval(() => {
       if (typeof gapi !== 'undefined' && gapi?.load) {
         clearInterval(checkGapiInterval);
-  
+
         gapi.load('auth2', () => {
           const auth2 = gapi.auth2.init({
             client_id:
               '494287917430-rtudqvlh033mrc90rq767q35puaj22tl.apps.googleusercontent.com',
             cookie_policy: 'single_host_origin',
           });
-  
+
           const element = document.querySelector('.google-btn');
           if (element) {
             auth2.attachClickHandler(
@@ -108,7 +110,7 @@ export class LoginComponent implements AfterViewInit {
                   name: profile.getName(),
                   email: profile.getEmail(),
                 });
-  
+
                 window.location.href = `http://localhost:3000/api/auth/google`;
               },
               (error: any) => {
@@ -120,5 +122,5 @@ export class LoginComponent implements AfterViewInit {
       }
     }, 200); // controlla ogni 200ms finché gapi è caricato
   }
-  
+
 }

@@ -1,84 +1,133 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
-import * as maplibregl from 'maplibre-gl';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { Loader, LoaderOptions } from 'google-maps';
+import { environment } from '../../environments/environment';
 import { AuthService } from '../auth/auth.service';
 
 @Component({
-  selector: 'app-mappa',
+  selector: 'app-map',
   standalone: true,
   templateUrl: './mappa.component.html',
-  styleUrls: ['./mappa.component.css']
+  styleUrls: ['./mappa.component.scss'],
 })
-export class MappaComponent implements OnInit, AfterViewInit {
-  map!: maplibregl.Map;
-  markerRefs: maplibregl.Marker[] = [];
-  perizie: any[] = [];
+export class MappaComponent implements OnInit, OnDestroy {
+  loaderOptions: LoaderOptions = {};
+  loader = new Loader(environment.googleMapsApiKey, this.loaderOptions);
+  map!: google.maps.Map;
+  markers: google.maps.Marker[] = [];
+
+  @ViewChild('map', { static: true }) mapElement!: ElementRef;
 
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
-    const currentUser = this.authService.getUser();
-    const tutteLePerizie = this.authService.getPerizie() || [];
+    const perizie = this.authService.getPerizie() || [];
 
-    this.perizie = tutteLePerizie.filter(
-      (p: any) => p.codiceOperatore === currentUser._id
-    );
+    this.loader.load().then(() => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.initMap(
+            position.coords.latitude,
+            position.coords.longitude,
+            perizie
+          );
+        },
+        () => {
+          // Fallback position
+          this.initMap(44.5567, 7.7280, perizie);
+        }
+      );
+    });
   }
 
-  ngAfterViewInit(): void {
-    this.map = new maplibregl.Map({
-      container: 'map',
-      style: 'https://api.maptiler.com/maps/dataviz/style.json?key=SGEssAwujZJ0Z6N9ssq7',
-      center: [9.1900, 45.4642],
-      zoom: 10
-    });
-
-    // Disabilitare lo zoom con scroll per non perdere accidentalmente i marker
-    this.map.scrollZoom.disable();
-
-    this.map.addControl(new maplibregl.NavigationControl(), 'top-right');
-    this.mostraMarker();
+  ngOnDestroy(): void {
+    for (const marker of this.markers) {
+      marker.setMap(null);
+    }
+    this.markers = [];
   }
 
-  mostraMarker(): void {
-    this.markerRefs.forEach((marker) => marker.remove());
-    this.markerRefs = [];
-
-    this.perizie.forEach((perizia) => {
-      const { coordinate, codicePerizia, descrizione, dataOra } = perizia;
-
-      if (!coordinate || !coordinate.latitudine || !coordinate.longitudine) return;
-
-      const markerElement = document.createElement('div');
-      markerElement.className = 'marker';
-      markerElement.style.backgroundImage = 'url(https://cdn-icons-png.flaticon.com/512/684/684908.png)';
-      markerElement.style.backgroundSize = 'cover';
-      markerElement.style.width = '40px';
-      markerElement.style.height = '40px';
-      markerElement.style.backgroundPosition = 'center';
-
-      const marker = new maplibregl.Marker({ element: markerElement })
-        .setLngLat([coordinate.longitudine, coordinate.latitudine])
-        .setPopup(
-          new maplibregl.Popup({ offset: 25 }).setHTML(`
-            <div class="text-white text-sm font-semibold">
-              📝 <strong>${codicePerizia}</strong><br>
-              📅 ${new Date(dataOra).toLocaleString()}<br>
-              🗒️ ${descrizione}
-            </div>
-          `)
-        )
-        .addTo(this.map);
-
-      this.markerRefs.push(marker);
+  private initMap(
+    latitude: number,
+    longitude: number,
+    perizie: any[]
+  ): void {
+    this.map = new google.maps.Map(this.mapElement.nativeElement, {
+      center: { lat: latitude, lng: longitude },
+      zoom: 10,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
     });
 
-    if (this.perizie.length > 0) {
-      const firstPerizia = this.perizie[0];
-      this.map.flyTo({
-        center: [firstPerizia.coordinate.longitudine, firstPerizia.coordinate.latitudine],
-        zoom: 13,
-        essential: true
-      });
+    this.loadMarkers(perizie);
+
+    // ⬇️ Adatta il viewport a tutti i marker
+    const bounds = new google.maps.LatLngBounds();
+
+    for (const perizia of perizie) {
+      const coord = perizia.coordinate;
+      const lat = parseFloat(coord?.latitudine);
+      const lng = parseFloat(coord?.longitudine);
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        bounds.extend({ lat, lng });
+      }
+    }
+
+    if (!bounds.isEmpty()) {
+      this.map.fitBounds(bounds);
     }
   }
+
+
+  private loadMarkers(perizie: any[]): void {
+    // Rimuovi marker vecchi
+    for (const marker of this.markers) {
+      marker.setMap(null);
+    }
+    this.markers = [];
+
+    for (const perizia of perizie) {
+      const coord = perizia.coordinate;
+      const lat = parseFloat(coord?.latitudine);
+      const lng = parseFloat(coord?.longitudine);
+
+      // Salta se le coordinate non sono numeriche valide
+      if (isNaN(lat) || isNaN(lng)) continue;
+
+      const marker = new google.maps.Marker({
+        map: this.map,
+        position: { lat, lng },
+        title: perizia.codicePerizia || 'Perizia',
+        animation: google.maps.Animation.DROP,
+        icon: {
+          url:
+            perizia?.profilePicture ||
+            'https://res.cloudinary.com/dpb6deosa/image/upload/v1741047211/users/zoi1cqhrkuwy6pgwgfgk.png',
+          scaledSize: new google.maps.Size(50, 50),
+        },
+        zIndex: 1000,
+        clickable: true,
+      });
+
+      const infowindow = new google.maps.InfoWindow({
+        content: `
+          <strong>${perizia.codicePerizia}</strong><br>
+          ${perizia.descrizione || ''}
+        `,
+      });
+
+      marker.addListener('click', () => {
+        infowindow.open(this.map, marker);
+      });
+      console.log('Marker:', { lat, lng, codice: perizia.codicePerizia });
+
+      this.markers.push(marker);
+    }
+  }
+
 }
