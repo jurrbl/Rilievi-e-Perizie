@@ -23,4 +23,10 @@ export class PerizieService {
   getPerizie(): Observable<{ perizie: Perizia[] }> {
     return this.http.get<{ perizie: Perizia[] }>(this.apiUrl);
   }
+  salvaPerizia(perizia: any) {
+    return this.http.post<any>('http://localhost:3000/api/auth/addPerizie', perizia).toPromise();
+
+
+  }
+  
 }

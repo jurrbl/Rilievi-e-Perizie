@@ -32,6 +32,7 @@ export class DataStorageService {
         return this.httpClient.patch(resource, params, { headers });
       case 'put':
         return this.httpClient.put(resource, params, { headers });
+        
       default:
         return undefined;
     }

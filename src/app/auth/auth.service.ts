@@ -27,6 +27,7 @@ export class AuthService {
     localStorage.setItem('user', JSON.stringify(user));
   }
 
+  
   public getUser(): any {
     if (!this.user) {
       const savedUser = localStorage.getItem('user');
@@ -53,6 +54,8 @@ export class AuthService {
   public getUsername(): string {
     return this.user?.username || this.user?.googleUsername || '';
   }
+
+  
 
   public logout(): void {
     this.user = null;

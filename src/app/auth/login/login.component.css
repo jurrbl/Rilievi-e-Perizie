@@ -74,7 +74,7 @@ main {
   cursor: pointer;
   transition: all 0.3s ease;
   width: 100%;
-  margin-top: -8px;
+  margin-top: 8px;
   overflow: hidden; /* Rimuove le scrollbar */
 }
 
@@ -258,6 +258,9 @@ label {
 .input-field.active + label {
   font-size: 0.75rem;
   top: -2px;
+}
+.actual-form{
+  margin: 0px;
 }
 
 .sign-btn {

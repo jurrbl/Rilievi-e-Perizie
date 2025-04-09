@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth/auth.service';
 import { DataStorageService } from '../shared/data-storage.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { PerizieService } from '../shared/perizie.service';
 
 @Component({
   selector: 'app-perizie-table',
@@ -18,34 +19,28 @@ export class PerizieComponent implements OnInit {
   currentPage = signal(1);
   perPage = 5;
   Math = Math;
-
+  notificaSuccesso = false;
 
   perizie: any[] = [];
   selectedPerizia: any = null;
 
-  searchValue = '';
-  statusValue = '';
-
   nuovaPerizia: any = {
-    codicePerizia: '',
-    dataOra: new Date(),
-    coordinate: {
-      latitudine: 0,
-      longitudine: 0
-    },
+    indirizzo: '',
+    dataOra: '',
     descrizione: '',
     stato: ''
   };
 
   constructor(
     private authService: AuthService,
+    private perizieService: PerizieService,
     private dataStorage: DataStorageService,
     private route: ActivatedRoute,
-    private location: Location
+    private location: Location,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    // Rimuovi token dall'URL e salvalo localmente
     const token = this.route.snapshot.queryParamMap.get('token');
     if (token) {
       localStorage.setItem('token', token);
@@ -64,29 +59,60 @@ export class PerizieComponent implements OnInit {
     }
   }
 
-  aggiungiPerizia() {
-    const nuova = {
-      ...this.nuovaPerizia,
-      dataOra: new Date(this.nuovaPerizia.dataOra)
+  async aggiungiPerizia() {
+    try {
+      const { indirizzo, dataOra, descrizione, stato } = this.nuovaPerizia;
+      const currentUser = this.authService.getUser();
+
+      const coords = await this.getCoordinateDaIndirizzo(indirizzo);
+
+      const nuova = {
+        coordinate: coords,
+        dataOra,
+        descrizione,
+        stato,
+        codiceOperatore: currentUser._id
+      };
+
+      const nuovaSalvata = await this.perizieService.salvaPerizia(nuova);
+      this.perizie.unshift({
+        ...nuovaSalvata,
+        dataOra: new Date(nuovaSalvata.dataOra)
+      });
+      this.authService.setPerizie(this.perizie);
+
+      this.notificaSuccesso = true;
+      this.nuovaPerizia = {
+        indirizzo: '',
+        dataOra: '',
+        descrizione: '',
+        stato: ''
+      };
+      this.currentPage.set(1);
+    } catch (error) {
+      console.error('Errore nel salvataggio:', error);
+    }
+  }
+
+  async getCoordinateDaIndirizzo(indirizzo: string): Promise<{ latitudine: number, longitudine: number }> {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(indirizzo)}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.length === 0) throw new Error('Indirizzo non trovato');
+
+    return {
+      latitudine: parseFloat(data[0].lat),
+      longitudine: parseFloat(data[0].lon)
     };
-    this.perizie.unshift(nuova);
-    this.nuovaPerizia = {
-      codicePerizia: '',
-      dataOra: new Date(),
-      coordinate: {
-        latitudine: 0,
-        longitudine: 0
-      },
-      descrizione: '',
-      stato: ''
-    };
-    this.currentPage.set(1);
+  }
+
+  vaiAllaMappa() {
+    this.router.navigate(['/mappa']);
   }
 
   filtered = computed(() => {
     const searchTerm = this.search().toLowerCase().trim();
     const statusFilter = this.selectedStatus();
-
     return this.perizie.filter(p =>
       (p.codicePerizia?.toLowerCase().includes(searchTerm) ||
         p.descrizione?.toLowerCase().includes(searchTerm)) &&
@@ -112,6 +138,7 @@ export class PerizieComponent implements OnInit {
   chiudiDettagli() {
     this.selectedPerizia = null;
   }
+
   prevPage() {
     this.goToPage(this.currentPage() - 1);
   }
@@ -121,12 +148,10 @@ export class PerizieComponent implements OnInit {
   }
 
   updateSearch(value: string) {
-    this.searchValue = value;
     this.search.set(value);
   }
 
   updateStatus(value: string) {
-    this.statusValue = value;
     this.selectedStatus.set(value);
   }
 
