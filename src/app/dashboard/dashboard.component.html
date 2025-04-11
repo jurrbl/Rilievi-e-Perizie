@@ -61,49 +61,60 @@
   </div>
 
   <!-- 📅 Cronologia Perizie -->
-  <div class="mt-6">
-    <div class="flex items-center gap-2 mb-4">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M8 7V3m8 4V3m-9 8h10m-9 4h5m4 4H7a2 2 0 01-2-2V7a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2z" />
-      </svg>
-      <h3 class="text-xl font-semibold">Cronologia Perizie</h3>
-    </div>
+  <!-- 📅 Cronologia Perizie -->
+<div class="mt-6">
+  <div class="flex items-center gap-2 mb-4">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M8 7V3m8 4V3m-9 8h10m-9 4h5m4 4H7a2 2 0 01-2-2V7a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2z" />
+    </svg>
+    <h3 class="text-xl font-semibold">Cronologia Perizie</h3>
+  </div>
+<!-- Filtri e ordinamento -->
+<div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+  <div class="flex items-center gap-2">
+    <label class="text-white text-sm font-semibold">Stato:</label>
+    <select [(ngModel)]="filtroStato" (change)="filtraPerStato(filtroStato)"
+            class="bg-zinc-800 text-white px-2 py-1 rounded border border-zinc-700">
+      <option value="tutte">Tutte</option>
+      <option value="completata">Completate</option>
+      <option value="in_corso">In Corso</option>
+      <option value="annullata">Annullate</option>
+    </select>
+  </div>
 
-    <div class="flex justify-between items-center mb-4">
-      <button class="bg-gray-700 px-3 py-1 rounded hover:bg-gray-600 text-white">⬍ Ordina</button>
-    </div>
+  <button (click)="cambiaOrdine()"
+          class="bg-zinc-700 text-white px-3 py-1 rounded hover:bg-zinc-600 transition text-sm">
+    Ordina: {{ sortOrder === 'asc' ? 'dal più vecchio' : 'dal più recente' }}
+  </button>
+</div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- Giorno 1 -->
-      <div class="bg-gray-800 p-4 rounded-lg">
-        <div class="flex justify-between items-center mb-2">
-          <span class="text-sm text-white">08 Marzo 2023</span>
-          <span class="bg-green-500 text-black text-xs px-2 py-1 rounded">Completata</span>
-        </div>
-        <p class="text-sm text-gray-400">Check In: <span class="text-white">08:53</span></p>
-        <p class="text-sm text-gray-400">Check Out: <span class="text-white">17:15</span></p>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div *ngFor="let perizia of cronologiaPerizie" class="bg-gray-800 p-4 rounded-lg">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm text-white">
+          {{ perizia.dataOra | date: 'dd MMMM yyyy' }}
+        </span>
+        <span [ngClass]="{
+            'bg-green-500 text-black': perizia.stato === 'completata',
+            'bg-yellow-400 text-black': perizia.stato === 'in_corso',
+            'bg-red-500 text-white': perizia.stato === 'annullata'
+          }" class="text-xs px-2 py-1 rounded">
+          {{ perizia.stato | uppercase }}
+        </span>
       </div>
-
-      <!-- Giorno 2 -->
-      <div class="bg-gray-800 p-4 rounded-lg">
-        <div class="flex justify-between items-center mb-2">
-          <span class="text-sm text-white">07 Marzo 2023</span>
-          <span class="bg-yellow-400 text-black text-xs px-2 py-1 rounded">In Corso</span>
-        </div>
-        <p class="text-sm text-gray-400">Check In: <span class="text-white">08:27</span></p>
-        <p class="text-sm text-gray-400">Check Out: <span class="text-white">17:09</span></p>
-      </div>
-
-      <!-- Giorno 3 -->
-      <div class="bg-gray-800 p-4 rounded-lg">
-        <div class="flex justify-between items-center mb-2">
-          <span class="text-sm text-white">06 Marzo 2023</span>
-          <span class="bg-red-500 text-white text-xs px-2 py-1 rounded">Annullata</span>
-        </div>
-        <p class="text-sm text-gray-400">Check In: <span class="text-white">–</span></p>
-        <p class="text-sm text-gray-400">Check Out: <span class="text-white">–</span></p>
-      </div>
+      <p class="text-sm text-gray-400">Inserita:
+        <span class="text-white">
+          {{ perizia.dataOra | date:'shortTime' }}
+        </span>
+      </p>
+      <p class="text-sm text-gray-400">Revisionata:
+        <span class="text-white">
+          {{ perizia.dataRevisione ? (perizia.dataRevisione | date:'shortTime') : '–' }}
+        </span>
+      </p>
     </div>
   </div>
+</div>
+
 </div>

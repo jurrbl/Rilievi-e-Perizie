@@ -1,62 +1,119 @@
-import { DataStorageService } from './../shared/data-storage.service';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { AuthService } from '../auth/auth.service';
-
-/* installate per avere tipo 1 ora fa 2 ore fa nell'ultimo accesso */
+import { DataStorageService } from '../shared/data-storage.service';
 import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
 
-  name = "";
-  role = ""
-  username : any = "";
-  email : any = "";
-  phone : any = "";
-  profilePicture : string = "";
+  name: string = '';
+  role: string = '';
+  username: string = '';
+  email: string = '';
+  phone: string = '';
+  profilePicture: string = 'assets/img/default-avatar.png';
   token: string | null = null;
-  countPerizie : number = 0;
-  lastSeen : string = "";
+  countPerizie: number = 0;
+  lastSeen: string = 'Mai';
+  sortOrder: 'asc' | 'desc' = 'desc';
+  filtroStato: string = 'tutte';
 
-  constructor(private route: ActivatedRoute, private location: Location, private authService : AuthService, private DataStorageService  : DataStorageService) {}
+  cronologiaPerizie: Array<{
+    dataOra: Date,
+    stato: string,
+    dataRevisione?: Date
+  }> = [];
+
+  constructor(
+    private route: ActivatedRoute,
+    private location: Location,
+    private authService: AuthService,
+    private dataStorageService: DataStorageService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
+    this.handleTokenFromUrl();
+    this.populateUserData();
+    this.populateCronologiaPerizie();
+  }
+
+  private handleTokenFromUrl(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
-    console.log('Token from URL:', this.token);
 
     if (this.token) {
       localStorage.setItem('token', this.token);
-
-      // Rimuovi il token dall'URL
-      const urlWithoutToken = this.route.snapshot.pathFromRoot
+      const cleanUrl = this.route.snapshot.pathFromRoot
         .map(route => route.url.map(segment => segment.toString()).join('/'))
         .join('/');
-      this.location.replaceState(urlWithoutToken);
+      this.location.replaceState(cleanUrl);
+    }
+  }
+
+  private populateUserData(): void {
+    const user = this.authService.getUser();
+
+    if (user) {
+      this.username = user.username || 'Utente';
+      this.email = user.email || '–';
+      this.phone = user.phone || '–';
+      this.profilePicture = user.profilePicture || 'assets/img/default-avatar.png';
+      this.role = user.role || 'Utente';
+      this.countPerizie = this.authService.getPerizie()?.length || 0;
+
+      this.lastSeen = user.lastSeen
+        ? formatDistanceToNow(new Date(user.lastSeen), { addSuffix: true, locale: it })
+        : 'Mai';
+    } else {
+      this.router.navigate(['/login']);
+    }
+  }
+
+  private populateCronologiaPerizie(): void {
+    const currentUser = this.authService.getUser();
+    const tutteLePerizie = this.authService.getPerizie() || [];
+
+    let perizieUtente = tutteLePerizie
+      .filter(p => p.codiceOperatore === currentUser._id)
+      .map(p => ({
+        dataOra: new Date(p.dataOra),
+        stato: p.stato,
+        dataRevisione: p.dataRevisione ? new Date(p.dataRevisione) : undefined
+      }));
+
+    // Filtro per stato (se selezionato)
+    if (this.filtroStato !== 'tutte') {
+      perizieUtente = perizieUtente.filter(p => p.stato === this.filtroStato);
     }
 
-    this.username = this.authService.getUser().username;
-    this.countPerizie = this.authService.getPerizie().length;
-    this.role = this.authService.getUser().role;
-    this.email = this.authService.getUser().email;
-    this.phone = this.authService.getUser().phone;
-    this.profilePicture = this.authService.getUser().profilePicture;
-    const lastSeenDate = new Date(this.authService.getUser().lastSeen);
-    this.lastSeen = this.authService.getUser().lastSeen
-  ? formatDistanceToNow(new Date(this.authService.getUser().lastSeen), { addSuffix: true, locale: it })
-  : 'Mai';
+    // Ordinamento
+    this.cronologiaPerizie = perizieUtente.sort((a, b) => {
+      const diff = a.dataOra.getTime() - b.dataOra.getTime();
+      return this.sortOrder === 'asc' ? diff : -diff;
+    });
+  }
+  cambiaOrdine() {
+    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    this.populateCronologiaPerizie();
+  }
+
+  filtraPerStato(stato: string) {
+    this.filtroStato = stato;
+    this.populateCronologiaPerizie();
   }
 
   redirectToEmail(email: string): void {
     window.location.href = `mailto:${email}`;
   }
-
 }

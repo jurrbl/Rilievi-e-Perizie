@@ -1,4 +1,27 @@
-:host {
-  display: block;
+.mappa-container {
   height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  border-bottom: 1px solid #333;
+}
+
+.map-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+#mapContainer {
+  width: 100%;
+  height: 100%;
+}
+
+.marker {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  border-radius: 50%;
+  cursor: pointer;
 }

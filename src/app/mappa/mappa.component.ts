@@ -1,133 +1,115 @@
-import {
-  Component,
-  ElementRef,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
-import { Loader, LoaderOptions } from 'google-maps';
-import { environment } from '../../environments/environment';
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import * as maplibregl from 'maplibre-gl';
 import { AuthService } from '../auth/auth.service';
 
 @Component({
-  selector: 'app-map',
+  selector: 'app-mappa',
   standalone: true,
   templateUrl: './mappa.component.html',
-  styleUrls: ['./mappa.component.scss'],
+  styleUrls: ['./mappa.component.css']
 })
-export class MappaComponent implements OnInit, OnDestroy {
-  loaderOptions: LoaderOptions = {};
-  loader = new Loader(environment.googleMapsApiKey, this.loaderOptions);
-  map!: google.maps.Map;
-  markers: google.maps.Marker[] = [];
-
-  @ViewChild('map', { static: true }) mapElement!: ElementRef;
+export class MappaComponent implements OnInit, AfterViewInit {
+  @ViewChild('mapContainer', { static: true }) mapContainerRef!: ElementRef;
+  map!: maplibregl.Map;
+  perizie: any[] = [];
 
   constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
-    const perizie = this.authService.getPerizie() || [];
+    const currentUser = this.authService.getUser();
+    const tutte = this.authService.getPerizie();
+    this.perizie = (tutte || []).filter((p: any) => p.codiceOperatore === currentUser._id);
+  }
 
-    this.loader.load().then(() => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          this.initMap(
-            position.coords.latitude,
-            position.coords.longitude,
-            perizie
-          );
+  ngAfterViewInit(): void {
+    const defaultCenter: [number, number] = [7.6869, 45.0703]; // Torino di default
+
+    this.map = new maplibregl.Map({
+      container: this.mapContainerRef.nativeElement,
+      style: {
+        version: 8,
+        sources: {
+          osm: {
+            type: 'raster',
+            tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            tileSize: 256,
+            maxzoom: 19,
+            minzoom: 1
+          }
         },
-        () => {
-          // Fallback position
-          this.initMap(44.5567, 7.7280, perizie);
-        }
-      );
-    });
-  }
-
-  ngOnDestroy(): void {
-    for (const marker of this.markers) {
-      marker.setMap(null);
-    }
-    this.markers = [];
-  }
-
-  private initMap(
-    latitude: number,
-    longitude: number,
-    perizie: any[]
-  ): void {
-    this.map = new google.maps.Map(this.mapElement.nativeElement, {
-      center: { lat: latitude, lng: longitude },
-      zoom: 10,
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
+        layers: [
+          {
+            id: 'osm',
+            type: 'raster',
+            source: 'osm'
+          }
+        ]
+      },
+      center: defaultCenter,
+      zoom: 5,
+      scrollZoom: false
     });
 
-    this.loadMarkers(perizie);
+    this.map.addControl(new maplibregl.NavigationControl());
 
-    // ⬇️ Adatta il viewport a tutti i marker
-    const bounds = new google.maps.LatLngBounds();
+    // Scroll zoom centrato sulla mappa
+    this.map.getCanvas().addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoom = this.map.getZoom();
+      const delta = e.deltaY > 0 ? -0.25 : 0.25;
+      this.map.zoomTo(zoom + delta, {
+        around: this.map.getCenter()
+      });
+    }, { passive: false });
 
-    for (const perizia of perizie) {
-      const coord = perizia.coordinate;
-      const lat = parseFloat(coord?.latitudine);
-      const lng = parseFloat(coord?.longitudine);
+    const bounds = new maplibregl.LngLatBounds();
 
-      if (!isNaN(lat) && !isNaN(lng)) {
-        bounds.extend({ lat, lng });
-      }
-    }
+    this.perizie.forEach(perizia => {
+      const { codicePerizia, descrizione, coordinate, dataOra } = perizia;
+      if (!coordinate?.latitudine || !coordinate?.longitudine) return;
+
+      const lat = Number(coordinate.latitudine);
+      const lon = Number(coordinate.longitudine);
+      const lngLat: [number, number] = [lon, lat]; // [LON, LAT]
+
+      bounds.extend(lngLat);
+
+      // Elemento DOM custom
+      const el = document.createElement('div');
+      el.className = 'marker';
+      el.style.backgroundImage = 'url(/marker.png)';
+      el.style.width = '36px';
+      el.style.height = '36px';
+      el.style.backgroundSize = 'contain';
+      el.style.backgroundRepeat = 'no-repeat';
+      el.style.cursor = 'pointer';
+
+      const popup = new maplibregl.Popup({ offset: 25 }).setHTML(`
+        <strong>${codicePerizia}</strong><br/>
+        <small>${new Date(dataOra).toLocaleString()}</small><br/>
+        ${descrizione}
+      `);
+
+      new maplibregl.Marker({ element: el, draggable: false })
+        .setLngLat(lngLat)
+        .setPopup(popup)
+        .addTo(this.map);
+
+      el.addEventListener('click', () => {
+        this.map.flyTo({
+          center: lngLat,
+          zoom: 16,
+          speed: 1.2,
+          curve: 1
+        });
+      });
+    });
 
     if (!bounds.isEmpty()) {
-      this.map.fitBounds(bounds);
+      this.map.fitBounds(bounds, {
+        padding: 60,
+        duration: 1000
+      });
     }
   }
-
-
-  private loadMarkers(perizie: any[]): void {
-    // Rimuovi marker vecchi
-    for (const marker of this.markers) {
-      marker.setMap(null);
-    }
-    this.markers = [];
-
-    for (const perizia of perizie) {
-      const coord = perizia.coordinate;
-      const lat = parseFloat(coord?.latitudine);
-      const lng = parseFloat(coord?.longitudine);
-
-      // Salta se le coordinate non sono numeriche valide
-      if (isNaN(lat) || isNaN(lng)) continue;
-
-      const marker = new google.maps.Marker({
-        map: this.map,
-        position: { lat, lng },
-        title: perizia.codicePerizia || 'Perizia',
-        animation: google.maps.Animation.DROP,
-        icon: {
-          url:
-            perizia?.profilePicture ||
-            'https://res.cloudinary.com/dpb6deosa/image/upload/v1741047211/users/zoi1cqhrkuwy6pgwgfgk.png',
-          scaledSize: new google.maps.Size(50, 50),
-        },
-        zIndex: 1000,
-        clickable: true,
-      });
-
-      const infowindow = new google.maps.InfoWindow({
-        content: `
-          <strong>${perizia.codicePerizia}</strong><br>
-          ${perizia.descrizione || ''}
-        `,
-      });
-
-      marker.addListener('click', () => {
-        infowindow.open(this.map, marker);
-      });
-      console.log('Marker:', { lat, lng, codice: perizia.codicePerizia });
-
-      this.markers.push(marker);
-    }
-  }
-
 }

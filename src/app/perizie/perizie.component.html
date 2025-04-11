@@ -17,15 +17,15 @@
       <h3 class="font-semibold text-white">Aggiungi Perizia</h3>
     </div>
 
-    
+
     <input type="datetime-local" class="p-2 rounded bg-zinc-900 text-white border border-zinc-700" required
       [(ngModel)]="nuovaPerizia.dataOra" name="data" />
       <input type="text" placeholder="Indirizzo"
       class="p-2 rounded bg-zinc-900 text-white border border-zinc-700" required
       [(ngModel)]="nuovaPerizia.indirizzo" name="indirizzo" />
-    
 
-    
+
+
     <input type="text" placeholder="Descrizione"
       class="p-2 rounded bg-zinc-900 text-white border border-zinc-700" required
       [(ngModel)]="nuovaPerizia.descrizione" name="descrizione" />
@@ -45,28 +45,30 @@
       Aggiungi perizia
     </button>
   </form>
-  <div *ngIf="notificaSuccesso" class="notifications-container">
-    <div class="success">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="succes-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-          </svg>
-        </div>
-        <div class="success-prompt-wrap">
-          <p class="success-prompt-heading">Perizia aggiunta!</p>
-          <div class="success-prompt-prompt">
-            <p>La perizia è stata salvata correttamente nel sistema.</p>
-          </div>
-          <div class="success-button-container">
-            <button type="button" class="success-button-main" (click)="vaiAllaMappa()">Vedi mappa</button>
-            <button type="button" class="success-button-secondary" (click)="notificaSuccesso = false">Chiudi</button>
-          </div>
-        </div>
-      </div>
+
+
+  <div class="fixed top-4 right-4 z-50 w-72" *ngIf="messaggioAlert">
+    <div
+      role="alert"
+      [ngClass]="{
+        'bg-green-100 dark:bg-green-900 border-green-500 dark:border-green-700 text-green-900 dark:text-green-100': alertSuccesso,
+        'bg-red-100 dark:bg-red-900 border-red-500 dark:border-red-700 text-red-900 dark:text-red-100': !alertSuccesso
+      }"
+      class="border-l-4 p-2 rounded-lg flex items-center shadow-md transition duration-300 ease-in-out transform hover:scale-105"
+    >
+      <svg stroke="currentColor" viewBox="0 0 24 24" fill="none"
+           class="h-4 w-4 flex-shrink-0 mr-2"
+           xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 16h-1v-4h1m0-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              stroke-width="2"
+              stroke-linejoin="round"
+              stroke-linecap="round">
+        </path>
+      </svg>
+      <p class="text-xs font-semibold">{{ messaggioAlert }}</p>
     </div>
   </div>
-  
+
 
 
   <!-- Tabella delle perizie -->

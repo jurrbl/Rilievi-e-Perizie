@@ -20,7 +20,8 @@ export class PerizieComponent implements OnInit {
   perPage = 5;
   Math = Math;
   notificaSuccesso = false;
-
+  messaggioAlert: string = '';
+  alertSuccesso: boolean = true;
   perizie: any[] = [];
   selectedPerizia: any = null;
 
@@ -59,6 +60,7 @@ export class PerizieComponent implements OnInit {
     }
   }
 
+
   async aggiungiPerizia() {
     try {
       const { indirizzo, dataOra, descrizione, stato } = this.nuovaPerizia;
@@ -81,7 +83,10 @@ export class PerizieComponent implements OnInit {
       });
       this.authService.setPerizie(this.perizie);
 
-      this.notificaSuccesso = true;
+      // Impostazione messaggio successo
+      this.messaggioAlert = 'Perizia aggiunta con successo!';
+      this.alertSuccesso = true;
+
       this.nuovaPerizia = {
         indirizzo: '',
         dataOra: '',
@@ -89,8 +94,19 @@ export class PerizieComponent implements OnInit {
         stato: ''
       };
       this.currentPage.set(1);
-    } catch (error) {
+
+      // Nascondi messaggio dopo 5 secondi
+      setTimeout(() => (this.messaggioAlert = ''), 5000);
+
+    } catch (error: any) {
       console.error('Errore nel salvataggio:', error);
+
+      // Impostazione messaggio errore
+      this.messaggioAlert = error.message || 'Si è verificato un errore nel salvataggio della perizia.';
+      this.alertSuccesso = false;
+
+      // Nascondi messaggio dopo 5 secondi
+      setTimeout(() => (this.messaggioAlert = ''), 5000);
     }
   }
 
@@ -105,7 +121,6 @@ export class PerizieComponent implements OnInit {
       longitudine: parseFloat(data[0].lon)
     };
   }
-
   vaiAllaMappa() {
     this.router.navigate(['/mappa']);
   }
