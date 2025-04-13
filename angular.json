@@ -5,7 +5,6 @@
   "projects": {
     "Rilievi_e_perizie": {
       "projectType": "application",
-      "schematics": {},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -16,29 +15,30 @@
             "outputPath": "dist/rilievi-e-perizie",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": [
-              "zone.js"
-            ],
+            "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "public",
+                "output": "/"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "/assets/"
               }
             ],
             "styles": [
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
+              "node_modules/maplibre-gl/dist/maplibre-gl.css",
               "src/styles.css"
             ],
-            "scripts": [],
-            "server": "src/main.server.ts",
-            "prerender": true,
-            "ssr": {
-              "entry": "server.ts"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
+              "outputHashing": "all",
               "budgets": [
                 {
                   "type": "initial",
@@ -50,8 +50,7 @@
                   "maximumWarning": "2kB",
                   "maximumError": "4kB"
                 }
-              ],
-              "outputHashing": "all"
+              ]
             },
             "development": {
               "optimization": false,
@@ -59,7 +58,7 @@
               "sourceMap": true
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "development"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -79,29 +78,25 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
+            "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
             "assets": [
-  {
-    "glob": "**/*",
-    "input": "public",
-    "output": "/"
-  },
-  {
-    "glob": "**/*",
-    "input": "src/assets",
-    "output": "/assets/"
-  }
-],
-          "styles": [
-  "src/styles.css",
-  "node_modules/maplibre-gl/dist/maplibre-gl.css",
-  "node_modules/@fortawesome/fontawesome-free/css/all.min.css"
-],
-
+              {
+                "glob": "**/*",
+                "input": "public",
+                "output": "/"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "/assets/"
+              }
+            ],
+            "styles": [
+              "src/styles.css",
+              "node_modules/maplibre-gl/dist/maplibre-gl.css",
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css"
+            ],
             "scripts": []
           }
         }

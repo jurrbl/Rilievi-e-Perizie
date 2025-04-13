@@ -1,8 +1,46 @@
-<div class="mappa-container">
-  <div class="toolbar bg-zinc-900 text-white p-2">
-    <h2 class="text-lg font-semibold">Le Mie Perizie sulla Mappa</h2>
+<div class="wrapper">
+  <!-- MAPPA + SIDEBAR -->
+  <div class="top-section">
+    <div class="mappa-wrapper">
+      <div class="toolbar">
+        <h2>Le Mie Perizie sulla Mappa</h2>
+      </div>
+      <div #mapContainer id="mapContainer"></div>
+    </div>
+
+    <div class="sidebar">
+      <h3>Le Tue Perizie</h3>
+      <div class="filters">
+        <button class="filter-btn" (click)="filtraPerizie('tutte')">Tutte</button>
+        <button class="filter-btn completata" (click)="filtraPerizie('completata')">Completate</button>
+        <button class="filter-btn in-attesa" (click)="filtraPerizie('in attesa')">In Attesa</button>
+        <button class="filter-btn annullata" (click)="filtraPerizie('annullata')">Annullate</button>
+      </div>
+
+      <div class="perizie-list">
+        <div class="perizia-card" *ngFor="let perizia of perizieFiltrate">
+          <div class="perizia-code">{{ perizia.codicePerizia }}</div>
+          <div class="perizia-data">{{ perizia.dataOra | date:'short' }}</div>
+          <div class="perizia-desc">{{ perizia.descrizione }}</div>
+          <a class="perizia-link" (click)="vaiAlDettaglio(perizia)">Dettaglio</a>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="map-wrapper">
-    <div #mapContainer id="mapContainer"></div>
+
+  <!-- DETTAGLIO -->
+  <div id="dettaglio" class="dettaglio-box" *ngIf="periziaSelezionata">
+    <h3>Dettaglio Perizia</h3>
+    <p><strong>Codice:</strong> {{ periziaSelezionata.codicePerizia }}</p>
+    <p><strong>Data:</strong> {{ periziaSelezionata.dataOra | date:'full' }}</p>
+    <p><strong>Descrizione:</strong> {{ periziaSelezionata.descrizione }}</p>
+    <p><strong>Coordinate:</strong> {{ periziaSelezionata.coordinate?.latitudine }}, {{ periziaSelezionata.coordinate?.longitudine }}</p>
+
+    <div class="foto-wrapper" *ngIf="periziaSelezionata.foto?.length">
+      <img *ngFor="let foto of periziaSelezionata.foto"
+           [src]="foto"
+           alt="Foto"
+           onerror="this.style.display='none'" />
+    </div>
   </div>
 </div>
