@@ -4,20 +4,21 @@ import {
   Component,
   AfterViewInit,
   Inject,
-  PLATFORM_ID,
+  PLATFORM_ID
 } from '@angular/core';
 import {
   CommonModule,
-  isPlatformBrowser,
+  isPlatformBrowser
 } from '@angular/common';
 import {
   ReactiveFormsModule,
   FormBuilder,
   FormGroup,
-  Validators,
+  Validators
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoginEffectsService } from '../login-effects.service';
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -44,7 +45,7 @@ export class LoginComponent implements AfterViewInit {
     });
 
     this.registerForm = this.fb.group({
-      username: ['', [Validators.required]],
+      username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
@@ -59,12 +60,8 @@ export class LoginComponent implements AfterViewInit {
 
   toggleForm() {
     if (this.isBrowser) {
-      setTimeout(() => {
-        const mainElement = document.querySelector('main');
-        if (mainElement) {
-          mainElement.classList.toggle('sign-up-mode');
-        }
-      }, 50);
+      const main = document.querySelector('main');
+      if (main) main.classList.toggle('sign-up-mode');
     }
   }
 
@@ -81,20 +78,19 @@ export class LoginComponent implements AfterViewInit {
 
   onRegister() {
     if (this.registerForm.valid) {
-      console.log('Registrazione completata', this.registerForm.value);
+      console.log('Registrazione completata:', this.registerForm.value);
       this.toggleForm();
     }
   }
 
   initializeGoogleAuth() {
-    const checkGapiInterval = setInterval(() => {
+    const interval = setInterval(() => {
       if (typeof gapi !== 'undefined' && gapi?.load) {
-        clearInterval(checkGapiInterval);
+        clearInterval(interval);
 
         gapi.load('auth2', () => {
           const auth2 = gapi.auth2.init({
-            client_id:
-              '494287917430-rtudqvlh033mrc90rq767q35puaj22tl.apps.googleusercontent.com',
+            client_id: '494287917430-rtudqvlh033mrc90rq767q35puaj22tl.apps.googleusercontent.com',
             cookie_policy: 'single_host_origin',
           });
 
@@ -105,22 +101,14 @@ export class LoginComponent implements AfterViewInit {
               {},
               (googleUser: any) => {
                 const profile = googleUser.getBasicProfile();
-                console.log('✅ Google Login Success:', {
-                  id: profile.getId(),
-                  name: profile.getName(),
-                  email: profile.getEmail(),
-                });
-
-                window.location.href = `http://localhost:3000/api/auth/google`;
+                console.log('Google Login Success:', profile.getName(), profile.getEmail());
+                window.location.href = 'http://localhost:3000/api/auth/google';
               },
-              (error: any) => {
-                console.error('❌ Google Login Failed', error);
-              }
+              (err: any) => console.error('Google Login Failed:', err)
             );
           }
         });
       }
-    }, 200); // controlla ogni 200ms finché gapi è caricato
+    }, 200);
   }
-
 }
