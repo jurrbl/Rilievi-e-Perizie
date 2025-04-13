@@ -51,3 +51,20 @@ input[type=number] {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* Stile popup MapLibre forzato in dark mode */
+.maplibregl-popup-content {
+  background-color: #18181b !important;
+  color: #f4f4f5 !important;
+  width: 800px !important;
+  height: 250px !important;
+  border-radius: 8px !important;
+  padding: 10px !important;
+  border: 1px solid #3f3f46 !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6) !important;
+  font-family: sans-serif !important;
+  max-width: 1000px !important;
+}
+
+.maplibregl-popup-tip {
+  border-top-color: #18181b !important;
+}

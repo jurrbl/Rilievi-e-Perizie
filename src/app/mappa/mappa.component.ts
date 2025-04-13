@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   templateUrl: './mappa.component.html',
   styleUrls: ['./mappa.component.css']
+  
 })
 export class MappaComponent implements OnInit, AfterViewInit {
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef;
@@ -70,56 +71,95 @@ export class MappaComponent implements OnInit, AfterViewInit {
 
   vaiAlDettaglio(perizia: any): void {
     this.periziaSelezionata = perizia;
+
+    if (this.map && perizia.coordinate) {
+      const lat = Number(perizia.coordinate.latitudine);
+      const lon = Number(perizia.coordinate.longitudine);
+      this.map.flyTo({
+        center: [lon, lat],
+        zoom: 16,
+        speed: 1.2,
+        curve: 1
+      });
+    }
+
     setTimeout(() => {
       const el = document.getElementById('dettaglio');
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   }
 
-  renderMarkers() {
+  renderMarkers(): void {
     if (!this.map) return;
-
-    // Rimuovi marker precedenti (opzionale)
+  
+    // Rimuove tutti i marker esistenti
     const markerElements = document.querySelectorAll('.maplibregl-marker');
     markerElements.forEach(el => el.remove());
-
+  
     const bounds = new maplibregl.LngLatBounds();
-
+    let markerCount = 0;
+  
     this.perizieFiltrate.forEach(perizia => {
-      const { codicePerizia, descrizione, coordinate, dataOra } = perizia;
-      if (!coordinate?.latitudine || !coordinate?.longitudine) return;
-
-      const lat = Number(coordinate.latitudine);
-      const lon = Number(coordinate.longitudine);
+      const { codicePerizia, descrizione, coordinate, dataOra, fotografie } = perizia;
+  
+      if (!coordinate) return;
+  
+      const lat = parseFloat(coordinate.latitudine);
+      const lon = parseFloat(coordinate.longitudine);
+  
+      // Validazione robusta
+      if (isNaN(lat) || isNaN(lon)) return;
+  
       const lngLat: [number, number] = [lon, lat];
-
       bounds.extend(lngLat);
-
+      markerCount++;
+  
+      // Elemento marker personalizzato
       const el = document.createElement('span');
       el.className = 'material-icons';
       el.textContent = 'place';
       el.style.fontSize = '36px';
       el.style.color = '#e53935';
       el.style.cursor = 'pointer';
-
-      const popup = new maplibregl.Popup({ offset: 25 }).setHTML(`
-        <strong>${codicePerizia}</strong><br/>
-        <small>${new Date(dataOra).toLocaleString()}</small><br/>
-        ${descrizione}
-      `);
-
+  
+      const fotoHTML = (fotografie || []).map(f => `
+        <img src="${f.url}" class="popup-img" alt="Foto" />
+      `).join('');
+  
+      const popupContent = `
+        <div class="popup-container">
+          <div class="popup-img-carousel">${fotoHTML || '<p>Nessuna immagine</p>'}</div>
+          <div class="popup-info">
+            <h4>${codicePerizia}</h4>
+            <p class="popup-date">${new Date(dataOra).toLocaleString()}</p>
+            <p class="popup-desc">${descrizione}</p>
+            <button class="popup-btn" onclick="document.getElementById('dettaglio')?.scrollIntoView({ behavior: 'smooth' })">Dettaglio</button>
+          </div>
+        </div>
+      `;
+  
+      const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupContent);
+  
       new maplibregl.Marker({ element: el })
         .setLngLat(lngLat)
         .setPopup(popup)
         .addTo(this.map);
-
+  
       el.addEventListener('click', () => {
-        this.map.flyTo({ center: lngLat, zoom: 16, speed: 1.2, curve: 1 });
+        this.map.flyTo({
+          center: lngLat,
+          zoom: 16,
+          speed: 1.2,
+          curve: 1
+        });
       });
     });
-
-    if (!bounds.isEmpty()) {
+  
+    if (markerCount > 0) {
       this.map.fitBounds(bounds, { padding: 60, duration: 1000 });
+    } else {
+      console.warn('Nessun marker valido da visualizzare.');
     }
   }
+  
 }

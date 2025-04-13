@@ -24,6 +24,7 @@ export class PerizieComponent implements OnInit {
   alertSuccesso: boolean = true;
   perizie: any[] = [];
   selectedPerizia: any = null;
+  immaginiSelezionate: File[] = [];
 
   nuovaPerizia: any = {
     indirizzo: '',
@@ -60,53 +61,104 @@ export class PerizieComponent implements OnInit {
     }
   }
 
-
   async aggiungiPerizia() {
     try {
       const { indirizzo, dataOra, descrizione, stato } = this.nuovaPerizia;
       const currentUser = this.authService.getUser();
-
       const coords = await this.getCoordinateDaIndirizzo(indirizzo);
+
+      const immaginiUploadate = await Promise.all(
+        this.immaginiSelezionate.map(async (file) => {
+          const url = await this.uploadToCloudinary(file);
+          return { url, commento: '' };
+        })
+      );
 
       const nuova = {
         coordinate: coords,
         dataOra,
         descrizione,
         stato,
-        codiceOperatore: currentUser._id
+        codiceOperatore: currentUser._id,
+        fotografie: []
       };
 
-      const nuovaSalvata = await this.perizieService.salvaPerizia(nuova);
+      const nuovaSalvata: any = await this.perizieService.salvaPerizia(nuova);
+      const periziaId = nuovaSalvata._id;
+
       this.perizie.unshift({
         ...nuovaSalvata,
         dataOra: new Date(nuovaSalvata.dataOra)
       });
       this.authService.setPerizie(this.perizie);
 
-      // Impostazione messaggio successo
+      // Caricamento immagini separate
+      for (const img of immaginiUploadate) {
+        await this.dataStorage.inviaRichiesta('post', `/auth/perizie/${periziaId}/foto`, {
+          url: img.url,
+          commento: img.commento
+        })?.toPromise();
+      }
+
       this.messaggioAlert = 'Perizia aggiunta con successo!';
       this.alertSuccesso = true;
-
-      this.nuovaPerizia = {
-        indirizzo: '',
-        dataOra: '',
-        descrizione: '',
-        stato: ''
-      };
+      this.immaginiSelezionate = [];
+      this.nuovaPerizia = { indirizzo: '', dataOra: '', descrizione: '', stato: '' };
       this.currentPage.set(1);
-
-      // Nascondi messaggio dopo 5 secondi
       setTimeout(() => (this.messaggioAlert = ''), 5000);
 
     } catch (error: any) {
-      console.error('Errore nel salvataggio:', error);
-
-      // Impostazione messaggio errore
-      this.messaggioAlert = error.message || 'Si è verificato un errore nel salvataggio della perizia.';
+      console.error('❌ Errore nel salvataggio:', error);
+      this.messaggioAlert = error.message || 'Errore durante il salvataggio';
       this.alertSuccesso = false;
-
-      // Nascondi messaggio dopo 5 secondi
       setTimeout(() => (this.messaggioAlert = ''), 5000);
+    }
+  }
+
+  async uploadToCloudinary(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'rilievi_preset');
+    const response = await fetch('https://api.cloudinary.com/v1_1/dvkczvtfs/image/upload', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await response.json();
+    if (!data.secure_url) throw new Error('Upload immagine fallito');
+    return data.secure_url;
+  }
+
+  async onFotoChange(event: Event, periziaId: string) {
+    const inputElement = event.target as HTMLInputElement;
+    if (!inputElement?.files?.length) return;
+
+    for (let i = 0; i < inputElement.files.length; i++) {
+      const file = inputElement.files[i];
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', 'rilievi_preset');
+
+      try {
+        const uploadRes = await fetch('https://api.cloudinary.com/v1_1/dvkczvtfs/image/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+        const url = uploadData.secure_url;
+        const commento = prompt(`Commento per l'immagine ${file.name}:`) || '';
+
+        this.dataStorage.inviaRichiesta('post', `/auth/perizie/${periziaId}/foto`, {
+          url,
+          commento
+        })?.subscribe({
+          next: () => console.log('✅ Foto salvata nel backend'),
+          error: (err) => console.error('❌ Errore salvataggio foto:', err)
+        });
+
+      } catch (err) {
+        console.error('❌ Errore durante upload su Cloudinary:', err);
+      }
     }
   }
 
@@ -114,13 +166,30 @@ export class PerizieComponent implements OnInit {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(indirizzo)}`;
     const response = await fetch(url);
     const data = await response.json();
-    if (data.length === 0) throw new Error('Indirizzo non trovato');
-
+    if (!data.length) throw new Error('Indirizzo non trovato');
     return {
       latitudine: parseFloat(data[0].lat),
       longitudine: parseFloat(data[0].lon)
     };
   }
+
+  lightboxUrl: string | null = null;
+
+apriLightbox(url: string) {
+  this.lightboxUrl = url;
+}
+
+chiudiLightbox() {
+  this.lightboxUrl = null;
+}
+
+  onFileSelect(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input?.files) {
+      this.immaginiSelezionate = Array.from(input.files);
+    }
+  }
+
   vaiAllaMappa() {
     this.router.navigate(['/mappa']);
   }
@@ -150,6 +219,15 @@ export class PerizieComponent implements OnInit {
     }
   }
 
+  onSearchInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.search.set(target?.value || '');
+  }
+  
+  onStatusChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.selectedStatus.set(target?.value || '');
+  }
   chiudiDettagli() {
     this.selectedPerizia = null;
   }
@@ -165,7 +243,6 @@ export class PerizieComponent implements OnInit {
   updateSearch(value: string) {
     this.search.set(value);
   }
-
   updateStatus(value: string) {
     this.selectedStatus.set(value);
   }

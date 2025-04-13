@@ -83,3 +83,9 @@
     border: none;
   }
   
+  @media (max-width: 768px) {
+   #wrapper-perizie{
+    margin-top: 100px;
+   }
+    
+  }

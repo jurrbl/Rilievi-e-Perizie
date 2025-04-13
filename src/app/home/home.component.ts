@@ -35,7 +35,7 @@ export class HomeComponent implements OnInit {
           this.authService.setUser(res);
           this.username = res.username || res.googleUsername || '';
 
-          // ✅ Solo dopo aver ricevuto l’utente, fai la chiamata per le perizie
+          // ✅ Dopo aver ricevuto l’utente, carica le perizie
           this.dataStorage.inviaRichiesta('get', '/auth/perizie')?.subscribe({
             next: (res: any) => {
               this.authService.setPerizie(res.perizie ?? res);
@@ -53,5 +53,44 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  // ✅ Upload di un'immagine su Cloudinary
+  async uploadToCloudinary(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'rilievi_preset');
 
+    const res = await fetch('https://api.cloudinary.com/v1_1/dvkczvtfs/image/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await res.json();
+    return data.secure_url;
+  }
+
+  // ✅ Salvataggio foto nel backend collegata a una perizia
+  salvaFotoNelBackend(periziaId: string, url: string, commento: string): void {
+    const foto = { url, commento };
+    this.dataStorage.inviaRichiesta('post', `/perizie/${periziaId}/foto`, foto)?.subscribe({
+      next: () => console.log('✅ Foto salvata nel backend'),
+      error: err => console.error('❌ Errore salvataggio foto nel backend:', err)
+    });
+  }
+
+  // ✅ Upload immagini (multiple) con commento
+  async onFotoChange(event: any, periziaId: string): Promise<void> {
+    const files: FileList = event.target.files;
+    if (!files || files.length === 0) return;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        const imageUrl = await this.uploadToCloudinary(file);
+        const commento = prompt(`Inserisci un commento per ${file.name}`) || '';
+        this.salvaFotoNelBackend(periziaId, imageUrl, commento);
+      } catch (err) {
+        console.error('❌ Errore upload:', err);
+      }
+    }
+  }
 }
