@@ -36,18 +36,7 @@ export class LoginEffectsService {
       });
     });
 
-    // Toggle tra Login e Registrazione con animazione fluida
-    this.toggleButtons?.forEach((btn) => {
-      btn.addEventListener("click", () => {
-        if (this.main) {
-          this.main.classList.add("animating");
-          setTimeout(() => {
-            this.main?.classList.toggle("sign-up-mode");
-            this.main?.classList.remove("animating");
-          }, 800); // Durata animazione
-        }
-      });
-    });
+   
 
     // Cambio immagini con slider
     this.bullets?.forEach((bullet) => {

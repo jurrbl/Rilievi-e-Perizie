@@ -1,3 +1,4 @@
+
 declare var gapi: any;
 
 import {
@@ -58,14 +59,22 @@ export class LoginComponent implements AfterViewInit {
     }
   }
 
-  toggleForm() {
+  toggleForm(event?: Event): void {
+    if (event) event.preventDefault();
+
     if (this.isBrowser) {
       const main = document.querySelector('main');
-      if (main) main.classList.toggle('sign-up-mode');
+      if (main) {
+        main.classList.add('animating');
+        setTimeout(() => {
+          main.classList.toggle('sign-up-mode');
+          main.classList.remove('animating');
+        }, 100);
+      }
     }
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.loginForm.valid) {
       const { email } = this.loginForm.value;
       if (email === 'admin@test.com') {
@@ -76,14 +85,14 @@ export class LoginComponent implements AfterViewInit {
     }
   }
 
-  onRegister() {
+  onRegister(): void {
     if (this.registerForm.valid) {
       console.log('Registrazione completata:', this.registerForm.value);
-      this.toggleForm();
+      this.toggleForm(); // ✅ Ora chiamato correttamente senza parametri
     }
   }
 
-  initializeGoogleAuth() {
+  initializeGoogleAuth(): void {
     const interval = setInterval(() => {
       if (typeof gapi !== 'undefined' && gapi?.load) {
         clearInterval(interval);

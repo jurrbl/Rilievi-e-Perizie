@@ -39,7 +39,7 @@
           <div class="heading">
             <h2>Benvenuto</h2>
             <h6>Non sei registrato?</h6>
-            <a href="#" class="toggle" (click)="toggleForm()">Registrati</a>
+            <button type="button" class="toggle" (click)="toggleForm($event)">Registrati</button>
           </div>
 
           <div class="actual-form">
@@ -77,7 +77,7 @@
           <div class="heading">
             <h2>Inizia da oggi</h2>
             <h6>Hai già un account?</h6>
-            <a href="#" class="toggle" (click)="toggleForm()">Accedi</a>
+            <a href="#" class="toggle" (click)="toggleForm($event)">Accedi</a>
           </div>
 
           <div class="actual-form">

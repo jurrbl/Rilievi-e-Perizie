@@ -1,8 +1,6 @@
-
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
 
-
-*{
+* {
   font-family: "Poppins", sans-serif;
 }
 *,
@@ -17,12 +15,15 @@ body,
 input {
   font-family: "Poppins", sans-serif;
 }
+
 .black-text {
   color: #151111;
 }
+
 .label-inactive {
   display: none;
 }
+
 main {
   width: 100%;
   min-height: 100vh;
@@ -31,7 +32,10 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.8s ease-in-out;
 }
+
+
 
 .box {
   position: relative;
@@ -45,19 +49,44 @@ main {
 
 .inner-box {
   position: absolute;
-  width: calc(100% - 4.1rem);
-  height: calc(100% - 4.1rem);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+.forms-wrap,
+.carousel {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  top: 0;
+  transition: all 0.8s ease-in-out;
 }
 
+.forms-wrap {
+  left: 0;
+  z-index: 2;
+}
 
+.carousel {
+  left: 50%;
+  z-index: 1;
+}
+.box {
+  overflow: hidden;
+}
+main.sign-up-mode .forms-wrap {
+  left: 50%;
+}
+
+main.sign-up-mode .carousel {
+  left: 0;
+}
 .google-login {
   display: flex;
   justify-content: center;
   margin-top: 10px;
-
 }
 
 .google-btn {
@@ -65,40 +94,42 @@ main {
   align-items: center;
   justify-content: center;
   background-color: black;
-  color: red;
+  color: white;
   font-size: 16px;
-  font-weight: bold;
   border: 1px solid #ccc;
   padding: 10px 15px;
-  border-radius: 5px;
+  border-radius: 0.8rem;
   cursor: pointer;
   transition: all 0.3s ease;
   width: 100%;
   margin-top: 8px;
-  overflow: hidden; /* Rimuove le scrollbar */
+  overflow: hidden;
 }
 
 .google-btn i {
   font-size: 18px;
   margin-right: 10px;
-  color: #ea4335; /* Colore ufficiale di Google */
+  color: #ea4335;
 }
 
 .google-btn:hover {
-  background-color: #f5f5f5;
+  background-color: #ea4335;
+  color: white;
+  border: 1px solid #ea4335;
 }
-
-
+.google-btn:hover i {
+  color: white;
+}
 .forms-wrap {
   position: absolute;
   height: 100%;
-  width: 45%;
+  width: 55%;
   top: 0;
   left: 0;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr;
-  transition: 0.8s ease-in-out;
+  transition: all 0.8s ease-in-out;
 }
 
 form {
@@ -149,49 +180,6 @@ form.sign-up-form {
   display: inline;
 }
 
-.google-btn {
-  display: flex;
-  align-items: center; /* Allinea verticalmente icona e testo */
-  justify-content: center; /* Centra il contenuto */
-  gap: 8px; /* Distanza tra l'icona e il testo */
-  background: #fff; /* Background bianco */
-  color: #333; /* Colore del testo */
-  border: 1px solid #ddd; /* Bordo sottile */
-  width: 100%;
-  height: 43px;
-  cursor: pointer;
-  border-radius: 0.8rem;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: 0.3s;
-}
-
-.google-btn:hover {
-  background-color: #f8f9fa;
-  border-color: #bbb;
-}
-
-.google-btn p {
-  margin: 0;
-  padding: 0;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  margin-left: 10px;
-}
-
-.google-btn span {
-  margin-left: 10px;
-}
-
-/* Assicura che l'icona non abbia margini strani */
-.google-btn svg {
-  display: inline-block;
-  vertical-align: middle;
-}
-
 .toggle {
   color: #2a2438;
   text-decoration: none;
@@ -206,19 +194,18 @@ form.sign-up-form {
 .toggle:hover {
   color: #8371fd;
 }
+
 .input-wrap {
   position: relative;
   width: 100%;
   margin-bottom: 1rem;
-  padding-top: 1.15rem; /* ⬅️ spazio per l'etichetta animata */
+  padding-top: 1.15rem;
 }
-
-
 
 .input-field {
   width: 100%;
-  padding: 10px 0; /* Margine superiore e inferiore */
-  padding-left: 8px; /* Distanza dal bordo sinistro */
+  padding: 10px 0;
+  padding-left: 8px;
   font-size: 1rem;
   border: none !important;
   border-radius: 0px !important;
@@ -228,14 +215,12 @@ form.sign-up-form {
   color: #151111;
 }
 
-/* Stile del placeholder: sempre visibile finché l'utente non digita */
 .input-field::placeholder {
   color: #bbb;
   font-size: 1rem;
   transition: opacity 0.3s ease-in-out;
 }
 
-/* Nasconde il placeholder mentre si digita */
 .input-field:focus::placeholder {
   opacity: 0;
 }
@@ -257,9 +242,10 @@ label {
 
 .input-field.active + label {
   font-size: 0.75rem;
-  top: -2px;
+  top: 12px;
 }
-.actual-form{
+
+.actual-form {
   margin: 0px;
 }
 
@@ -284,7 +270,6 @@ label {
 .text {
   color: #bbb;
   margin-top: 10px;
-
   font-size: 0.7rem;
 }
 
@@ -298,32 +283,59 @@ label {
   cursor: pointer;
 }
 
+/* === SLIDER & SWITCHING LAYOUT === */
+main.sign-up-mode .forms-wrap {
+  left: 0%;
+  transform: translateX(100%);
+}
+
+main.sign-up-mode .carousel {
+  left: 0;
+  transform: translateX(0%);
+}
+
+main:not(.sign-up-mode) .forms-wrap {
+  left: 0;
+  transform: translateX(0%);
+}
+
+main:not(.sign-up-mode) .carousel {
+  left: 45%;
+  transform: translateX(0%);
+}
+
+.forms-wrap,
+.carousel {
+  transition: all 0.4s ease-in-out; /* velocità aumentata */
+}
+
+/* === FORM FADE === */
 main.sign-up-mode form.sign-in-form {
   opacity: 0;
   pointer-events: none;
+  transform: translateX(-100%);
+  transition: transform 0.4s ease-in-out, opacity 0.3s ease-in-out;
 }
 
 main.sign-up-mode form.sign-up-form {
   opacity: 1;
   pointer-events: all;
+  transform: translateX(0%);
 }
 
-main.sign-up-mode .forms-wrap {
-  left: 55%;
-}
-
-main.sign-up-mode .carousel {
-  left: 0%;
+form.sign-up-form {
+  transform: translateX(100%);
+  transition: transform 0.4s ease-in-out;
 }
 
 
 
+
+/* === CAROUSEL === */
 .carousel {
   position: absolute;
-  height: max-content;
-  width: 55%;
-  left: 45%;
   height: 100%;
+  width: 55%;
   top: 0;
   background-color: #ffe0d2;
   border-radius: 2rem;
@@ -331,14 +343,20 @@ main.sign-up-mode .carousel {
   grid-template-rows: 1fr auto;
   padding-bottom: 2rem;
   overflow: hidden;
-  transition: 0.8s ease-in-out;
+  z-index: 1;
 }
 
-.image{
+.image {
   position: absolute;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.image.show {
+  opacity: 1;
 }
 
 .text-slider {
@@ -354,20 +372,6 @@ main.sign-up-mode .carousel {
   font-weight: bold;
   z-index: 2;
   border-radius: 8px;
-}
-
-
-
-.images-wrapper img.show {
-  opacity: 1;
-  z-index: 2; /* Porta l'immagine attiva in primo piano */
-}
-.image.show {
-  opacity: 1;
-  transform: none;
-}
-
-.text-slider {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -418,17 +422,12 @@ main.sign-up-mode .carousel {
   border-radius: 1rem;
 }
 
-@media (max){
-  .carousel{
-    display: none;
-  }
-}
-
-@media (max-width: 1100px)
-{
-  .box{
+/* === RESPONSIVE === */
+@media (max-width: 1100px) {
+  .box {
     margin-bottom: 350px;
   }
+  
 }
 
 @media (max-width: 850px) {
@@ -450,6 +449,7 @@ main.sign-up-mode .carousel {
     position: revert;
     width: 100%;
     height: auto;
+    
   }
 
   form {
@@ -465,6 +465,10 @@ main.sign-up-mode .carousel {
   form.sign-up-form {
     transform: translateX(100%);
   }
+  main.sign-up-mode .forms-wrap {
+    left: 50%;
+    transform: translateX(-100%);
+  }
 
   main.sign-up-mode form.sign-in-form {
     transform: translateX(-100%);
@@ -474,24 +478,12 @@ main.sign-up-mode .carousel {
     transform: translateX(0%);
   }
 
-  .text-course{
-    color: black;
-  }
-
   .carousel {
-    position: revert;
-    height: auto;
-    width: 100%;
-    padding: 3rem 2rem;
     display: none;
   }
 
-  .images-wrapper {
-    display: none;
-  }
-
-  .text-slider {
-    width: 100%;
+  .text-course {
+    color: black;
   }
 }
 
@@ -499,7 +491,10 @@ main.sign-up-mode .carousel {
   main {
     padding: 1rem;
   }
-
+  main.sign-up-mode .forms-wrap {
+    left: 50%;
+    transform: translateX(100%);
+  }
   .box {
     border-radius: 2rem;
   }
@@ -524,27 +519,4 @@ main.sign-up-mode .carousel {
   form {
     padding: 1rem 2rem 1.5rem;
   }
-}
-
-
-main {
-  transition: transform 0.8s ease-in-out;
-}
-
-main.animating {
-  transform: scale(1.02); /* Effetto di zoom leggero */
-}
-
-form.sign-up-form {
-  transform: translateX(100%);
-  transition: transform 0.8s ease-in-out;
-}
-
-main.sign-up-mode form.sign-in-form {
-  transform: translateX(-100%);
-  transition: transform 0.8s ease-in-out;
-}
-
-main.sign-up-mode form.sign-up-form {
-  transform: translateX(0%);
 }
