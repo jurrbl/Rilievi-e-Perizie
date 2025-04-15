@@ -22,3 +22,14 @@ span{
   -webkit-appearance: none;
   -moz-appearance: none;
 }
+
+.logout-icon svg {
+  transition: all 0.2s ease;
+}
+.logout-icon svg {
+  transition: all 0.2s ease;
+}
+.logout-icon:hover svg {
+  color: red;
+  opacity: 1;
+}

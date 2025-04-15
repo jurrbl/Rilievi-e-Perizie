@@ -62,7 +62,8 @@
             </div>
 
             <p class="text">
-              Dimenticato password? <a href="#">Richiedine una nuova</a>
+              Dimenticato password?
+              <a href="#" (click)="onForgotPassword()">Richiedine una nuova</a>
             </p>
           </div>
         </form>
@@ -96,6 +97,11 @@
               <label>Password</label>
             </div>
 
+            <!-- foto profilo -->
+            <div class="input-wrap">
+              <input type="text" formControlName="profilePicture" required class="input-field" />
+              <label>Foto profilo (URL)</label>
+            </div>
             <button type="submit" class="sign-btn" [disabled]="registerForm.invalid">Sign Up</button>
           </div>
         </form>

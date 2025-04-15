@@ -427,7 +427,7 @@ form.sign-up-form {
   .box {
     margin-bottom: 350px;
   }
-  
+
 }
 
 @media (max-width: 850px) {
@@ -449,7 +449,7 @@ form.sign-up-form {
     position: revert;
     width: 100%;
     height: auto;
-    
+
   }
 
   form {
@@ -520,3 +520,4 @@ form.sign-up-form {
     padding: 1rem 2rem 1.5rem;
   }
 }
+

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { AuthService } from '../auth/auth.service';
 import { DataStorageService } from '../shared/data-storage.service';
@@ -19,38 +19,33 @@ export class HomeComponent implements OnInit {
   countPerizie = 0;
 
   constructor(
-    private route: ActivatedRoute,
     private authService: AuthService,
     private dataStorage: DataStorageService
   ) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('token');
+    // ✅ Richiesta a /me per ottenere i dati utente
+    this.dataStorage.inviaRichiesta('get', '/auth/me')?.subscribe({
+      next: (res: any) => {
+        console.log('👤 Utente da /auth/me:', res);
+        this.authService.setUser(res);
+        this.username = res.username || res.googleUsername || '';
 
-    if (token) {
-      // Recupera i dati utente
-      this.dataStorage.inviaRichiesta('get', '/auth/me')?.subscribe({
-        next: (res: any) => {
-          console.log('👤 Utente da /auth/me:', res);
-          this.authService.setUser(res);
-          this.username = res.username || res.googleUsername || '';
-
-          // ✅ Dopo aver ricevuto l’utente, carica le perizie
-          this.dataStorage.inviaRichiesta('get', '/auth/perizie')?.subscribe({
-            next: (res: any) => {
-              this.authService.setPerizie(res.perizie ?? res);
-              this.countPerizie = res.nPerizie ?? res.length ?? 0;
-            },
-            error: (err) => {
-              console.error('❌ Errore durante /perizie:', err);
-            }
-          });
-        },
-        error: (err) => {
-          console.error('Errore durante /me:', err);
-        }
-      });
-    }
+        // ✅ Dopo aver ottenuto l'utente, carico le perizie
+        this.dataStorage.inviaRichiesta('get', '/auth/perizie')?.subscribe({
+          next: (res: any) => {
+            this.authService.setPerizie(res.perizie ?? res);
+            this.countPerizie = res.nPerizie ?? res.length ?? 0;
+          },
+          error: (err) => {
+            console.error('❌ Errore durante /perizie:', err);
+          }
+        });
+      },
+      error: (err) => {
+        console.error('❌ Errore durante /me:', err);
+      }
+    });
   }
 
   // ✅ Upload di un'immagine su Cloudinary
@@ -94,3 +89,4 @@ export class HomeComponent implements OnInit {
     }
   }
 }
+  

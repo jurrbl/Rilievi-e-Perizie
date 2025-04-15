@@ -19,6 +19,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoginEffectsService } from '../login-effects.service';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-login',
@@ -36,6 +37,7 @@ export class LoginComponent implements AfterViewInit {
     private fb: FormBuilder,
     private router: Router,
     private loginEffectsService: LoginEffectsService,
+    private authService: AuthService, // <-- aggiunto
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -49,6 +51,7 @@ export class LoginComponent implements AfterViewInit {
       username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
+      profilePicture: ['', Validators.required], // 👈 nuovo campo
     });
   }
 
@@ -57,6 +60,25 @@ export class LoginComponent implements AfterViewInit {
       this.initializeGoogleAuth();
       this.loginEffectsService.applyLoginEffects();
     }
+  }
+
+
+  onForgotPassword(): void {
+    const email = this.loginForm.get('email')?.value;
+    if (!email) {
+      alert('Inserisci prima un’email');
+      return;
+    }
+
+    this.authService.forgotPassword(email).subscribe({
+      next: (res) => {
+        alert('📧 Email inviata con la nuova password temporanea');
+      },
+      error: (err) => {
+        console.error('Errore invio nuova password', err);
+        alert('Errore durante l’invio. Riprova.');
+      }
+    });
   }
 
   toggleForm(event?: Event): void {
@@ -76,21 +98,49 @@ export class LoginComponent implements AfterViewInit {
 
   onSubmit(): void {
     if (this.loginForm.valid) {
-      const { email } = this.loginForm.value;
-      if (email === 'admin@test.com') {
-        this.router.navigate(['/admin']);
-      } else {
-        this.router.navigate(['/home']);
-      }
+      const credentials = this.loginForm.value;
+
+      this.authService.login(credentials).subscribe({
+        next: (res: any) => {
+          console.log('✅ Login riuscito:', res);
+          this.authService.setUser(res.user);
+          this.router.navigate(['/home']);
+        },
+        error: (err) => {
+          console.error('❌ Errore durante il login:', err);
+          alert('Credenziali errate. Riprova.');
+        }
+      });
     }
   }
 
   onRegister(): void {
+    console.log('[DEBUG] Sign Up clicked');
+
     if (this.registerForm.valid) {
-      console.log('Registrazione completata:', this.registerForm.value);
-      this.toggleForm(); // ✅ Ora chiamato correttamente senza parametri
+      const userData = this.registerForm.value;
+      console.log('[DEBUG] Form values:', userData);
+
+      this.authService.register(userData).subscribe({
+        next: (res: any) => {
+          console.log('✅ Registrazione completata:', res);
+
+          // 👇 Salva utente nel frontend
+          this.authService.setUser(res.user);
+
+          // 👇 Naviga alla home (pagina protetta)
+          this.router.navigate(['/home']);
+        },
+        error: (err) => {
+          console.error('❌ Errore durante la registrazione:', err);
+          alert('Errore durante la registrazione. Riprova.');
+        }
+      });
+    } else {
+      console.warn('[DEBUG] Form non valida');
     }
   }
+
 
   initializeGoogleAuth(): void {
     const interval = setInterval(() => {
