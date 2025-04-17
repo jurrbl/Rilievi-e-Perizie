@@ -1,4 +1,3 @@
-
 declare var gapi: any;
 
 import {
@@ -17,13 +16,13 @@ import {
   FormGroup,
   Validators
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { LoginEffectsService } from '../login-effects.service';
-
+import { DataStorageService } from '../../shared/data-storage.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
@@ -36,6 +35,7 @@ export class LoginComponent implements AfterViewInit {
     private fb: FormBuilder,
     private router: Router,
     private loginEffectsService: LoginEffectsService,
+    private dataStorage: DataStorageService, // ✅ INIETTA IL SERVIZIO
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -74,22 +74,47 @@ export class LoginComponent implements AfterViewInit {
     }
   }
 
-  onSubmit(): void {
-    if (this.loginForm.valid) {
-      const { email } = this.loginForm.value;
-      if (email === 'admin@test.com') {
-        this.router.navigate(['/admin']);
-      } else {
-        this.router.navigate(['/home']);
-      }
-    }
-  }
+  
 
-  onRegister(): void {
-    if (this.registerForm.valid) {
-      console.log('Registrazione completata:', this.registerForm.value);
-      this.toggleForm(); // ✅ Ora chiamato correttamente senza parametri
-    }
+  onSubmit(): void {
+    if (this.loginForm.invalid) return;
+  
+    const { email, password } = this.loginForm.value;
+  
+    this.dataStorage.inviaRichiesta('post', '/auth/login', { email, password })?.subscribe({
+      next: (res: any) => {
+        console.log('✅ Login effettuato:', res);
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify(res.user));
+  
+        if (email === 'admin@test.com') {
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate(['/home']);
+        }
+      },
+      error: (err) => {
+        console.error('❌ Errore login:', err);
+        alert(err.error?.message || 'Email o password errati.');
+      }
+    });
+  }
+    onRegister(): void {
+    if (this.registerForm.invalid) return;
+  
+    const newUser = this.registerForm.value;
+  
+    this.dataStorage.inviaRichiesta('post', '/auth/register', newUser)?.subscribe({
+      next: (res: any) => {
+        console.log('✅ Utente registrato:', res);
+        alert('Registrazione avvenuta con successo!');
+        this.toggleForm(); // switcha al login
+      },
+      error: (err) => {
+        console.error('❌ Errore registrazione:', err);
+        alert(err.error?.message || 'Errore durante la registrazione.');
+      }
+    });
   }
 
   initializeGoogleAuth(): void {

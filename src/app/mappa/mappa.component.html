@@ -35,12 +35,12 @@
     <p><strong>Data:</strong> {{ periziaSelezionata.dataOra | date:'full' }}</p>
     <p><strong>Descrizione:</strong> {{ periziaSelezionata.descrizione }}</p>
     <p><strong>Coordinate:</strong> {{ periziaSelezionata.coordinate?.latitudine }}, {{ periziaSelezionata.coordinate?.longitudine }}</p>
-
-    <div class="foto-wrapper" *ngIf="periziaSelezionata.foto?.length">
-      <img *ngFor="let foto of periziaSelezionata.foto"
-           [src]="foto"
-           alt="Foto"
-           onerror="this.style.display='none'" />
+  
+    <div class="foto-wrapper" *ngIf="periziaSelezionata.fotografie?.length">
+      <div class="foto-item" *ngFor="let foto of periziaSelezionata.fotografie">
+        <img [src]="foto.url" alt="Foto" (error)="hideImage($event)" />
+        <p class="commento">{{ foto.commento }}</p>
+      </div>
     </div>
   </div>
 </div>

@@ -5,25 +5,23 @@
 </div>
 
 <!-- FILTRI -->
-
 <div class="mt-12 sm:mt-0 flex flex-col sm:flex-row justify-between items-center gap-4 mb-4" id="wrapper-perizie">
-     <input
-       type="text"
-       class="bg-zinc-900 text-white border border-zinc-700 px-3 py-2 rounded w-full sm:w-1/2"
-       placeholder="Cerca per codice o descrizione..."
-       (input)="updateSearch($event.target?.['value'] || '')"
-     />
-     <select
-       class="bg-zinc-900 text-white border border-zinc-700 px-3 py-2 rounded w-full sm:w-1/3"
-       (change)="updateStatus($event.target?.['value'] || '')"
-     >
-       <option value="">Tutti gli stati</option>
-       <option value="completata">Completata</option>
-       <option value="in_corso">In corso</option>
-       <option value="annullata">Annullata</option>
-     </select>
-   </div>
-
+  <input
+    type="text"
+    class="bg-zinc-900 text-white border border-zinc-700 px-3 py-2 rounded w-full sm:w-1/2"
+    placeholder="Cerca per codice o descrizione..."
+    (input)="updateSearch($event.target?.['value'] || '')"
+  />
+  <select
+    class="bg-zinc-900 text-white border border-zinc-700 px-3 py-2 rounded w-full sm:w-1/3"
+    (change)="updateStatus($event.target?.['value'] || '')"
+  >
+    <option value="">Tutti gli stati</option>
+    <option value="completata">Completata</option>
+    <option value="in_corso">In corso</option>
+    <option value="annullata">Annullata</option>
+  </select>
+</div>
 
 <!-- FORM AGGIUNTA -->
 <form class="mb-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3 bg-zinc-800 p-4 rounded border border-zinc-700"
@@ -41,19 +39,20 @@
     class="p-2 rounded bg-zinc-900 text-white border border-zinc-700" />
   <input type="text" placeholder="Descrizione" required [(ngModel)]="nuovaPerizia.descrizione" name="descrizione"
     class="p-2 rounded bg-zinc-900 text-white border border-zinc-700" />
-  <select required [(ngModel)]="nuovaPerizia.stato" name="stato"
-    class="p-2 rounded bg-zinc-900 text-white border border-zinc-700">
-    <option value="" disabled selected>Stato</option>
-    <option value="completata">Completata</option>
-    <option value="in_corso">In corso</option>
-    <option value="annullata">Annullata</option>
-  </select>
 
   <div class="col-span-full">
     <label class="block text-sm font-medium text-white mb-1" for="foto">Foto</label>
     <input type="file" accept="image/*" capture="environment" multiple id="foto"
       (change)="onFileSelect($event)"
       class="p-2 rounded bg-zinc-900 text-white border border-zinc-700 w-full" />
+      <div *ngFor="let img of immaginiSelezionate; let i = index" class="mt-2 flex flex-col sm:flex-row gap-2 items-center">
+        <span class="text-white text-sm truncate max-w-[150px]">{{ img.file.name }}</span>
+        <input type="text"
+               class="flex-1 px-2 py-1 rounded bg-zinc-900 text-white border border-zinc-700"
+               placeholder="Commento per questa foto"
+               [(ngModel)]="immaginiSelezionate[i].commento"
+               name="commento_{{ i }}">
+      </div>
     <p class="text-xs text-zinc-400 mt-1">Puoi scattare foto o selezionarle dalla galleria</p>
   </div>
 
@@ -67,49 +66,107 @@
 </form>
 
 <!-- TABELLA -->
-<div class="overflow-auto rounded-md border border-zinc-700">
-  <table class="min-w-full divide-y divide-zinc-700 text-sm">
+<div class="overflow-x-auto border border-zinc-700 rounded-md w-full">
+  <table class="min-w-full divide-y divide-zinc-700 text-sm table-fixed">
     <thead class="bg-zinc-800 text-zinc-300">
       <tr>
-        <th class="px-2 py-2 text-left">Codice</th>
-        <th class="px-2 py-2 text-left">Operatore</th>
-        <th class="px-2 py-2 text-left">Data</th>
-        <th class="px-2 py-2 text-left">Coordinate</th>
-        <th class="px-2 py-2 text-left">Descrizione</th>
-        <th class="px-2 py-2 text-left">Stato</th>
-        <th class="px-2 py-2 text-left">Azioni</th>
+        <th class="px-2 py-2 text-left w-28">Codice</th>
+        <th class="px-2 py-2 text-left w-64">Operatore</th>
+        <th class="px-2 py-2 text-left w-40">Data</th>
+        <th class="px-2 py-2 text-left w-64">Coordinate</th>
+        <th class="px-2 py-2 text-left w-64">Descrizione</th>
+        <th class="px-2 py-2 text-left w-32">Stato</th>
+        <th class="px-2 py-2 text-left w-24">Azioni</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let perizia of paginated()" class="bg-zinc-900 hover:bg-zinc-800 transition-colors">
-        <td class="px-2 py-2 text-white">{{ perizia.codicePerizia }}</td>
-        <td class="px-2 py-2 text-zinc-300">{{ perizia.codiceOperatore }}</td>
-        <td class="px-2 py-2 text-zinc-300">{{ perizia.dataOra | date: 'short' }}</td>
-        <td class="px-2 py-2 text-zinc-300">{{ perizia.coordinate.latitudine }}, {{ perizia.coordinate.longitudine }}</td>
-        <td class="px-2 py-2 text-zinc-300">{{ perizia.descrizione }}</td>
-        <td class="px-2 py-2">
-          <span class="px-2 py-1 rounded text-xs font-semibold" [ngClass]="{
-            'bg-green-600 text-white': perizia.stato === 'completata',
-            'bg-yellow-400 text-black': perizia.stato === 'in_corso',
-            'bg-red-600 text-white': perizia.stato === 'annullata'
-          }">
-            {{ perizia.stato }}
-          </span>
-        </td>
-        <td class="px-2 py-2">
-          <button class="text-white hover:text-blue-400" (click)="mostraDettagli(perizia)">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-            </svg>
-          </button>
-        </td>
-      </tr>
+      <ng-container *ngFor="let perizia of paginated()">
+        <tr class="bg-zinc-900 hover:bg-zinc-800 transition-colors">
+          <td class="px-2 py-2 text-white">{{ perizia.codicePerizia }}</td>
+          <td class="px-2 py-2 text-zinc-300">{{ perizia.codiceOperatore }}</td>
+          <td class="px-2 py-2 text-zinc-300">{{ perizia.dataOra | date: 'short' }}</td>
+          <td class="px-2 py-2 text-zinc-300">{{ perizia.coordinate.latitudine }}, {{ perizia.coordinate.longitudine }}</td>
+          <td class="px-2 py-2 text-zinc-300">{{ perizia.descrizione }}</td>
+          <td class="px-2 py-2">
+            <span class="px-2 py-1 rounded text-xs font-semibold" [ngClass]="{
+              'bg-green-600 text-white': perizia.stato === 'completata',
+              'bg-yellow-400 text-black': perizia.stato === 'in_corso',
+              'bg-red-600 text-white': perizia.stato === 'annullata'
+            }">{{ perizia.stato }}</span>
+          </td>
+          <td class="px-2 py-2 flex gap-2">
+            <button class="text-white hover:text-blue-400" (click)="mostraDettagli(perizia)">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"/>
+              </svg>
+            </button>
+            <button class="text-white hover:text-green-400" (click)="avviaModifica(perizia)">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15.232 5.232l3.536 3.536M16 4a2 2 0 012.828 2.828l-10 10H6v-2.828l10-10z"/>
+              </svg>
+            </button>
+            <button *ngIf="perizia.stato === 'in_corso'" class="text-white hover:text-red-500" (click)="eliminaPerizia(perizia._id)">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </td>
+        </tr>
+
+        <!-- FORM MODIFICA -->
+        <tr *ngIf="periziaModifica && periziaModifica._id === perizia._id" class="bg-zinc-800">
+          <td colspan="7" class="px-4 py-4">
+            <form (ngSubmit)="salvaModifica()" class="flex flex-col sm:flex-row gap-2 items-start sm:items-center">
+              <input type="text" [(ngModel)]="periziaModifica.descrizione" name="descrizione"
+                     class="px-2 py-1 bg-zinc-900 text-white border border-zinc-700 rounded w-full sm:w-1/3"
+                     placeholder="Nuova descrizione" />
+              <input type="text" [(ngModel)]="periziaModifica.indirizzo" name="indirizzo"
+                     class="px-2 py-1 bg-zinc-900 text-white border border-zinc-700 rounded w-full sm:w-1/3"
+                     placeholder="Nuovo indirizzo" />
+              <button type="submit"
+                      class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">Salva</button>
+              <button type="button" (click)="annullaModifica()"
+                      class="bg-zinc-600 hover:bg-zinc-500 text-white px-3 py-1 rounded">Annulla</button>
+            </form>
+          </td>
+        </tr>
+      </ng-container>
+
       <tr *ngIf="paginated().length === 0">
         <td colspan="7" class="text-center py-4 text-zinc-500">Nessuna perizia trovata.</td>
       </tr>
     </tbody>
   </table>
+</div>
+
+<!-- DETTAGLI -->
+<div *ngIf="selectedPerizia" class="mt-4 bg-zinc-800 text-white rounded p-4 border border-zinc-700">
+  <div class="flex justify-between items-center mb-2">
+    <h4 class="text-lg font-semibold">Dettagli Perizia {{ selectedPerizia.codicePerizia }}</h4>
+    <button (click)="chiudiDettagli()" class="text-red-400 hover:text-red-500 text-xl">✕</button>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+    <p><strong>Descrizione:</strong> {{ selectedPerizia.descrizione }}</p>
+
+    <p><strong>Coordinate:</strong> {{ selectedPerizia.coordinate.latitudine }}, {{ selectedPerizia.coordinate.longitudine }}</p>
+    <p><strong>Data/Ora:</strong> {{ selectedPerizia.dataOra | date: 'short' }}</p>
+    <p><strong>Stato:</strong> {{ selectedPerizia.stato }}</p>
+  </div>
+  <div class="mt-4">
+    <h5 class="font-semibold mb-2">Fotografie:</h5>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div *ngFor="let foto of selectedPerizia.fotografie" class="flex flex-col items-center">
+        <img [src]="foto.url"
+             class="rounded shadow-md object-cover max-h-48 w-full cursor-pointer"
+             (click)="apriLightbox(foto.url)"
+             alt="Foto perizia" />
+        <p class="text-xs text-zinc-400 mt-1 text-center px-1 break-words">{{ foto.commento }}</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- PAGINAZIONE -->
@@ -119,37 +176,6 @@
   <span>Pagina {{ currentPage() }} di {{ totalPages() }}</span>
   <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
     class="px-3 py-1 rounded bg-zinc-700 hover:bg-zinc-600 disabled:opacity-50">»</button>
-</div>
-
-<!-- DETTAGLI PERIZIA -->
-<div *ngIf="selectedPerizia" class="mt-6 rounded-md border border-zinc-700 bg-zinc-900 p-4 text-white relative">
-  <button (click)="chiudiDettagli()" class="absolute top-4 right-4 text-white hover:text-red-400">
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-    </svg>
-  </button>
-
-  <h3 class="text-lg font-bold mb-4">Dettagli Perizia: {{ selectedPerizia.codicePerizia }}</h3>
-
-  <div class="grid gap-2 text-sm md:grid-cols-2">
-    <div><b>Operatore:</b> {{ selectedPerizia.codiceOperatore }}</div>
-    <div><b>Data/Ora:</b> {{ selectedPerizia.dataOra | date: 'short' }}</div>
-    <div><b>Stato:</b> {{ selectedPerizia.stato }}</div>
-    <div><b>Descrizione:</b> {{ selectedPerizia.descrizione }}</div>
-    <div><b>Coordinate:</b> {{ selectedPerizia.coordinate.latitudine }}, {{ selectedPerizia.coordinate.longitudine }}</div>
-  </div>
-
-  <div *ngIf="selectedPerizia.fotografie?.length" class="mt-6">
-    <h4 class="text-base font-semibold mb-2">Fotografie:</h4>
-    <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-      <div *ngFor="let foto of selectedPerizia.fotografie"
-        class="border border-zinc-700 rounded bg-zinc-800 p-2 text-center cursor-pointer"
-        (click)="apriLightbox(foto.url)">
-        <img [src]="foto.url" alt="Foto perizia" class="w-full h-40 object-cover rounded mb-2" />
-        <p class="text-sm text-zinc-300">{{ foto.commento }}</p>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- LIGHTBOX -->

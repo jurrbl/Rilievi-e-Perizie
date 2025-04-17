@@ -122,23 +122,39 @@ export class MappaComponent implements OnInit, AfterViewInit {
       el.style.color = '#e53935';
       el.style.cursor = 'pointer';
   
-      const fotoHTML = (fotografie || []).map(f => `
-        <img src="${f.url}" class="popup-img" alt="Foto" />
-      `).join('');
-  
+     const fotoHTML = fotografie.map((foto, i) => `
+  <img src="${foto.url}" class="${i === 0 ? 'active' : ''}" />
+`).join('');
       const popupContent = `
-        <div class="popup-container">
-          <div class="popup-img-carousel">${fotoHTML || '<p>Nessuna immagine</p>'}</div>
-          <div class="popup-info">
-            <h4>${codicePerizia}</h4>
-            <p class="popup-date">${new Date(dataOra).toLocaleString()}</p>
-            <p class="popup-desc">${descrizione}</p>
-            <button class="popup-btn" onclick="document.getElementById('dettaglio')?.scrollIntoView({ behavior: 'smooth' })">Dettaglio</button>
-          </div>
-        </div>
-      `;
+  <div class="maplibregl-popup-content">
+    <div class="popup-wrapper">
+      <div class="popup-images">
+        ${fotoHTML || '<p class="no-images">Nessuna immagine</p>'}
+      </div>
+      <div class="popup-details">
+        <p><svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12h6m2 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg> <strong>ID:</strong> ${codicePerizia}</p>
+        <p><svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 7V3m8 4V3M4 11h16M4 19h16M4 15h16"/></svg> <strong>Data/Ora:</strong> ${new Date(dataOra).toLocaleString()}</p>
+        <p><svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0z"/></svg> <strong>Descrizione:</strong> ${descrizione}</p>
+        <button class="popup-btn" onclick="document.getElementById('dettaglio')?.scrollIntoView({ behavior: 'smooth' })">
+          🔍 Dettaglio
+        </button>
+      </div>
+    </div>
+  </div>
+`;
+    
   
       const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupContent);
+      setTimeout(() => {
+        const imgs = document.querySelectorAll('.popup-images img');
+        let current = 0;
+      
+        setInterval(() => {
+          imgs.forEach((img, i) => img.classList.remove('active'));
+          current = (current + 1) % imgs.length;
+          imgs[current].classList.add('active');
+        }, 2000);
+      }, 500);
   
       new maplibregl.Marker({ element: el })
         .setLngLat(lngLat)
@@ -161,5 +177,10 @@ export class MappaComponent implements OnInit, AfterViewInit {
       console.warn('Nessun marker valido da visualizzare.');
     }
   }
-  
+  hideImage(event: Event) {
+    const target = event.target as HTMLImageElement;
+    if (target) {
+      target.style.display = 'none';
+    }
+  }
 }

@@ -24,7 +24,12 @@ export class PerizieComponent implements OnInit {
   alertSuccesso: boolean = true;
   perizie: any[] = [];
   selectedPerizia: any = null;
-  immaginiSelezionate: File[] = [];
+  immaginiSelezionate: { file: File, commento: string }[] = [];
+
+  modificaInCorso: string | null = null;
+  periziaModificata: any = {};
+  periziaModifica: any = null;
+  lightboxUrl: string | null = null;
 
   nuovaPerizia: any = {
     indirizzo: '',
@@ -61,6 +66,61 @@ export class PerizieComponent implements OnInit {
     }
   }
 
+  avviaModifica(perizia: any) {
+    this.periziaModifica = { ...perizia };
+  }
+
+  annullaModifica() {
+    this.periziaModifica = null;
+  }
+
+  async salvaModifica() {
+    try {
+      const aggiornata = await this.dataStorage.inviaRichiesta('put', `/auth/perizie/${this.periziaModifica._id}`, {
+        descrizione: this.periziaModifica.descrizione,
+        indirizzo: this.periziaModifica.indirizzo
+      })?.toPromise();
+  
+      const index = this.perizie.findIndex(p => p._id === this.periziaModifica._id);
+      if (index !== -1) {
+        this.perizie[index] = {
+          ...this.perizie[index],
+          ...this.periziaModifica
+        };
+      }
+      this.authService.setPerizie(this.perizie);
+      this.messaggioAlert = 'Perizia modificata con successo!';
+      this.alertSuccesso = true;
+      this.periziaModifica = null;
+      setTimeout(() => this.messaggioAlert = '', 4000);
+    } catch (err) {
+      console.error('❌ Errore durante la modifica:', err);
+      this.messaggioAlert = 'Errore durante la modifica.';
+      this.alertSuccesso = false;
+      setTimeout(() => this.messaggioAlert = '', 4000);
+    }
+  }
+
+  async eliminaPerizia(id: string) {
+    try {
+      await this.dataStorage.inviaRichiesta('delete', `/auth/perizie/${id}`)?.toPromise();
+      this.perizie = this.perizie.filter(p => p._id !== id);
+      // forza il refresh
+      this.perizie = [...this.perizie];
+      this.authService.setPerizie(this.perizie);
+  
+      this.messaggioAlert = 'Perizia eliminata con successo!';
+      this.alertSuccesso = true;
+      setTimeout(() => this.messaggioAlert = '', 4000);
+    } catch (err) {
+      console.error('❌ Errore durante l’eliminazione:', err);
+      this.messaggioAlert = 'Errore durante l’eliminazione.';
+      this.alertSuccesso = false;
+      setTimeout(() => this.messaggioAlert = '', 4000);
+    }
+  }
+  
+
   async aggiungiPerizia() {
     try {
       const { indirizzo, dataOra, descrizione, stato } = this.nuovaPerizia;
@@ -68,9 +128,9 @@ export class PerizieComponent implements OnInit {
       const coords = await this.getCoordinateDaIndirizzo(indirizzo);
 
       const immaginiUploadate = await Promise.all(
-        this.immaginiSelezionate.map(async (file) => {
-          const url = await this.uploadToCloudinary(file);
-          return { url, commento: '' };
+        this.immaginiSelezionate.map(async (img) => {
+          const url = await this.uploadToCloudinary(img.file);
+          return { url, commento: img.commento };
         })
       );
 
@@ -79,6 +139,7 @@ export class PerizieComponent implements OnInit {
         dataOra,
         descrizione,
         stato,
+        indirizzo,
         codiceOperatore: currentUser._id,
         fotografie: []
       };
@@ -92,7 +153,6 @@ export class PerizieComponent implements OnInit {
       });
       this.authService.setPerizie(this.perizie);
 
-      // Caricamento immagini separate
       for (const img of immaginiUploadate) {
         await this.dataStorage.inviaRichiesta('post', `/auth/perizie/${periziaId}/foto`, {
           url: img.url,
@@ -173,20 +233,21 @@ export class PerizieComponent implements OnInit {
     };
   }
 
-  lightboxUrl: string | null = null;
+  apriLightbox(url: string) {
+    this.lightboxUrl = url;
+  }
 
-apriLightbox(url: string) {
-  this.lightboxUrl = url;
-}
-
-chiudiLightbox() {
-  this.lightboxUrl = null;
-}
+  chiudiLightbox() {
+    this.lightboxUrl = null;
+  }
 
   onFileSelect(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input?.files) {
-      this.immaginiSelezionate = Array.from(input.files);
+      this.immaginiSelezionate = Array.from(input.files).map(file => ({
+        file,
+        commento: ''
+      }));
     }
   }
 
@@ -219,19 +280,6 @@ chiudiLightbox() {
     }
   }
 
-  onSearchInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    this.search.set(target?.value || '');
-  }
-  
-  onStatusChange(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    this.selectedStatus.set(target?.value || '');
-  }
-  chiudiDettagli() {
-    this.selectedPerizia = null;
-  }
-
   prevPage() {
     this.goToPage(this.currentPage() - 1);
   }
@@ -243,11 +291,16 @@ chiudiLightbox() {
   updateSearch(value: string) {
     this.search.set(value);
   }
+
   updateStatus(value: string) {
     this.selectedStatus.set(value);
   }
 
   mostraDettagli(perizia: any) {
     this.selectedPerizia = perizia;
+  }
+
+  chiudiDettagli() {
+    this.selectedPerizia = null;
   }
 }

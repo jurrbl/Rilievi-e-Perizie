@@ -1,13 +1,18 @@
-import { Injectable } from '@angular/core';
+declare var gapi: any;
 
+import { Injectable } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Inject,PLATFORM_ID  } from '@angular/core';
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private user: any = null;
   private perizie : any = null;
+  isBrowser: boolean;
 
-  constructor() {
+  constructor(@Inject(PLATFORM_ID) platformId: Object) {
+    this.isBrowser = isPlatformBrowser(platformId);
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
       console.log(savedUser)
@@ -56,11 +61,32 @@ export class AuthService {
   }
 
   
+  logout(): void {
+    if (this.isBrowser && typeof gapi !== 'undefined') {
+      const auth2 = gapi.auth2.getAuthInstance();
+      if (auth2 != null) {
+        auth2.signOut().then(() => {
+          console.log('Google User signed out.');
+          this.cleanLocalData();
+        });
+      } else {
+        this.cleanLocalData();
+      }
+    } else {
+      this.cleanLocalData();
+    }
+  }
 
-  public logout(): void {
-    this.user = null;
+  clear() {
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
-    localStorage.removeItem('token'); // se vuoi rimuovere anche il token
+    window.location.href = '/login';
+  }
+  
+  private cleanLocalData(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
   }
 
   public isLoggedIn(): boolean {
