@@ -52,8 +52,5 @@ toggleDropdown() {
     this.mobileOpen = false;
     this.close.emit();
   }
-  
-    logout() {
-      this.authService.logout();
-    }
+
 }

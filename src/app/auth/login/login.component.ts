@@ -19,6 +19,8 @@ import {
 import { Router, RouterModule } from '@angular/router';
 import { LoginEffectsService } from '../login-effects.service';
 import { DataStorageService } from '../../shared/data-storage.service';
+import { AuthService } from '../auth.service';
+import { HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -36,6 +38,7 @@ export class LoginComponent implements AfterViewInit {
     private router: Router,
     private loginEffectsService: LoginEffectsService,
     private dataStorage: DataStorageService, // ✅ INIETTA IL SERVIZIO
+    private authService: AuthService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
