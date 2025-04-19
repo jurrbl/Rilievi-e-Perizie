@@ -31,6 +31,8 @@ export class PerizieComponent implements OnInit {
   periziaModifica: any = null;
   lightboxUrl: string | null = null;
 
+  
+
   nuovaPerizia: any = {
     indirizzo: '',
     dataOra: '',
@@ -73,26 +75,34 @@ export class PerizieComponent implements OnInit {
   annullaModifica() {
     this.periziaModifica = null;
   }
-
   async salvaModifica() {
     try {
+      // 1. Ottieni coordinate dal nuovo indirizzo
+      const coords = await this.getCoordinateDaIndirizzo(this.periziaModifica.indirizzo);
+  
+      // 2. Invio aggiornamento al backend con indirizzo e coordinate aggiornate
       const aggiornata = await this.dataStorage.inviaRichiesta('put', `/auth/perizie/${this.periziaModifica._id}`, {
         descrizione: this.periziaModifica.descrizione,
-        indirizzo: this.periziaModifica.indirizzo
+        indirizzo: this.periziaModifica.indirizzo,
+        coordinate: coords
       })?.toPromise();
   
+      // 3. Aggiorna localmente la perizia modificata
       const index = this.perizie.findIndex(p => p._id === this.periziaModifica._id);
       if (index !== -1) {
         this.perizie[index] = {
           ...this.perizie[index],
-          ...this.periziaModifica
+          ...this.periziaModifica,
+          coordinate: coords
         };
       }
+  
       this.authService.setPerizie(this.perizie);
       this.messaggioAlert = 'Perizia modificata con successo!';
       this.alertSuccesso = true;
       this.periziaModifica = null;
       setTimeout(() => this.messaggioAlert = '', 4000);
+  
     } catch (err) {
       console.error('❌ Errore durante la modifica:', err);
       this.messaggioAlert = 'Errore durante la modifica.';
@@ -100,6 +110,7 @@ export class PerizieComponent implements OnInit {
       setTimeout(() => this.messaggioAlert = '', 4000);
     }
   }
+  
 
   async eliminaPerizia(id: string) {
     try {

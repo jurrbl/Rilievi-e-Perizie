@@ -1,0 +1,25 @@
+[33m5ae8814[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m HEAD@{0}: commit (merge): Gotta Fix Reset Password Still
+[33m28131fe[m HEAD@{1}: commit: Gotta Fix Reset Password Still
+[33mb60efa9[m HEAD@{2}: commit: Still gotta do responsive for login reverse
+[33m469507c[m HEAD@{3}: commit: Still gotta implement register and his animations
+[33m86faac3[m HEAD@{4}: commit: User WebApp Done Basically... Just Need A Better Design On InfoWindow
+[33m2aa1e33[m HEAD@{5}: commit: Map Fixed Markers //TODO InfoWindow With Carousel Animation
+[33mdabe614[m HEAD@{6}: pull: Fast-forward
+[33mdceb1c5[m HEAD@{7}: commit: Implement Add Perizia With Custom ID
+[33mb9272dc[m HEAD@{8}: pull: Fast-forward
+[33m1223bcf[m HEAD@{9}: pull: Fast-forward
+[33m9456713[m HEAD@{10}: commit: TODO Fix Map And Scrollable Component
+[33m3de18ba[m HEAD@{11}: commit: Map Section Started + Markers Implementation TODO
+[33m81594c7[m HEAD@{12}: pull --tags origin main: Fast-forward
+[33m73e0685[m HEAD@{13}: commit: Pushed Dashboard
+[33m6774672[m HEAD@{14}: pull: Fast-forward
+[33mda29841[m HEAD@{15}: commit: Pushed User Added Request System
+[33m54c9bdb[m HEAD@{16}: commit: Login with google working
+[33mb7dd438[m HEAD@{17}: pull: Fast-forward
+[33m3b05e39[m HEAD@{18}: pull: Fast-forward
+[33m38a25fb[m HEAD@{19}: commit: NVM
+[33mfdb118c[m HEAD@{20}: pull: Fast-forward
+[33mc3d4894[m HEAD@{21}: commit: First look at user's dashboard + styling kinda done
+[33mcfb4911[m HEAD@{22}: commit: Router for User and Admin Done Gotta Style The Components
+[33m6cb4869[m HEAD@{23}: commit: Done Fixed ImgCarousel
+[33m9b0fb7c[m HEAD@{24}: clone: from https://github.com/jurrbl/Rilievi-e-Perizie.git

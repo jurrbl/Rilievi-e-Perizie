@@ -75,7 +75,6 @@ export class LoginComponent implements AfterViewInit {
   }
 
   
-
   onSubmit(): void {
     if (this.loginForm.invalid) return;
   
@@ -84,14 +83,14 @@ export class LoginComponent implements AfterViewInit {
     this.dataStorage.inviaRichiesta('post', '/auth/login', { email, password })?.subscribe({
       next: (res: any) => {
         console.log('✅ Login effettuato:', res);
+  
+        localStorage.removeItem('perizie'); // ✅ Cancella le perizie salvate del vecchio utente
+  
         localStorage.setItem('token', res.token);
         localStorage.setItem('user', JSON.stringify(res.user));
   
-        if (email === 'admin@test.com') {
-          this.router.navigate(['/admin']);
-        } else {
           this.router.navigate(['/home']);
-        }
+        
       },
       error: (err) => {
         console.error('❌ Errore login:', err);
@@ -99,6 +98,7 @@ export class LoginComponent implements AfterViewInit {
       }
     });
   }
+  
     onRegister(): void {
     if (this.registerForm.invalid) return;
   

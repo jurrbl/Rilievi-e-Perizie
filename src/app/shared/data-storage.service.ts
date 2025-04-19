@@ -16,23 +16,22 @@ export class DataStorageService {
     params: any = {}
   ): Observable<Object> | undefined {
     resource = this.REST_API_SERVER + resource;
-  
-    const headers = {
-      Authorization: `Bearer ${localStorage.getItem('token') || ''}`
+
+    const options = {
+      withCredentials: true 
     };
   
     switch (method.toLowerCase()) {
       case 'get':
-        return this.httpClient.get(resource, { params: params, headers });
+        return this.httpClient.get(resource, { params, ...options });
       case 'delete':
-        return this.httpClient.delete(resource, { body: params, headers });
+        return this.httpClient.delete(resource, { body: params, ...options });
       case 'post':
-        return this.httpClient.post(resource, params, { headers });
+        return this.httpClient.post(resource, params, { ...options });
       case 'patch':
-        return this.httpClient.patch(resource, params, { headers });
+        return this.httpClient.patch(resource, params, { ...options });
       case 'put':
-        return this.httpClient.put(resource, params, { headers });
-        
+        return this.httpClient.put(resource, params, { ...options });
       default:
         return undefined;
     }

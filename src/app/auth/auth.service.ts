@@ -80,6 +80,7 @@ export class AuthService {
   clear() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('perizie'); 
     window.location.href = '/login';
   }
   
