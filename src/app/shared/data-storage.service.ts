@@ -1,14 +1,14 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+  import { HttpClient } from '@angular/common/http';
+  import { Injectable } from '@angular/core';
+  import { Observable } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
-export class DataStorageService {
-  private REST_API_SERVER = 'http://localhost:3000/api';
+  @Injectable({
+    providedIn: 'root',
+  })
+  export class DataStorageService {
+    private REST_API_SERVER = 'http://localhost:3000/api';
 
-  constructor(private httpClient: HttpClient) {}
+    constructor(private httpClient: HttpClient) { }
 
   public inviaRichiesta(
     method: string,

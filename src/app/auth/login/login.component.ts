@@ -49,6 +49,7 @@ export class LoginComponent implements AfterViewInit {
       username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
+      profilePicture: ['', Validators.required], // 👈 nuovo campo
     });
   }
 
@@ -57,6 +58,25 @@ export class LoginComponent implements AfterViewInit {
       this.initializeGoogleAuth();
       this.loginEffectsService.applyLoginEffects();
     }
+  }
+
+
+  onForgotPassword(): void {
+    const email = this.loginForm.get('email')?.value;
+    if (!email) {
+      alert('Inserisci prima un’email');
+      return;
+    }
+
+    this.authService.forgotPassword(email).subscribe({
+      next: (res) => {
+        alert('📧 Email inviata con la nuova password temporanea');
+      },
+      error: (err) => {
+        console.error('Errore invio nuova password', err);
+        alert('Errore durante l’invio. Riprova.');
+      }
+    });
   }
 
   toggleForm(event?: Event): void {
@@ -116,6 +136,7 @@ export class LoginComponent implements AfterViewInit {
       }
     });
   }
+
 
   initializeGoogleAuth(): void {
     const interval = setInterval(() => {
