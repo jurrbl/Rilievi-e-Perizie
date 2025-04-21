@@ -6,7 +6,7 @@
     providedIn: 'root',
   })
   export class DataStorageService {
-    private REST_API_SERVER = 'http://localhost:3000/api';
+    private REST_API_SERVER = 'https://backend-rilievi.onrender.com/api';
 
     constructor(private httpClient: HttpClient) { }
 

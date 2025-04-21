@@ -29,7 +29,7 @@ export class ForgotPasswordComponent {
     this.messaggio = '';
     this.errore = '';
 
-    this.http.post('http://localhost:3000/api/auth/forgot-password', this.forgotForm.value)
+    this.http.post('https://backend-rilievi.onrender.com/api/auth/forgot-password', this.forgotForm.value)
       .subscribe({
         next: () => {
           this.messaggio = 'Controlla la tua email per il link di recupero!';

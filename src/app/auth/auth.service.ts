@@ -4,6 +4,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ export class AuthService {
   private user: any = null;
   private perizie: any = null;
   isBrowser: boolean;
+  private readonly api = environment.apiUrl;
 
   constructor(
     @Inject(PLATFORM_ID) platformId: Object,
@@ -19,7 +21,6 @@ export class AuthService {
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
 
-    // ✅ Sicuro: JSON.parse protetto
     const savedUser = localStorage.getItem('user');
     try {
       this.user = savedUser ? JSON.parse(savedUser) : null;
@@ -43,21 +44,15 @@ export class AuthService {
   }
 
   public checkGoogleSession() {
-    return this.http.get<any>('http://localhost:3000/api/auth/me', {
-      withCredentials: true,
-    });
+    return this.http.get<any>(`${this.api}/auth/me`, { withCredentials: true });
   }
+
   public fetchPerizieTotali(): Observable<{ perizie: any[], nPerizie: number }> {
-    return this.http.get<{ perizie: any[], nPerizie: number }>(
-      'http://localhost:3000/api/operator/perizie',
-      { withCredentials: true }
-    );
+    return this.http.get<{ perizie: any[], nPerizie: number }>(`${this.api}/operator/perizie`, { withCredentials: true });
   }
 
   public fetchUtentiCompleti() {
-    return this.http.get<any[]>('http://localhost:3000/api/operator/users', {
-      withCredentials: true
-    });
+    return this.http.get<any[]>(`${this.api}/operator/users`, { withCredentials: true });
   }
 
   public getUser(): any {
@@ -100,47 +95,31 @@ export class AuthService {
   }
 
   public register(user: { username: string; email: string; password: string }) {
-    return this.http.post('http://localhost:3000/api/auth/register', user, {
-      withCredentials: true,
-    });
+    return this.http.post(`${this.api}/auth/register`, user, { withCredentials: true });
   }
 
   public login(user: { email: string; password: string }) {
-    return this.http.post('http://localhost:3000/api/auth/login', user, {
-      withCredentials: true,
-    });
+    return this.http.post(`${this.api}/auth/login`, user, { withCredentials: true });
   }
 
   public getMe() {
-    return this.http.get('http://localhost:3000/api/auth/me', {
-      withCredentials: true,
-    });
+    return this.http.get(`${this.api}/auth/me`, { withCredentials: true });
   }
 
   public fetchPerizie() {
-    return this.http.get('http://localhost:3000/api/operator/perizie', {
-      withCredentials: true,
-    });
+    return this.http.get(`${this.api}/operator/perizie`, { withCredentials: true });
   }
+
   public fetchPerizieAdmin(): Observable<{ perizie: any[], nPerizie: number }> {
-    return this.http.get<{ perizie: any[], nPerizie: number }>(
-      'http://localhost:3000/api/admin/all-perizie',
-      { withCredentials: true }
-    );
+    return this.http.get<{ perizie: any[], nPerizie: number }>(`${this.api}/admin/all-perizie`, { withCredentials: true });
   }
-  
+
   public updatePerizia(id: string, data: any) {
-    return this.http.put(`http://localhost:3000/api/admin/perizie/${id}`, data, {
-      withCredentials: true
-    });
+    return this.http.put(`${this.api}/admin/perizie/${id}`, data, { withCredentials: true });
   }
-  
+
   public forgotPassword(email: string) {
-    return this.http.post(
-      'http://localhost:3000/api/auth/forgot-password',
-      { email },
-      { withCredentials: true }
-    );
+    return this.http.post(`${this.api}/auth/forgot-password`, { email }, { withCredentials: true });
   }
 
   public resetPassword(data: {
@@ -148,30 +127,23 @@ export class AuthService {
     email: string;
     nuovaPassword: string;
   }) {
-    return this.http.post(
-      'http://localhost:3000/api/auth/reset-password',
-      data,
-      { withCredentials: true }
-    );
+    return this.http.post(`${this.api}/auth/reset-password`, data, { withCredentials: true });
   }
 
   public logout(): void {
-    this.http
-      .get('http://localhost:3000/api/auth/logout', { withCredentials: true })
-      .subscribe({
-        next: () => {
-          this.user = null;
-          this.perizie = null;
-          localStorage.removeItem('user');
-          localStorage.removeItem('perizie');
-          console.log('✅ Logout eseguito');
-        },
-        error: (err) => {
-          console.error('❌ Errore durante il logout:', err);
-        },
-      });
+    this.http.get(`${this.api}/auth/logout`, { withCredentials: true }).subscribe({
+      next: () => {
+        this.user = null;
+        this.perizie = null;
+        localStorage.removeItem('user');
+        localStorage.removeItem('perizie');
+        console.log('✅ Logout eseguito');
+      },
+      error: (err) => {
+        console.error('❌ Errore durante il logout:', err);
+      },
+    });
 
-    // Google logout
     if (this.isBrowser && typeof gapi !== 'undefined') {
       const auth2 = gapi.auth2.getAuthInstance();
       if (auth2 != null) {
@@ -192,12 +164,8 @@ export class AuthService {
     return saved ? JSON.parse(saved) : [];
   }
 
-
-
   public fetchUtenti(): void {
-    this.http.get<any[]>('http://localhost:3000/api/admin/users', {
-      withCredentials: true,
-    }).subscribe({
+    this.http.get<any[]>(`${this.api}/admin/users`, { withCredentials: true }).subscribe({
       next: (utenti) => {
         localStorage.setItem('utenti', JSON.stringify(utenti));
       },
@@ -207,7 +175,6 @@ export class AuthService {
     });
   }
 
-  // ✅ Recupera utenti dal localStorage (fallback incluso)
   public getUtenti(): any[] {
     const saved = localStorage.getItem('utenti');
     return saved ? JSON.parse(saved) : [];

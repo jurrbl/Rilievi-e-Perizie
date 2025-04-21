@@ -17,7 +17,7 @@ export interface Perizia {
   providedIn: 'root'
 })
 export class PerizieService {
-  private baseUrl = 'http://localhost:3000/api/operator/perizie';
+  private baseUrl = 'http://https://backend-rilievi.onrender.com/api/operator/perizie';
 
   constructor(private http: HttpClient) {}
 

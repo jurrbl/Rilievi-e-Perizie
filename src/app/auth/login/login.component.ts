@@ -21,6 +21,7 @@ import { LoginEffectsService } from '../login-effects.service';
 import { DataStorageService } from '../../shared/data-storage.service';
 import { AuthService } from '../auth.service';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -160,7 +161,7 @@ export class LoginComponent implements AfterViewInit {
               (googleUser: any) => {
                 const profile = googleUser.getBasicProfile();
                 console.log('Google Login Success:', profile.getName(), profile.getEmail());
-                window.location.href = 'http://localhost:3000/api/auth/google';
+                window.location.href = 'https://backend-rilievi.onrender.com/api/auth/google';
               },
               (err: any) => console.error('Google Login Failed:', err)
             );
