@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [NgClass, NgIf, RouterLink, RouterLink],
+  imports: [NgClass, NgIf, RouterLink],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],
 })
@@ -21,14 +21,19 @@ export class SidebarComponent {
 
   username: string = '';
   profilePicture: string = '';
+  role: string = '';
 
-  constructor(private authService: AuthService, private router : Router) {}
-
+  constructor(private authService: AuthService, private router: Router) {}
   ngOnInit(): void {
     const user = this.authService.getUser();
+
+    if (!user) return; // 👈 Evita crash se l'utente è null
+
     this.username = user.username || user.googleUsername || '';
-    this.profilePicture = user.profilePicture || '';
+    this.profilePicture = user.profilePicture || 'assets/img/default-avatar.png';
+    this.role = user.role || '';
   }
+
 
   setOpen(value: boolean) {
     this.open = value;
@@ -36,13 +41,12 @@ export class SidebarComponent {
 
   logout() {
     this.authService.logout();
-    // Optional: redirect dopo logout
-    this.router.navigate(['/login']); // oppure altro path se preferisci
+    this.router.navigate(['/login']);
   }
 
-toggleDropdown() {
-  this.isDropdownOpen = !this.isDropdownOpen;
-}
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
 
   toggleMobileSidebar() {
     this.mobileOpen = !this.mobileOpen;
@@ -52,5 +56,4 @@ toggleDropdown() {
     this.mobileOpen = false;
     this.close.emit();
   }
-
 }

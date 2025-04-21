@@ -12,21 +12,52 @@ export interface Perizia {
   descrizione: string;
   stato: 'in_corso' | 'completata' | 'annullata';
 }
+
 @Injectable({
   providedIn: 'root'
 })
 export class PerizieService {
-  private apiUrl = 'http://localhost:3000/api/auth/perizie';
+  private baseUrl = 'http://localhost:3000/api/operator/perizie';
 
   constructor(private http: HttpClient) {}
 
+  // ✅ Ottieni tutte le perizie dell'operatore loggato
   getPerizie(): Observable<{ perizie: Perizia[] }> {
-    return this.http.get<{ perizie: Perizia[] }>(this.apiUrl);
+    return this.http.get<{ perizie: Perizia[] }>(this.baseUrl, {
+      withCredentials: true
+    });
   }
-  salvaPerizia(perizia: any) {
-    return this.http.post<any>('http://localhost:3000/api/auth/addPerizie', perizia).toPromise();
+
+  // ✅ Salva nuova perizia
+  salvaPerizia(perizia: any): Promise<any> {
+    return this.http.post<any>(this.baseUrl, perizia, {
+      withCredentials: true
+    }).toPromise();
+  }
 
 
+  aggiungiFoto(periziaId: string, foto: { url: string; commento: string }): Promise<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/${periziaId}/foto`,
+      foto,
+      { withCredentials: true }
+    ).toPromise();
   }
+
+
+  modificaPerizia(id: string, aggiornamenti: Partial<Perizia>): Promise<any> {
+    return this.http.put<any>(
+      `${this.baseUrl}/${id}`,
+      aggiornamenti,
+      { withCredentials: true }
+    ).toPromise();
+  }
+
   
+  eliminaPerizia(id: string): Promise<any> {
+    return this.http.delete<any>(
+      `${this.baseUrl}/${id}`,
+      { withCredentials: true }
+    ).toPromise();
+  }
 }

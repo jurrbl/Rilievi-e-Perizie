@@ -97,23 +97,23 @@ export class LoginComponent implements AfterViewInit {
     }
   }
 
-  
+
   onSubmit(): void {
     if (this.loginForm.invalid) return;
-  
+
     const { email, password } = this.loginForm.value;
-  
+
     this.dataStorage.inviaRichiesta('post', '/auth/login', { email, password })?.subscribe({
       next: (res: any) => {
         console.log('✅ Login effettuato:', res);
-  
+
+                this.router.navigate(['/home']);
+
         localStorage.removeItem('perizie'); // ✅ Cancella le perizie salvate del vecchio utente
-  
+
         localStorage.setItem('token', res.token);
         localStorage.setItem('user', JSON.stringify(res.user));
-  
-          this.router.navigate(['/home']);
-        
+
       },
       error: (err) => {
         console.error('❌ Errore login:', err);
@@ -121,12 +121,12 @@ export class LoginComponent implements AfterViewInit {
       }
     });
   }
-  
+
     onRegister(): void {
     if (this.registerForm.invalid) return;
-  
+
     const newUser = this.registerForm.value;
-  
+
     this.dataStorage.inviaRichiesta('post', '/auth/register', newUser)?.subscribe({
       next: (res: any) => {
         console.log('✅ Utente registrato:', res);

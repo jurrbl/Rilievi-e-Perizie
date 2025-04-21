@@ -1,0 +1,169 @@
+<div class="p-6 text-white rounded-xl shadow-lg space-y-6" id="fullsize">
+  <!-- 👤 Dettagli Admin -->
+  <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+    <div class="flex items-center gap-4">
+      <img [src]="profilePicture || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'"
+           alt="Admin avatar"
+           class="w-20 h-20 rounded-full object-cover border-4 border-gray-700" />
+      <h2 class="text-2xl font-bold text-white">{{ username }}</h2>
+    </div>
+    <div class="flex flex-col gap-2 text-sm text-gray-300">
+      <div class="flex items-center gap-2">
+        <span class="min-w-[90px] font-semibold text-white">Telefono:</span>
+        <span>{{ phone }}</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="min-w-[90px] font-semibold text-white">Email:</span>
+        <span>{{ email }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔢 Statistiche -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-center">
+    <div class="bg-gray-800 p-4 rounded-lg">
+      <div class="text-3xl font-bold text-white">{{ utenti.length }}</div>
+      <div class="text-gray-400 text-sm">Utenti Registrati</div>
+    </div>
+    <div class="bg-gray-800 p-4 rounded-lg">
+      <div class="text-3xl font-bold text-white">{{ perizieRevisionate }}</div>
+      <div class="text-gray-400 text-sm">Perizie Revisionate</div>
+    </div>
+    <div class="bg-gray-800 p-4 rounded-lg">
+      <div class="text-xl font-semibold text-white">{{ role }}</div>
+      <div class="text-gray-400 text-sm">Ruolo</div>
+    </div>
+    <div class="bg-gray-800 p-4 rounded-lg">
+      <div class="text-xl font-semibold text-white">{{ lastSeen }}</div>
+      <div class="text-gray-400 text-sm">Ultimo Accesso</div>
+    </div>
+  </div>
+<!-- ➕ Aggiungi Operatore -->
+<div class="mt-6 bg-gray-800 p-4 rounded-lg">
+  <h3 class="text-lg font-semibold mb-3">Aggiungi Operatore</h3>
+  <form (ngSubmit)="aggiungiOperatore()" #form="ngForm">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      <input type="text"
+             [(ngModel)]="nuovoOperatore.username"
+             name="username"
+             required
+             placeholder="Username"
+             class="bg-zinc-900 text-white p-2 rounded border border-zinc-700" />
+
+      <input type="email"
+             [(ngModel)]="nuovoOperatore.email"
+             name="email"
+             required
+             placeholder="Email"
+             class="bg-zinc-900 text-white p-2 rounded border border-zinc-700" />
+
+      <input type="password"
+             [(ngModel)]="nuovoOperatore.password"
+             name="password"
+             required
+             placeholder="Password"
+             class="bg-zinc-900 text-white p-2 rounded border border-zinc-700" />
+
+      <label class="text-sm text-white flex items-center gap-2">
+        <input type="checkbox"
+               [(ngModel)]="nuovoOperatore.abilitato"
+               name="abilitato"
+               class="accent-blue-500" />
+        Abilitato a creare perizie
+      </label>
+    </div>
+    <button type="submit"
+            [disabled]="form.invalid"
+            class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+      Aggiungi
+    </button>
+  </form>
+</div>
+
+
+  <!-- 📋 Tabella Utenti -->
+  <div class="mt-6">
+    <h3 class="text-xl font-semibold mb-4">Gestione Utenti</h3>
+    <div class="overflow-y-auto max-h-[300px] border border-gray-700 rounded-md">
+      <table class="min-w-full text-sm text-gray-300 table-auto">
+        <thead class="bg-gray-800 sticky top-0">
+          <tr>
+            <th class="p-3 text-left">Foto</th>
+            <th class="p-3 text-left">Nome</th>
+            <th class="p-3 text-left">Email</th>
+            <th class="p-3 text-left">Perizie</th>
+            <th class="p-3 text-left">Azioni</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let utente of utenti" class="border-t border-gray-700 hover:bg-gray-800 transition">
+            <td class="p-3">
+              <img [src]="utente.profilePicture || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'" class="w-8 h-8 rounded-full object-cover" />
+            </td>
+            <td class="p-3">{{ utente.username }}</td>
+            <td class="p-3">{{ utente.email }}</td>
+            <td class="p-3 relative">
+              <span>{{ utente.in_corso_count || 0 }}</span>
+              <span *ngIf="utente.in_corso_count > 0"
+                    class="absolute top-0 left-6 bg-yellow-500 text-black text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                !
+              </span>
+            </td>
+            <td class="p-3">
+              <button
+              (click)="visualizzaPerizieUtente(utente)"
+              [disabled]="utente.in_corso_count === 0"
+              [ngClass]="utente.in_corso_count === 0 ? 'bg-gray-600' : 'bg-blue-600 hover:bg-blue-700'"
+              class="text-white px-3 py-1 rounded text-xs">
+              Visualizza
+            </button>
+
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 🕵️‍♂️ Perizie da Revisionare dell'Utente selezionato -->
+  <div class="mt-10" *ngIf="perizieDaRevisionare.length > 0">
+    <h3 class="text-xl font-semibold mb-4">Perizie da Revisionare dell'Utente</h3>
+    <div class="space-y-4">
+      <div *ngFor="let perizia of perizieDaRevisionare" class="bg-gray-800 p-4 rounded-lg space-y-2">
+        <div class="text-white font-semibold">{{ perizia.descrizione }}</div>
+        <p class="text-sm text-gray-400">Data: {{ perizia.dataOra | date:'short' }}</p>
+
+        <!-- Modifica Descrizione -->
+        <textarea [(ngModel)]="perizia.descrizione" class="w-full bg-zinc-900 text-white p-2 rounded border border-zinc-600 text-sm" placeholder="Modifica descrizione"></textarea>
+
+        <!-- 📷 Foto con commenti -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+          <div *ngFor="let foto of perizia.fotografie" class="bg-gray-900 p-3 rounded shadow">
+            <img
+              [src]="foto.url"
+              alt="Foto perizia"
+              class="w-full h-[200px] object-cover rounded mb-2"
+            />
+            <input
+              type="text"
+              [(ngModel)]="foto.commento"
+              class="w-full bg-gray-800 text-white px-2 py-1 rounded text-sm"
+              placeholder="Commento dell'immagine"
+            />
+          </div>
+        </div>
+
+        <div class="flex gap-2 mt-2">
+          <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
+                  (click)="cambiaStato(perizia, 'completata')">Approva</button>
+          <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                  (click)="cambiaStato(perizia, 'annullata')">Rifiuta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="perizieDaRevisionare.length === 0" class="mt-6 text-gray-400 italic">
+    Nessuna perizia da revisionare per questo utente.
+  </div>
+</div>

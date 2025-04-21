@@ -82,8 +82,10 @@
     <tbody>
       <ng-container *ngFor="let perizia of paginated()">
         <tr class="bg-zinc-900 hover:bg-zinc-800 transition-colors">
-          <td class="px-2 py-2 text-white">{{ perizia.codicePerizia }}</td>
-          <td class="px-2 py-2 text-zinc-300">{{ perizia.codiceOperatore }}</td>
+          <td class="px-2 py-2 text-white">{{ perizia.codicePerizia || 'N.D.' }}</td>
+          <td class="px-2 py-2 text-zinc-300">
+            {{ authService.getUser()?.username || perizia.codiceOperatore }}
+          </td>
           <td class="px-2 py-2 text-zinc-300">{{ perizia.dataOra | date: 'short' }}</td>
           <td class="px-2 py-2 text-zinc-300">{{ perizia.coordinate.latitudine }}, {{ perizia.coordinate.longitudine }}</td>
           <td class="px-2 py-2 text-zinc-300">{{ perizia.descrizione }}</td>

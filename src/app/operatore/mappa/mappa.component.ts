@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import * as maplibregl from 'maplibre-gl';
-import { AuthService } from '../auth/auth.service';
+import { AuthService } from '../../auth/auth.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   templateUrl: './mappa.component.html',
   styleUrls: ['./mappa.component.css']
-  
+
 })
 export class MappaComponent implements OnInit, AfterViewInit {
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef;
@@ -91,29 +91,29 @@ export class MappaComponent implements OnInit, AfterViewInit {
 
   renderMarkers(): void {
     if (!this.map) return;
-  
+
     // Rimuove tutti i marker esistenti
     const markerElements = document.querySelectorAll('.maplibregl-marker');
     markerElements.forEach(el => el.remove());
-  
+
     const bounds = new maplibregl.LngLatBounds();
     let markerCount = 0;
-  
+
     this.perizieFiltrate.forEach(perizia => {
       const { codicePerizia, descrizione, coordinate, dataOra, fotografie } = perizia;
-  
+
       if (!coordinate) return;
-  
+
       const lat = parseFloat(coordinate.latitudine);
       const lon = parseFloat(coordinate.longitudine);
-  
+
       // Validazione robusta
       if (isNaN(lat) || isNaN(lon)) return;
-  
+
       const lngLat: [number, number] = [lon, lat];
       bounds.extend(lngLat);
       markerCount++;
-  
+
       // Elemento marker personalizzato
       const el = document.createElement('span');
       el.className = 'material-icons';
@@ -121,7 +121,7 @@ export class MappaComponent implements OnInit, AfterViewInit {
       el.style.fontSize = '36px';
       el.style.color = '#e53935';
       el.style.cursor = 'pointer';
-  
+
      const fotoHTML = fotografie.map((foto, i) => `
   <img src="${foto.url}" class="${i === 0 ? 'active' : ''}" />
 `).join('');
@@ -142,25 +142,25 @@ export class MappaComponent implements OnInit, AfterViewInit {
     </div>
   </div>
 `;
-    
-  
+
+
       const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupContent);
       setTimeout(() => {
         const imgs = document.querySelectorAll('.popup-images img');
         let current = 0;
-      
+
         setInterval(() => {
           imgs.forEach((img, i) => img.classList.remove('active'));
           current = (current + 1) % imgs.length;
           imgs[current].classList.add('active');
         }, 2000);
       }, 500);
-  
+
       new maplibregl.Marker({ element: el })
         .setLngLat(lngLat)
         .setPopup(popup)
         .addTo(this.map);
-  
+
       el.addEventListener('click', () => {
         this.map.flyTo({
           center: lngLat,
@@ -170,7 +170,7 @@ export class MappaComponent implements OnInit, AfterViewInit {
         });
       });
     });
-  
+
     if (markerCount > 0) {
       this.map.fitBounds(bounds, { padding: 60, duration: 1000 });
     } else {

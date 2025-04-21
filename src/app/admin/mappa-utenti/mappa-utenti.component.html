@@ -1,0 +1,67 @@
+<div class="wrapper">
+  <div class="top-section">
+    <div class="mappa-wrapper">
+      <div class="toolbar">
+        <h2>Perizie Utenti</h2>
+      </div>
+      <div #mapContainer id="mapContainer"></div>
+    </div>
+
+    <div class="sidebar bg-gray-900 text-white p-4 rounded-lg">
+      <h3 class="text-lg font-semibold mb-2">Seleziona Utente</h3>
+
+      <div class="space-y-2 mb-4">
+        <div
+          *ngFor="let utente of utenti"
+          class="flex items-center gap-2 cursor-pointer hover:text-blue-400"
+          (click)="selezionaUtente(utente)"
+        >
+          <img
+            [src]="utente.profilePicture || 'https://www.gravatar.com/avatar/?d=mp&s=40'"
+            alt="Profile"
+            class="w-8 h-8 rounded-full object-cover border"
+          />
+          <span class="truncate">{{ utente.username || utente.googleUsername }}</span>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <h4 class="text-sm font-medium mb-1">Filtra Perizie</h4>
+        <div class="flex flex-wrap gap-2">
+          <button (click)="filtraPerizie('in_corso')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">
+            In Corso
+          </button>
+          <button (click)="filtraPerizie('completate')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">
+            Completate
+          </button>
+          <button (click)="filtraPerizie('in_attesa')" class="bg-yellow-700 hover:bg-yellow-800 text-white px-3 py-1 rounded">
+            In Attesa
+          </button>
+          <button (click)="filtraPerizie('annullate')" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1 rounded">
+            Annullate
+          </button>
+          <button class="bg-blue-600 text-white px-3 py-1 rounded mb-2" (click)="mostraTutte()">
+            Mostra Tutte
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+
+  <!-- DETTAGLIO -->
+  <div id="dettaglio" class="dettaglio-box" *ngIf="periziaSelezionata">
+    <h3>Dettaglio Perizia</h3>
+    <p><strong>Codice:</strong> {{ periziaSelezionata.codicePerizia }}</p>
+    <p><strong>Data:</strong> {{ periziaSelezionata.dataOra | date:'full' }}</p>
+    <p><strong>Descrizione:</strong> {{ periziaSelezionata.descrizione }}</p>
+    <p><strong>Coordinate:</strong> {{ periziaSelezionata.coordinate?.latitudine }}, {{ periziaSelezionata.coordinate?.longitudine }}</p>
+
+    <div class="foto-wrapper" *ngIf="periziaSelezionata.fotografie?.length">
+      <div class="foto-item" *ngFor="let foto of periziaSelezionata.fotografie">
+        <img [src]="foto.url" alt="Foto" (error)="hideImage($event)" />
+        <p class="commento">{{ foto.commento }}</p>
+      </div>
+    </div>
+  </div>
+</div>

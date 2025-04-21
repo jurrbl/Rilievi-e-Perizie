@@ -32,13 +32,13 @@ export class HomeComponent implements OnInit {
         this.username = res.username || res.googleUsername || '';
 
         // ✅ Dopo aver ottenuto l'utente, carico le perizie
-        this.dataStorage.inviaRichiesta('get', '/auth/perizie')?.subscribe({
+        this.dataStorage.inviaRichiesta('get', '/operator/perizie')?.subscribe({
           next: (res: any) => {
             this.authService.setPerizie(res.perizie ?? res);
             this.countPerizie = res.nPerizie ?? res.length ?? 0;
           },
           error: (err) => {
-            console.error('❌ Errore durante /perizie:', err);
+            console.error('❌ Errore durante /operator/perizie:', err);
           }
         });
       },
@@ -46,9 +46,11 @@ export class HomeComponent implements OnInit {
         console.error('❌ Errore durante /me:', err);
       }
     });
+
+    
   }
 
-  // ✅ Upload di un'immagine su Cloudinary
+  // ✅ Upload immagine singola su Cloudinary
   async uploadToCloudinary(file: File): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
@@ -56,23 +58,23 @@ export class HomeComponent implements OnInit {
 
     const res = await fetch('https://api.cloudinary.com/v1_1/dvkczvtfs/image/upload', {
       method: 'POST',
-      body: formData
+      body: formData,
     });
 
     const data = await res.json();
     return data.secure_url;
   }
 
-  // ✅ Salvataggio foto nel backend collegata a una perizia
+  // ✅ Salvataggio foto collegata a una perizia
   salvaFotoNelBackend(periziaId: string, url: string, commento: string): void {
     const foto = { url, commento };
-    this.dataStorage.inviaRichiesta('post', `/perizie/${periziaId}/foto`, foto)?.subscribe({
+    this.dataStorage.inviaRichiesta('post', `/operator/perizie/${periziaId}/foto`, foto)?.subscribe({
       next: () => console.log('✅ Foto salvata nel backend'),
-      error: err => console.error('❌ Errore salvataggio foto nel backend:', err)
+      error: (err) => console.error('❌ Errore salvataggio foto nel backend:', err),
     });
   }
 
-  // ✅ Upload immagini (multiple) con commento
+  // ✅ Upload immagini multiple con commento
   async onFotoChange(event: any, periziaId: string): Promise<void> {
     const files: FileList = event.target.files;
     if (!files || files.length === 0) return;
@@ -88,5 +90,18 @@ export class HomeComponent implements OnInit {
       }
     }
   }
+
+  // ✅ Aggiunta nuova perizia (da usare dove serve nel form)
+  salvaNuovaPerizia(periziaData: any): void {
+    this.dataStorage.inviaRichiesta('post', '/operator/perizie', periziaData)?.subscribe({
+      next: (res: any) => {
+        console.log('✅ Perizia salvata con successo:', res);
+        this.authService.setPerizie([...this.authService.getPerizie(), res]);
+        this.countPerizie++;
+      },
+      error: (err) => {
+        console.error('❌ Errore nel salvataggio:', err);
+      }
+    });
+  }
 }
-  
