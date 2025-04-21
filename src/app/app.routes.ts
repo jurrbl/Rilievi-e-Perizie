@@ -13,12 +13,20 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/login/login.component').then(m => m.LoginComponent),
   },
   {
+    path: 'forgot-password',
+    loadComponent: () => import('./auth/ForgotPassword/ForgotPassword.component').then(m => m.ForgotPasswordComponent),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./auth/ResetPassword/ResetPassword.component').then(m => m.ResetPasswordComponent),
+  },
+  {
     path: 'home',
     canActivate: [AuthGuard],
     loadComponent: () => import('./home/home.component').then(m => m.HomeComponent),
     children: [
       {
-        path: 'dashboard', // 👤 operatore
+        path: 'dashboard',
         loadComponent: () => import('./operatore/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
       {
@@ -30,7 +38,7 @@ export const routes: Routes = [
         loadComponent: () => import('./operatore/perizie/perizie.component').then(m => m.PerizieComponent)
       },
       {
-        path: 'dashboard-admin', // 👑 admin dentro home layout!
+        path: 'dashboard-admin',
         canActivate: [AdminGuard],
         loadComponent: () => import('./admin/dashboard-admin/dashboard-admin.component').then(m => m.DashboardAdminComponent)
       },
@@ -43,18 +51,9 @@ export const routes: Routes = [
         path: 'perizie-admin',
         canActivate: [AdminGuard],
         loadComponent: () => import('./admin/perizie-admin/perizie-admin.component').then(m => m.PerizieAdminComponent)
-      },
-      {
-        path: 'mappa-utenti',
-        canActivate: [AdminGuard],
-        loadComponent: () => import('./admin/mappa-utenti/mappa-utenti.component').then(m => m.MappaUtentiComponent)
       }
     ]
   },
-
-  // ✅ Rimuovo la route /admin diretta
-  // perché admin ora è tutto dentro /home/...
-
   {
     path: '**',
     redirectTo: 'login'

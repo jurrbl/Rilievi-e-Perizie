@@ -122,13 +122,19 @@ export class AuthService {
       withCredentials: true,
     });
   }
-
-  public fetchPerizieAdmin() {
-    return this.http.get('http://localhost:3000/api/admin/perizie', {
-      withCredentials: true,
+  public fetchPerizieAdmin(): Observable<{ perizie: any[], nPerizie: number }> {
+    return this.http.get<{ perizie: any[], nPerizie: number }>(
+      'http://localhost:3000/api/admin/all-perizie',
+      { withCredentials: true }
+    );
+  }
+  
+  public updatePerizia(id: string, data: any) {
+    return this.http.put(`http://localhost:3000/api/admin/perizie/${id}`, data, {
+      withCredentials: true
     });
   }
-
+  
   public forgotPassword(email: string) {
     return this.http.post(
       'http://localhost:3000/api/auth/forgot-password',

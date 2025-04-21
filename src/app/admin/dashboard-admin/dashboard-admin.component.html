@@ -38,48 +38,45 @@
       <div class="text-gray-400 text-sm">Ultimo Accesso</div>
     </div>
   </div>
-<!-- ➕ Aggiungi Operatore -->
-<div class="mt-6 bg-gray-800 p-4 rounded-lg">
-  <h3 class="text-lg font-semibold mb-3">Aggiungi Operatore</h3>
-  <form (ngSubmit)="aggiungiOperatore()" #form="ngForm">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-      <input type="text"
-             [(ngModel)]="nuovoOperatore.username"
-             name="username"
-             required
-             placeholder="Username"
-             class="bg-zinc-900 text-white p-2 rounded border border-zinc-700" />
 
-      <input type="email"
-             [(ngModel)]="nuovoOperatore.email"
-             name="email"
-             required
-             placeholder="Email"
-             class="bg-zinc-900 text-white p-2 rounded border border-zinc-700" />
-
-      <input type="password"
-             [(ngModel)]="nuovoOperatore.password"
-             name="password"
-             required
-             placeholder="Password"
-             class="bg-zinc-900 text-white p-2 rounded border border-zinc-700" />
-
-      <label class="text-sm text-white flex items-center gap-2">
-        <input type="checkbox"
-               [(ngModel)]="nuovoOperatore.abilitato"
-               name="abilitato"
-               class="accent-blue-500" />
-        Abilitato a creare perizie
-      </label>
-    </div>
-    <button type="submit"
-            [disabled]="form.invalid"
-            class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-      Aggiungi
-    </button>
-  </form>
-</div>
-
+  <!-- ➕ Aggiungi Operatore -->
+  <div class="mt-6 bg-gray-800 p-4 rounded-lg">
+    <h3 class="text-lg font-semibold mb-3">Aggiungi Operatore</h3>
+    <form (ngSubmit)="aggiungiOperatore()" #form="ngForm">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <input type="text"
+               [(ngModel)]="nuovoOperatore.username"
+               name="username"
+               required
+               placeholder="Username"
+               class="bg-zinc-900 text-white p-2 rounded border border-zinc-700" />
+        <input type="email"
+               [(ngModel)]="nuovoOperatore.email"
+               name="email"
+               required
+               placeholder="Email"
+               class="bg-zinc-900 text-white p-2 rounded border border-zinc-700" />
+        <input type="password"
+               [(ngModel)]="nuovoOperatore.password"
+               name="password"
+               required
+               placeholder="Password"
+               class="bg-zinc-900 text-white p-2 rounded border border-zinc-700" />
+        <label class="text-sm text-white flex items-center gap-2">
+          <input type="checkbox"
+                 [(ngModel)]="nuovoOperatore.abilitato"
+                 name="abilitato"
+                 class="accent-blue-500" />
+          Abilitato a creare perizie
+        </label>
+      </div>
+      <button type="submit"
+              [disabled]="form.invalid"
+              class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+        Aggiungi
+      </button>
+    </form>
+  </div>
 
   <!-- 📋 Tabella Utenti -->
   <div class="mt-6">
@@ -111,59 +108,16 @@
             </td>
             <td class="p-3">
               <button
-              (click)="visualizzaPerizieUtente(utente)"
-              [disabled]="utente.in_corso_count === 0"
-              [ngClass]="utente.in_corso_count === 0 ? 'bg-gray-600' : 'bg-blue-600 hover:bg-blue-700'"
-              class="text-white px-3 py-1 rounded text-xs">
-              Visualizza
-            </button>
-
+                (click)="visualizzaPerizieUtente(utente)"
+                [disabled]="utente.in_corso_count === 0"
+                [ngClass]="utente.in_corso_count === 0 ? 'bg-gray-600' : 'bg-blue-600 hover:bg-blue-700'"
+                class="text-white px-3 py-1 rounded text-xs">
+                Visualizza
+              </button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-  </div>
-
-  <!-- 🕵️‍♂️ Perizie da Revisionare dell'Utente selezionato -->
-  <div class="mt-10" *ngIf="perizieDaRevisionare.length > 0">
-    <h3 class="text-xl font-semibold mb-4">Perizie da Revisionare dell'Utente</h3>
-    <div class="space-y-4">
-      <div *ngFor="let perizia of perizieDaRevisionare" class="bg-gray-800 p-4 rounded-lg space-y-2">
-        <div class="text-white font-semibold">{{ perizia.descrizione }}</div>
-        <p class="text-sm text-gray-400">Data: {{ perizia.dataOra | date:'short' }}</p>
-
-        <!-- Modifica Descrizione -->
-        <textarea [(ngModel)]="perizia.descrizione" class="w-full bg-zinc-900 text-white p-2 rounded border border-zinc-600 text-sm" placeholder="Modifica descrizione"></textarea>
-
-        <!-- 📷 Foto con commenti -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-          <div *ngFor="let foto of perizia.fotografie" class="bg-gray-900 p-3 rounded shadow">
-            <img
-              [src]="foto.url"
-              alt="Foto perizia"
-              class="w-full h-[200px] object-cover rounded mb-2"
-            />
-            <input
-              type="text"
-              [(ngModel)]="foto.commento"
-              class="w-full bg-gray-800 text-white px-2 py-1 rounded text-sm"
-              placeholder="Commento dell'immagine"
-            />
-          </div>
-        </div>
-
-        <div class="flex gap-2 mt-2">
-          <button class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
-                  (click)="cambiaStato(perizia, 'completata')">Approva</button>
-          <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
-                  (click)="cambiaStato(perizia, 'annullata')">Rifiuta</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div *ngIf="perizieDaRevisionare.length === 0" class="mt-6 text-gray-400 italic">
-    Nessuna perizia da revisionare per questo utente.
   </div>
 </div>

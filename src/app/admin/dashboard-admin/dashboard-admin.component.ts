@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../auth/auth.service';
 import { DataStorageService } from '../../shared/data-storage.service';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router'; 
 
 @Component({
   selector: 'app-dashboard-admin',
@@ -19,8 +20,8 @@ export class DashboardAdminComponent implements OnInit {
   role = '';
   lastSeen = '';
   utenti: any[] = [];
-  perizieDaRevisionare: any[] = [];
   perizieRevisionate = 0;
+
   nuovoOperatore = {
     username: '',
     email: '',
@@ -30,7 +31,8 @@ export class DashboardAdminComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private dataStorage: DataStorageService
+    private dataStorage: DataStorageService,
+    private router: Router 
   ) {}
 
   ngOnInit(): void {
@@ -47,7 +49,6 @@ export class DashboardAdminComponent implements OnInit {
     this.caricaUtenti();
   }
 
-
   caricaUtenti(): void {
     this.dataStorage.inviaRichiesta('get', '/admin/utenti-con-perizie')!.subscribe({
       next: (res: any) => {
@@ -59,52 +60,10 @@ export class DashboardAdminComponent implements OnInit {
     });
   }
 
-
-
-
-
   visualizzaPerizieUtente(utente: any) {
-    this.dataStorage.inviaRichiesta('get', `/admin/perizie/utente/${utente._id}`)!.subscribe({
-      next: (res: any) => {
-        const tutte = res.perizie || [];
-
-        this.perizieDaRevisionare = tutte.filter((p: any) =>
-          p.stato?.toLowerCase().trim() === 'in_corso'
-        );
-        this.perizieRevisionate = tutte.filter((p: any) =>
-          p.stato?.toLowerCase().trim() !== 'in_corso'
-        ).length;
-      },
-      error: err => {
-        console.error('❌ Errore caricamento perizie:', err);
-      }
+    this.router.navigate(['/home/mappa-utenti'], {
+      queryParams: { utente: utente._id }
     });
-  }
-
-  cambiaStato(perizia: any, nuovoStato: 'completata' | 'annullata'): void {
-    const payload = {
-      stato: nuovoStato,
-      descrizione: perizia.descrizione,
-      fotografie: perizia.fotografie
-    };
-
-    this.dataStorage.inviaRichiesta('put', `/admin/perizie/${perizia._id}`, payload)!.subscribe({
-      next: () => {
-        this.perizieDaRevisionare = this.perizieDaRevisionare.filter(p => p._id !== perizia._id);
-        this.perizieRevisionate++;
-        this.aggiornaConteggioPerizieUtente(perizia.codiceOperatore);
-      },
-      error: err => {
-        console.error('❌ Errore aggiornamento stato:', err);
-      }
-    });
-  }
-
-  aggiornaConteggioPerizieUtente(userId: string) {
-    const utente = this.utenti.find(u => u._id === userId);
-    if (utente && utente.in_corso_count > 0) {
-      utente.in_corso_count -= 1;
-    }
   }
 
   aggiungiOperatore() {
