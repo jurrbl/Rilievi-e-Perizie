@@ -36,18 +36,18 @@ export class MappaUtentiComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const utenteId = params['utente'];
-      
+
       this.authService.fetchPerizieAdmin().subscribe({
         next: (response) => {
           this.perizieTotali = response.perizie || [];
-  
+
           this.authService.fetchUtentiCompleti().subscribe({
             next: (utenti) => {
               this.utenti = utenti.map(u => ({
                 ...u,
                 numeroPerizie: this.perizieTotali.filter(p => p.codiceOperatore?.toString() === u._id).length
               }));
-  
+
               // Se esiste ID utente da query string, selezionalo
               if (utenteId) {
                 const utente = this.utenti.find(u => u._id === utenteId);
@@ -59,7 +59,7 @@ export class MappaUtentiComponent implements OnInit, AfterViewInit {
       });
     });
   }
-  
+
 
   ngAfterViewInit(): void {
     const defaultCenter: [number, number] = [12.4964, 41.9028];
@@ -130,15 +130,23 @@ export class MappaUtentiComponent implements OnInit, AfterViewInit {
 
   salvaModifiche(): void {
     if (!this.periziaSelezionata) return;
-    const { _id, descrizione, coordinate, indirizzo, fotografie } =
-      this.periziaSelezionata;
+
+    const { _id, descrizione, coordinate, indirizzo, fotografie, revisioneAdmin } = this.periziaSelezionata;
+
     this.authService
-      .updatePerizia(_id, { descrizione, coordinate, indirizzo, fotografie })
+      .updatePerizia(_id, {
+        descrizione,
+        coordinate,
+        indirizzo,
+        fotografie,
+        revisioneAdmin  // ✅ AGGIUNGI QUESTO CAMPO
+      })
       .subscribe({
         next: () => alert('Modifiche salvate con successo'),
         error: () => alert('Errore durante il salvataggio')
       });
   }
+
 
   aggiornaStato(stato: string): void {
     if (!this.periziaSelezionata) return;

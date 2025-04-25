@@ -153,6 +153,11 @@
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
     <p><strong>Descrizione:</strong> {{ selectedPerizia.descrizione }}</p>
 
+    <div *ngIf="selectedPerizia.revisioneAdmin && selectedPerizia.revisioneAdmin.trim() !== ''">
+      <p class="text-sm text-blue-400"><strong>Commento admin:</strong> {{ selectedPerizia.revisioneAdmin }}</p>
+    </div>
+
+
     <p><strong>Coordinate:</strong> {{ selectedPerizia.coordinate.latitudine }}, {{ selectedPerizia.coordinate.longitudine }}</p>
     <p><strong>Data/Ora:</strong> {{ selectedPerizia.dataOra | date: 'short' }}</p>
     <p><strong>Stato:</strong> {{ selectedPerizia.stato }}</p>

@@ -17,7 +17,7 @@ export interface Perizia {
   providedIn: 'root'
 })
 export class PerizieService {
-  private baseUrl = 'http://https://backend-rilievi.onrender.com/api/operator/perizie';
+  private baseUrl = 'https://backend-rilievi.onrender.com/api/operator/perizie';
 
   constructor(private http: HttpClient) {}
 
@@ -53,7 +53,7 @@ export class PerizieService {
     ).toPromise();
   }
 
-  
+
   eliminaPerizia(id: string): Promise<any> {
     return this.http.delete<any>(
       `${this.baseUrl}/${id}`,

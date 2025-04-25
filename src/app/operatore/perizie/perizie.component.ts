@@ -29,13 +29,16 @@ export class PerizieComponent implements OnInit {
   selectedPerizia: any = null;
   immaginiSelezionate: { file: File, commento: string }[] = [];
 
+
+
   periziaModifica: any = null;
 
   nuovaPerizia: any = {
     indirizzo: '',
     dataOra: '',
     descrizione: '',
-    stato: ''
+    stato: '',
+    revisioneAdmin : ''
   };
 
   constructor(
@@ -67,7 +70,8 @@ export class PerizieComponent implements OnInit {
       if (response?.perizie) {
         const perizieConDate = response.perizie.map((p: any) => ({
           ...p,
-          dataOra: new Date(p.dataOra)
+          dataOra: new Date(p.dataOra),
+revisioneAdmin: p.revisioneAdmin || ''
         }));
         console.log('✅ Lista perizie salvata:', perizieConDate);
         this.perizie.set(perizieConDate);
@@ -185,6 +189,7 @@ export class PerizieComponent implements OnInit {
   }
 
   mostraDettagli(perizia: any) {
+    console.log('🎯 Perizia selezionata:', perizia); // deve avere "revisioneAdmin"
     this.selectedPerizia = perizia;
   }
 

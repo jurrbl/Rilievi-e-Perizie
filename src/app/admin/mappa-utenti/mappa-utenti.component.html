@@ -1,104 +1,115 @@
-<div class="wrapper">
-  <div class="top-section">
-    <div class="mappa-wrapper">
-      <div class="toolbar">
-        <h2 class="text-white text-lg font-bold mb-2">Perizie Utenti</h2>
+  <div class="wrapper">
+    <div class="top-section">
+      <div class="mappa-wrapper">
+        <div class="toolbar">
+          <h2 class="text-white text-lg font-bold mb-2">Perizie Utenti</h2>
+        </div>
+        <div #mapContainer id="mapContainer"></div>
       </div>
-      <div #mapContainer id="mapContainer"></div>
+
+      <!-- SIDEBAR UTENTI -->
+      <div class="sidebar bg-gray-900 text-white p-4 rounded-lg">
+        <h3 class="text-lg font-semibold mb-2">Seleziona Utente</h3>
+
+        <div class="space-y-2 mb-4">
+          <div
+            *ngFor="let utente of utenti"
+            class="flex items-center gap-3 cursor-pointer hover:text-blue-400"
+            (click)="selezionaUtente(utente)">
+            <img
+              [src]="utente.profilePicture || 'https://www.gravatar.com/avatar/?d=mp&s=40'"
+              alt="Profile"
+              class="w-10 h-10 rounded-full object-cover border" />
+            <div>
+              <div class="font-medium text-white">
+                {{ utente.username || utente.googleUsername }}
+              </div>
+              <div class="text-sm text-gray-400">
+                {{ utente.numeroPerizie }} perizie
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <h4 class="text-sm font-medium mb-1">Filtra Perizie</h4>
+          <div class="flex flex-wrap gap-2">
+            <button (click)="filtraPerizie('in_corso')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">In Corso</button>
+            <button (click)="filtraPerizie('completate')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">Completate</button>
+            <button (click)="filtraPerizie('in_attesa')" class="bg-yellow-700 hover:bg-yellow-800 text-white px-3 py-1 rounded">In Attesa</button>
+            <button (click)="filtraPerizie('annullate')" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1 rounded">Annullate</button>
+            <button (click)="mostraTutte()" class="bg-gray-700 hover:bg-gray-800 text-white px-3 py-1 rounded">Mostra Tutte</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- SIDEBAR UTENTI -->
-    <div class="sidebar bg-gray-900 text-white p-4 rounded-lg">
-      <h3 class="text-lg font-semibold mb-2">Seleziona Utente</h3>
+    <!-- DETTAGLIO PERIZIA -->
+    <div *ngIf="periziaSelezionata" id="dettaglio" class="dettaglio-box mt-6 p-4 bg-zinc-900 text-white rounded-lg shadow-lg">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-xl font-semibold">Dettaglio Perizia</h3>
+        <button (click)="periziaSelezionata = null" class="text-gray-400 hover:text-white text-lg">✕</button>
+      </div>
 
-      <div class="space-y-2 mb-4">
-        <div
-          *ngFor="let utente of utenti"
-          class="flex items-center gap-3 cursor-pointer hover:text-blue-400"
-          (click)="selezionaUtente(utente)">
-          <img
-            [src]="utente.profilePicture || 'https://www.gravatar.com/avatar/?d=mp&s=40'"
-            alt="Profile"
-            class="w-10 h-10 rounded-full object-cover border" />
-          <div>
-            <div class="font-medium text-white">
-              {{ utente.username || utente.googleUsername }}
-            </div>
-            <div class="text-sm text-gray-400">
-              {{ utente.numeroPerizie }} perizie
-            </div>
+      <p><strong>Codice:</strong> {{ periziaSelezionata.codicePerizia }}</p>
+      <p><strong>Data:</strong> {{ periziaSelezionata.dataOra | date:'full' }}</p>
+      <p><strong>Coordinate:</strong> {{ periziaSelezionata.coordinate?.latitudine }}, {{ periziaSelezionata.coordinate?.longitudine }}</p>
+
+      <div class="my-4">
+        <label class="block text-sm font-medium mb-1 text-white">Descrizione Operatore</label>
+        <textarea [(ngModel)]="periziaSelezionata.descrizione" rows="3"
+          class="w-full p-2 rounded bg-zinc-800 text-white border border-zinc-700"
+          placeholder="Modifica descrizione dell'operatore"></textarea>
+      </div>
+
+      <!-- Revisione dell'admin (sola lettura) -->
+      <div class="my-4">
+        <label class="block text-sm font-medium mb-1 text-blue-400">Commento Admin</label>
+        <textarea [(ngModel)]="periziaSelezionata.revisioneAdmin" rows="2"
+          class="w-full p-2 rounded bg-zinc-800 text-white border border-zinc-700"
+          placeholder="Scrivi un commento di revisione (visibile all'operatore)">
+        </textarea>
+      </div>
+
+      <div class="mb-4" *ngIf="periziaSelezionata.fotografie?.length">
+        <label class="block text-sm font-medium mb-2">Fotografie</label>
+        <div class="space-y-4">
+          <div *ngFor="let foto of periziaSelezionata.fotografie; let i = index" class="flex items-start gap-4">
+            <img [src]="foto.url" alt="Foto" (click)="immagineIngrandita = foto.url" class="w-24 h-24 object-cover rounded cursor-pointer" />
+            <textarea [(ngModel)]="periziaSelezionata.fotografie[i].commento" rows="2"
+              class="w-full p-2 rounded bg-zinc-800 text-white border border-zinc-700"
+              placeholder="Modifica commento..."></textarea>
           </div>
         </div>
       </div>
 
-      <div class="mt-4">
-        <h4 class="text-sm font-medium mb-1">Filtra Perizie</h4>
-        <div class="flex flex-wrap gap-2">
-          <button (click)="filtraPerizie('in_corso')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">In Corso</button>
-          <button (click)="filtraPerizie('completate')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">Completate</button>
-          <button (click)="filtraPerizie('in_attesa')" class="bg-yellow-700 hover:bg-yellow-800 text-white px-3 py-1 rounded">In Attesa</button>
-          <button (click)="filtraPerizie('annullate')" class="bg-red-700 hover:bg-red-800 text-white px-3 py-1 rounded">Annullate</button>
-          <button (click)="mostraTutte()" class="bg-gray-700 hover:bg-gray-800 text-white px-3 py-1 rounded">Mostra Tutte</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- DETTAGLIO PERIZIA -->
-  <div *ngIf="periziaSelezionata" id="dettaglio" class="dettaglio-box mt-6 p-4 bg-zinc-900 text-white rounded-lg shadow-lg">
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-xl font-semibold">Dettaglio Perizia</h3>
-      <button (click)="periziaSelezionata = null" class="text-gray-400 hover:text-white text-lg">✕</button>
-    </div>
-
-    <p><strong>Codice:</strong> {{ periziaSelezionata.codicePerizia }}</p>
-    <p><strong>Data:</strong> {{ periziaSelezionata.dataOra | date:'full' }}</p>
-    <p><strong>Coordinate:</strong> {{ periziaSelezionata.coordinate?.latitudine }}, {{ periziaSelezionata.coordinate?.longitudine }}</p>
-
-    <div class="my-4">
-      <label class="block text-sm font-medium mb-1">Descrizione</label>
-      <textarea [(ngModel)]="periziaSelezionata.descrizione" rows="3" class="w-full p-2 rounded bg-zinc-800 text-white border border-zinc-700"></textarea>
-    </div>
-
-    <div class="mb-4" *ngIf="periziaSelezionata.fotografie?.length">
-      <label class="block text-sm font-medium mb-2">Fotografie</label>
-      <div class="space-y-4">
-        <div *ngFor="let foto of periziaSelezionata.fotografie; let i = index" class="flex items-start gap-4">
-          <img [src]="foto.url" alt="Foto" (click)="immagineIngrandita = foto.url" class="w-24 h-24 object-cover rounded cursor-pointer" />
-          <textarea [(ngModel)]="periziaSelezionata.fotografie[i].commento" rows="2"
-            class="w-full p-2 rounded bg-zinc-800 text-white border border-zinc-700"
-            placeholder="Modifica commento..."></textarea>
-        </div>
+      <div class="flex gap-4 mt-6">
+        <button (click)="salvaModifiche()" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a1 1 0 001 1h3a1 1 0 001-1v-1m0-4V9a1 1 0 00-1-1h-3a1 1 0 00-1 1v1"/>
+          </svg>
+          Salva
+        </button>
+        <button (click)="aggiornaStato('completata')" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          Approva
+        </button>
+        <button (click)="aggiornaStato('annullata')" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Rifiuta
+        </button>
       </div>
     </div>
 
-    <div class="flex gap-4 mt-6">
-      <button (click)="salvaModifiche()" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a1 1 0 001 1h3a1 1 0 001-1v-1m0-4V9a1 1 0 00-1-1h-3a1 1 0 00-1 1v1"/>
-        </svg>
-        Salva
-      </button>
-      <button (click)="aggiornaStato('completata')" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-        </svg>
-        Approva
-      </button>
-      <button (click)="aggiornaStato('annullata')" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-        Rifiuta
-      </button>
+    <!-- MODAL IMMAGINE -->
+    <div
+      *ngIf="immagineIngrandita"
+      class="fixed inset-0 bg-black bg-opacity-90 z-50 flex justify-center items-center">
+      <img [src]="immagineIngrandita" class="max-w-[90%] max-h-[80%] rounded shadow-lg" />
+      <button (click)="chiudiImmagine()" class="absolute top-4 right-6 text-white text-2xl">✕</button>
     </div>
   </div>
-
-  <!-- MODAL IMMAGINE -->
-  <div
-    *ngIf="immagineIngrandita"
-    class="fixed inset-0 bg-black bg-opacity-90 z-50 flex justify-center items-center">
-    <img [src]="immagineIngrandita" class="max-w-[90%] max-h-[80%] rounded shadow-lg" />
-    <button (click)="chiudiImmagine()" class="absolute top-4 right-6 text-white text-2xl">✕</button>
-  </div>
-</div>
