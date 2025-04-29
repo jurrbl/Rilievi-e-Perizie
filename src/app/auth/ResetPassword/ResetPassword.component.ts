@@ -15,7 +15,7 @@ export class ResetPasswordComponent implements OnInit {
   resetForm!: FormGroup;
   token!: string;
   email!: string;
-
+  ciao!:string;
   messaggio = '';
   errore = '';
   loading = false;
