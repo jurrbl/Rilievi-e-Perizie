@@ -41,6 +41,8 @@
           "configurations": {
             "production": {
               "outputHashing": "all",
+              "baseHref": "/",
+              "deployUrl": "/",
               "budgets": [
                 {
                   "type": "initial",
