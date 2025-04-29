@@ -30,7 +30,7 @@ export class SidebarComponent {
     if (!user) return; // 👈 Evita crash se l'utente è null
 
     this.username = user.username || user.googleUsername || '';
-    this.profilePicture = user.profilePicture || 'assets/img/default-avatar.png';
+    this.profilePicture = user.profilePicture || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
     this.role = user.role || '';
   }
 
@@ -40,10 +40,16 @@ export class SidebarComponent {
   }
 
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.authService.logout().subscribe({
+      next: () => {
+        console.log('✅ Logout completato');
+        this.router.navigate(['/login']); // ti manda su login pulito
+      },
+      error: (err) => {
+        console.error('❌ Errore durante il logout:', err);
+      }
+    });
   }
-
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
   }

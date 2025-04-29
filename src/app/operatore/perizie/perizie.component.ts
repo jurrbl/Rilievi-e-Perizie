@@ -20,16 +20,17 @@ export class PerizieComponent implements OnInit {
   currentPage = signal(1);
   perPage = 5;
   Math = Math;
-
+  mostraAlertRevisione = false;
+  periziaDaMostrare: any = null;
   messaggioAlert = '';
   alertSuccesso = true;
   lightboxUrl: string | null = null;
-
+  revisioneNotificata = signal(false);
+  primaPeriziaRevisionata: any = null;
+  larevisione : any
   perizie = signal<any[]>([]);
   selectedPerizia: any = null;
   immaginiSelezionate: { file: File, commento: string }[] = [];
-
-
 
   periziaModifica: any = null;
 
@@ -38,7 +39,7 @@ export class PerizieComponent implements OnInit {
     dataOra: '',
     descrizione: '',
     stato: '',
-    revisioneAdmin : ''
+    revisioneAdmin: ''
   };
 
   constructor(
@@ -61,40 +62,60 @@ export class PerizieComponent implements OnInit {
     }
 
     this.fetchPerizieDalServer();
-  }
 
+    const qifsha = this.authService.getPerizie();
+    console.log('Perizie salvate in AuthService:', qifsha);
+  }
   async fetchPerizieDalServer() {
     try {
-      console.log('📡 Chiamata al server per recuperare perizie...');
       const response: any = await this.dataStorage.inviaRichiesta('get', '/operator/perizie')?.toPromise();
       if (response?.perizie) {
         const perizieConDate = response.perizie.map((p: any) => ({
           ...p,
           dataOra: new Date(p.dataOra),
-revisioneAdmin: p.revisioneAdmin || ''
+          revisioneAdmin: p.revisioneAdmin || ''
         }));
-        console.log('✅ Lista perizie salvata:', perizieConDate);
+  
         this.perizie.set(perizieConDate);
         this.authService.setPerizie(perizieConDate);
+  
+        // 👇 Cerca la prima perizia revisionata
+        const revisionata = perizieConDate.find(p => p.revisioneAdmin && p.revisioneAdmin !== 'In Attesa Di Revisione');
+        if (revisionata && !this.revisioneNotificata()) {
+          this.primaPeriziaRevisionata = revisionata;
+          this.revisioneNotificata.set(true);
+        }
       }
     } catch (err) {
-      console.error('❌ Errore caricamento perizie dal server:', err);
+      console.error('❌ Errore caricamento perizie:', err);
     }
   }
+  
+  vaiAllaPeriziaRevisione() {
+    this.selectedPerizia = this.periziaDaMostrare;
+    this.mostraAlertRevisione = false;
+    setTimeout(() => {
+      const el = document.getElementById('dettaglio');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  }
+  
+  
 
+  
   async aggiungiPerizia() {
     try {
       const { indirizzo, dataOra, descrizione, stato } = this.nuovaPerizia;
       const currentUser = this.authService.getUser();
       const coords = await this.getCoordinateDaIndirizzo(indirizzo);
-
+  
       const immaginiUploadate = await Promise.all(
         this.immaginiSelezionate.map(async (img) => {
           const url = await this.uploadToCloudinary(img.file);
           return { url, commento: img.commento };
         })
       );
-
+  
       const nuova = {
         coordinate: coords,
         dataOra,
@@ -102,34 +123,42 @@ revisioneAdmin: p.revisioneAdmin || ''
         stato,
         indirizzo,
         codiceOperatore: currentUser._id,
-        fotografie: []
+        fotografie: [],
+        revisioneAdmin: {
+          id: currentUser._id,
+          username: currentUser.username,
+          profilePicture: currentUser.profilePicture || '',
+          commento: 'In attesa di revisione'
+        },
+        dataRevisione: null
       };
-
+  
       const nuovaSalvata: any = await this.perizieService.salvaPerizia(nuova);
-
+  
       const nuovaPerizia = {
         ...nuovaSalvata,
         dataOra: new Date(nuovaSalvata.dataOra),
-        fotografie: immaginiUploadate
+        fotografie: immaginiUploadate,
+        revisioneAdmin: nuovaSalvata.revisioneAdmin || ''
       };
-
+  
       this.perizie.set([nuovaPerizia, ...this.perizie()]);
       this.authService.setPerizie(this.perizie());
-
-      // invia immagini (opzionale)
+  
       for (const img of immaginiUploadate) {
         await this.dataStorage.inviaRichiesta('post', `/operator/perizie/${nuovaPerizia._id}/foto`, {
           url: img.url,
           commento: img.commento
         })?.toPromise();
       }
-
+  
       this.messaggioAlert = 'Perizia aggiunta con successo!';
       this.alertSuccesso = true;
       this.immaginiSelezionate = [];
-      this.nuovaPerizia = { indirizzo: '', dataOra: '', descrizione: '', stato: '' };
+      this.nuovaPerizia = { indirizzo: '', dataOra: '', descrizione: '', stato: '', revisioneAdmin: '' };
       this.currentPage.set(1);
       setTimeout(() => (this.messaggioAlert = ''), 5000);
+  
     } catch (error: any) {
       console.error('❌ Errore nel salvataggio:', error);
       this.messaggioAlert = error.message || 'Errore durante il salvataggio';
@@ -137,7 +166,7 @@ revisioneAdmin: p.revisioneAdmin || ''
       setTimeout(() => (this.messaggioAlert = ''), 5000);
     }
   }
-
+  
   async uploadToCloudinary(file: File): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
@@ -189,8 +218,10 @@ revisioneAdmin: p.revisioneAdmin || ''
   }
 
   mostraDettagli(perizia: any) {
-    console.log('🎯 Perizia selezionata:', perizia); // deve avere "revisioneAdmin"
-    this.selectedPerizia = perizia;
+    this.selectedPerizia = {
+      ...perizia,
+      revisioneAdmin: perizia.revisioneAdmin || ''
+    };
   }
 
   chiudiDettagli() {
@@ -211,7 +242,8 @@ revisioneAdmin: p.revisioneAdmin || ''
       const aggiornata = await this.dataStorage.inviaRichiesta('put', `/operator/perizie/${this.periziaModifica._id}`, {
         descrizione: this.periziaModifica.descrizione,
         indirizzo: this.periziaModifica.indirizzo,
-        coordinate: coords
+        coordinate: coords,
+        revisioneAdmin: this.periziaModifica.revisioneAdmin || ''
       })?.toPromise();
 
       const nuovaLista = this.perizie().map(p => {

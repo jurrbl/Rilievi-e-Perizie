@@ -4,11 +4,12 @@ import { RouterModule } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { AuthService } from '../auth/auth.service';
 import { DataStorageService } from '../shared/data-storage.service';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [SidebarComponent, RouterModule, NgClass],
+  imports: [SidebarComponent, RouterModule, NgClass, RouterModule],
+ 
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
@@ -20,8 +21,10 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private dataStorage: DataStorageService
+    private dataStorage: DataStorageService,
+    private router: Router
   ) {}
+
 
   ngOnInit(): void {
     // ✅ Richiesta a /me per ottenere i dati utente
@@ -46,6 +49,8 @@ export class HomeComponent implements OnInit {
         console.error('❌ Errore durante /me:', err);
       }
     });
+
+
 
     
   }

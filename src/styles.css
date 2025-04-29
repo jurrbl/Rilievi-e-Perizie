@@ -25,6 +25,10 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
+.maplibregl-popup-content{
+  background: none !important;
+}
+
 /* ✅ Sidebar: nascondi scrollbar e frecce visive */
 .sidebar ::-webkit-scrollbar,
 .sidebar ::-webkit-scrollbar-button,

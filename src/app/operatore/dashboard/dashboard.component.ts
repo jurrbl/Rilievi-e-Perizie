@@ -7,13 +7,14 @@ import { formatDistanceToNow } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
+import { NgFor } from '@angular/common';
+import { NgIf } from '@angular/common';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgFor, NgIf],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
 
@@ -32,7 +33,12 @@ export class DashboardComponent implements OnInit {
   cronologiaPerizie: Array<{
     dataOra: Date,
     stato: string,
-    dataRevisione?: Date
+    dataRevisione?: Date,
+    revisioneAdmin?: {
+      id: string,
+      username: string,
+      profilePicture?: string
+    }
   }> = [];
 
   constructor(
@@ -68,7 +74,7 @@ export class DashboardComponent implements OnInit {
       this.username = user.username || 'Utente';
       this.email = user.email || '–';
       this.phone = user.phone || '–';
-      this.profilePicture = user.profilePicture || 'assets/img/default-avatar.png';
+      this.profilePicture = user.profilePicture || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
       this.role = user.role || 'Utente';
       this.countPerizie = this.authService.getPerizie()?.length || 0;
 
@@ -83,26 +89,47 @@ export class DashboardComponent implements OnInit {
   private populateCronologiaPerizie(): void {
     const currentUser = this.authService.getUser();
     const tutteLePerizie = this.authService.getPerizie() || [];
-
+  
+    console.log('✅ Tutte le perizie:', tutteLePerizie);
+    console.log('✅ Current User ID:', currentUser?._id);
+  
+    if (!currentUser || tutteLePerizie.length === 0) {
+      this.cronologiaPerizie = [];
+      return;
+    }
+  
     let perizieUtente = tutteLePerizie
-      .filter(p => p.codiceOperatore === currentUser._id)
+      .filter(p => {
+        const idOperatore = typeof p.codiceOperatore === 'string'
+          ? p.codiceOperatore
+          : (p.codiceOperatore as any)?._id?.toString();
+  
+        return idOperatore === currentUser._id;
+      })
       .map(p => ({
         dataOra: new Date(p.dataOra),
         stato: p.stato,
-        dataRevisione: p.dataRevisione ? new Date(p.dataRevisione) : undefined
+        dataRevisione: p.dataRevisione ? new Date(p.dataRevisione) : undefined,
+        revisioneAdmin: p.revisioneAdmin ? {
+          id: (p.revisioneAdmin as any).id,
+          username: (p.revisioneAdmin as any).username,
+          profilePicture: (p.revisioneAdmin as any).profilePicture || ''
+        } : undefined
       }));
-
-    // Filtro per stato (se selezionato)
+  
     if (this.filtroStato !== 'tutte') {
       perizieUtente = perizieUtente.filter(p => p.stato === this.filtroStato);
     }
-
-    // Ordinamento
+  
     this.cronologiaPerizie = perizieUtente.sort((a, b) => {
-      const diff = a.dataOra.getTime() - b.dataOra.getTime();
-      return this.sortOrder === 'asc' ? diff : -diff;
+      return this.sortOrder === 'asc'
+        ? a.dataOra.getTime() - b.dataOra.getTime()
+        : b.dataOra.getTime() - a.dataOra.getTime();
     });
+  
+    console.log('✅ Cronologia caricata:', this.cronologiaPerizie);
   }
+  
   cambiaOrdine() {
     this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
     this.populateCronologiaPerizie();

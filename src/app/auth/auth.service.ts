@@ -5,7 +5,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-
+import { tap } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root',
 })
@@ -130,35 +130,22 @@ export class AuthService {
     return this.http.post(`${this.api}/auth/reset-password`, data, { withCredentials: true });
   }
 
-  public logout(): void {
-    this.http.get(`${this.api}/auth/logout`, { withCredentials: true }).subscribe({
-      next: () => {
-        this.user = null;
-        this.perizie = null;
-        localStorage.removeItem('user');
-        localStorage.removeItem('perizie');
-        console.log('✅ Logout eseguito');
-      },
-      error: (err) => {
-        console.error('❌ Errore durante il logout:', err);
-      },
-    });
-
-    if (this.isBrowser && typeof gapi !== 'undefined') {
-      const auth2 = gapi.auth2.getAuthInstance();
-      if (auth2 != null) {
-        auth2.signOut().then(() => {
-          console.log('Google User signed out.');
-          this.cleanLocalData();
-        });
-      } else {
-        this.cleanLocalData();
-      }
-    } else {
-      this.cleanLocalData();
-    }
+  public logout(): Observable<any> {
+    // Prima pulisco subito il locale
+    this.user = null;
+    this.perizie = null;
+    localStorage.removeItem('user');
+    localStorage.removeItem('perizie');  
+    // Poi chiamo il server per cancellare il cookie
+    return this.http.get(`${this.api}/auth/logout`, { withCredentials: true }).pipe(
+      tap(() => {
+        console.log('✅ Logout completato anche lato server.');
+      })
+    );
   }
-
+  public checkSession(): Observable<any> {
+    return this.http.get(`${this.api}/auth/me`, { withCredentials: true });
+  }
   public getAllUsers(): any[] {
     const saved = localStorage.getItem('utenti');
     return saved ? JSON.parse(saved) : [];

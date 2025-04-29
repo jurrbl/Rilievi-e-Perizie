@@ -1,3 +1,4 @@
+
 <!-- ALERT -->
 <div *ngIf="messaggioAlert" [ngClass]="{'bg-green-600': alertSuccesso, 'bg-red-600': !alertSuccesso}"
   class="text-white px-4 py-2 rounded mb-4 text-sm font-semibold">
@@ -144,24 +145,29 @@
   </table>
 </div>
 
+
 <!-- DETTAGLI -->
 <div *ngIf="selectedPerizia" class="mt-4 bg-zinc-800 text-white rounded p-4 border border-zinc-700">
   <div class="flex justify-between items-center mb-2">
     <h4 class="text-lg font-semibold">Dettagli Perizia {{ selectedPerizia.codicePerizia }}</h4>
     <button (click)="chiudiDettagli()" class="text-red-400 hover:text-red-500 text-xl">✕</button>
   </div>
+
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
     <p><strong>Descrizione:</strong> {{ selectedPerizia.descrizione }}</p>
-
-    <div *ngIf="selectedPerizia.revisioneAdmin && selectedPerizia.revisioneAdmin.trim() !== ''">
-      <p class="text-sm text-blue-400"><strong>Commento admin:</strong> {{ selectedPerizia.revisioneAdmin }}</p>
-    </div>
-
-
-    <p><strong>Coordinate:</strong> {{ selectedPerizia.coordinate.latitudine }}, {{ selectedPerizia.coordinate.longitudine }}</p>
+    <p><strong>Coordinate:</strong> {{ selectedPerizia.coordinate?.latitudine }}, {{ selectedPerizia.coordinate?.longitudine }}</p>
     <p><strong>Data/Ora:</strong> {{ selectedPerizia.dataOra | date: 'short' }}</p>
     <p><strong>Stato:</strong> {{ selectedPerizia.stato }}</p>
+
+    <!-- 🧠 Mostra Nome Admin Revisore -->
+    <div *ngIf="selectedPerizia.revisioneAdmin?.username">
+      <p class="font-semibold mb-2"><strong>Revisionata da:</strong> {{ selectedPerizia.revisioneAdmin.username }}</p>
+      <p class="font-semibold mb-2"><strong>Commento Admin:</strong></p>
+      <p class="font-semibold mb-2 rounded">{{ selectedPerizia.revisioneAdmin.commento }}</p>
+    </div>
+
   </div>
+
   <div class="mt-4">
     <h5 class="font-semibold mb-2">Fotografie:</h5>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -175,6 +181,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- PAGINAZIONE -->
 <div class="mt-4 flex justify-center gap-4 text-white items-center">

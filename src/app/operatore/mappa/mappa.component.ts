@@ -2,29 +2,39 @@ import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angula
 import * as maplibregl from 'maplibre-gl';
 import { AuthService } from '../../auth/auth.service';
 import { CommonModule } from '@angular/common';
-
+import { PerizieService } from '../../shared/perizie.service';
 @Component({
   selector: 'app-mappa',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './mappa.component.html',
   styleUrls: ['./mappa.component.css']
-
 })
 export class MappaComponent implements OnInit, AfterViewInit {
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef;
   map!: maplibregl.Map;
-  perizie: any[] = [];
+  perizieTotali: any[] = [];
   perizieFiltrate: any[] = [];
   periziaSelezionata: any = null;
+  userImage: string = '/assets/default-profile.jpg';
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService,  private perizieService: PerizieService) {}
 
   ngOnInit(): void {
-    const currentUser = this.authService.getUser();
-    const tutte = this.authService.getPerizie() || [];
-    this.perizie = tutte.filter(p => p.codiceOperatore?.toString() === currentUser._id?.toString());
-    this.perizieFiltrate = [...this.perizie];
+    const user = this.authService.getUser();
+    if (user?.profilePicture) {
+      this.userImage = user.profilePicture;
+    }
+  
+    this.perizieService.getPerizie().subscribe({
+      next: (response) => {
+        this.perizieTotali = response.perizie || [];
+        this.perizieFiltrate = [...this.perizieTotali]; // 🔥 tutte le perizie proprie
+      },
+      error: (err) => {
+        console.error('Errore caricamento perizie', err);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -38,9 +48,7 @@ export class MappaComponent implements OnInit, AfterViewInit {
           osm: {
             type: 'raster',
             tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
-            tileSize: 256,
-            maxzoom: 19,
-            minzoom: 1
+            tileSize: 256
           }
         },
         layers: [
@@ -56,16 +64,15 @@ export class MappaComponent implements OnInit, AfterViewInit {
     });
 
     this.map.addControl(new maplibregl.NavigationControl());
-    this.renderMarkers();
+    setTimeout(() => this.renderMarkers(), 500);
   }
 
   filtraPerizie(stato: string): void {
     if (stato === 'tutte') {
-      this.perizieFiltrate = [...this.perizie];
+      this.perizieFiltrate = [...this.perizieTotali];
     } else {
-      this.perizieFiltrate = this.perizie.filter(p => p.stato?.toLowerCase() === stato);
+      this.perizieFiltrate = this.perizieTotali.filter(p => p.stato?.toLowerCase() === stato.toLowerCase());
     }
-
     setTimeout(() => this.renderMarkers(), 0);
   }
 
@@ -100,74 +107,88 @@ export class MappaComponent implements OnInit, AfterViewInit {
     let markerCount = 0;
 
     this.perizieFiltrate.forEach(perizia => {
-      const { codicePerizia, descrizione, coordinate, dataOra, fotografie } = perizia;
+      const { codicePerizia, descrizione, coordinate, dataOra, fotografie = [] } = perizia;
 
       if (!coordinate) return;
 
       const lat = parseFloat(coordinate.latitudine);
       const lon = parseFloat(coordinate.longitudine);
-
-      // Validazione robusta
       if (isNaN(lat) || isNaN(lon)) return;
 
       const lngLat: [number, number] = [lon, lat];
       bounds.extend(lngLat);
       markerCount++;
 
-      // Elemento marker personalizzato
-      const el = document.createElement('span');
-      el.className = 'material-icons';
-      el.textContent = 'place';
-      el.style.fontSize = '36px';
-      el.style.color = '#e53935';
-      el.style.cursor = 'pointer';
+      const markerEl = document.createElement('div');
+      markerEl.style.width = '40px';  // un po' più grande per equilibrio visivo
+      markerEl.style.height = '40px';
+      markerEl.style.backgroundColor = 'white';
+      markerEl.style.borderRadius = '50%';
 
-     const fotoHTML = fotografie.map((foto, i) => `
-  <img src="${foto.url}" class="${i === 0 ? 'active' : ''}" />
-`).join('');
+      markerEl.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+      markerEl.style.border = '2px solid white';
+      markerEl.style.cursor = 'pointer';
+
+      const img = document.createElement('img');
+      img.src = this.userImage || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+      img.alt = 'Foto';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.position = 'relative';
+      img.style.zIndex = '1';
+      img.onerror = () => {
+        img.src = 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+      };
+      markerEl.appendChild(img);
+
+
       const popupContent = `
-  <div class="maplibregl-popup-content">
-    <div class="popup-wrapper">
-      <div class="popup-images">
-        ${fotoHTML || '<p class="no-images">Nessuna immagine</p>'}
-      </div>
-      <div class="popup-details">
-        <p><svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12h6m2 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg> <strong>ID:</strong> ${codicePerizia}</p>
-        <p><svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 7V3m8 4V3M4 11h16M4 19h16M4 15h16"/></svg> <strong>Data/Ora:</strong> ${new Date(dataOra).toLocaleString()}</p>
-        <p><svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0z"/></svg> <strong>Descrizione:</strong> ${descrizione}</p>
-        <button class="popup-btn" onclick="document.getElementById('dettaglio')?.scrollIntoView({ behavior: 'smooth' })">
-          🔍 Dettaglio
-        </button>
-      </div>
-    </div>
-  </div>
-`;
-
+        <div class="maplibregl-popup-content">
+          <div class="popup-wrapper" style="background-color: #111; padding: 16px; color: white; border-radius: 8px; max-width: 280px; font-family: 'Poppins', sans-serif;">
+            <div class="popup-details" style="font-size:14px;">
+              <p><strong>ID:</strong> ${codicePerizia}</p>
+              <p><strong>Data:</strong> ${new Date(dataOra).toLocaleString()}</p>
+              <p><strong>Descrizione:</strong> ${descrizione}</p>
+              <button class="popup-btn" style="margin-top:10px; background-color: black; color: white; border: 1px solid white; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;"
+                onmouseover="this.style.backgroundColor='white';this.style.color='black';"
+                onmouseout="this.style.backgroundColor='black';this.style.color='white';"
+                data-id="${codicePerizia}">
+                🔍 Dettaglio
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
 
       const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupContent);
-      setTimeout(() => {
-        const imgs = document.querySelectorAll('.popup-images img');
-        let current = 0;
 
-        setInterval(() => {
-          imgs.forEach((img, i) => img.classList.remove('active'));
-          current = (current + 1) % imgs.length;
-          imgs[current].classList.add('active');
-        }, 2000);
-      }, 500);
+      new maplibregl.Marker({
+        element: markerEl,
+        anchor: 'bottom'
+      })
+      .setLngLat(lngLat)
+      .setPopup(popup)
+      .addTo(this.map);
 
-      new maplibregl.Marker({ element: el })
-        .setLngLat(lngLat)
-        .setPopup(popup)
-        .addTo(this.map);
-
-      el.addEventListener('click', () => {
+      markerEl.addEventListener('click', () => {
         this.map.flyTo({
           center: lngLat,
           zoom: 16,
           speed: 1.2,
           curve: 1
         });
+      });
+
+      popup.on('open', () => {
+        setTimeout(() => {
+          const btn = popup.getElement().querySelector(`.popup-btn[data-id="${codicePerizia}"]`);
+          if (btn) {
+            btn.addEventListener('click', () => {
+              this.vaiAlDettaglio(perizia);
+            });
+          }
+        }, 0);
       });
     });
 
@@ -177,6 +198,7 @@ export class MappaComponent implements OnInit, AfterViewInit {
       console.warn('Nessun marker valido da visualizzare.');
     }
   }
+
   hideImage(event: Event) {
     const target = event.target as HTMLImageElement;
     if (target) {

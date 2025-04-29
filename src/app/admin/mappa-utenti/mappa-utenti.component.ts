@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../auth/auth.service';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+
 @Component({
   selector: 'app-mappa-utenti',
   standalone: true,
@@ -21,48 +22,69 @@ import { ActivatedRoute } from '@angular/router';
 export class MappaUtentiComponent implements OnInit, AfterViewInit {
   @ViewChild('mapContainer', { static: false }) mapContainerRef!: ElementRef;
   map!: maplibregl.Map;
-
   utenti: any[] = [];
   perizieTotali: any[] = [];
+  userImage: string | null = null;
   perizieFiltrate: any[] = [];
   periziaSelezionata: any = null;
   utenteAttivo: any = null;
   popupAperti: maplibregl.Popup[] = [];
   immagineIngrandita: string | null = null;
-
-  constructor(private authService: AuthService, private ngZone: NgZone,   private route: ActivatedRoute) {}
-
-
+  
+  constructor(private authService: AuthService, private ngZone: NgZone, private route: ActivatedRoute) {}
+  
   ngOnInit(): void {
+    this.userImage = this.authService.getUser().profilePicture;
+    console.log('User:', this.userImage);
+  
     this.route.queryParams.subscribe(params => {
-      const utenteId = params['utente'];
-
       this.authService.fetchPerizieAdmin().subscribe({
         next: (response) => {
-          this.perizieTotali = response.perizie || [];
-
+          const tutteLePerizie = response.perizie || [];
+  
           this.authService.fetchUtentiCompleti().subscribe({
             next: (utenti) => {
-              this.utenti = utenti.map(u => ({
-                ...u,
-                numeroPerizie: this.perizieTotali.filter(p => p.codiceOperatore?.toString() === u._id).length
-              }));
-
-              // Se esiste ID utente da query string, selezionalo
-              if (utenteId) {
-                const utente = this.utenti.find(u => u._id === utenteId);
-                if (utente) this.selezionaUtente(utente);
-              }
+              this.utenti = utenti.map(u => {
+                const perizieUtente = this.perizieTotali.filter(p => 
+                  p.codiceOperatore?.toString() === u._id
+                );
+                
+                return {
+                  ...u,
+                  numeroPerizie: perizieUtente.length
+                };
+              });
+              
+  
+              // 🔥 Filtra solo perizie degli utenti (no admin)
+              const utentiId = utenti.map(u => u._id);
+              this.perizieTotali = tutteLePerizie.filter(p => utentiId.includes(p.codiceOperatore?.toString()));
+              
+              // Ora puoi contare bene
+              this.utenti = utenti.map(u => {
+                const perizieUtente = this.perizieTotali.filter(p => 
+                  p.codiceOperatore?.toString() === u._id
+                );
+                
+                return {
+                  ...u,
+                  numeroPerizie: perizieUtente.length
+                };
+              });
+              // 🔥 Al primo caricamento mostra tutte
+              this.perizieFiltrate = [...this.perizieTotali];
+  
+              setTimeout(() => this.renderMarkers(), 0);
             }
           });
         }
       });
     });
   }
-
-
+  
+  
   ngAfterViewInit(): void {
-    const defaultCenter: [number, number] = [12.4964, 41.9028];
+    const defaultCenter: [number, number] = [7.7361193837862015, 44.55599213612909]; // Sede
     this.map = new maplibregl.Map({
       container: this.mapContainerRef.nativeElement,
       style: {
@@ -77,10 +99,34 @@ export class MappaUtentiComponent implements OnInit, AfterViewInit {
         layers: [{ id: 'osm', type: 'raster', source: 'osm' }]
       },
       center: defaultCenter,
-      zoom: 5
+      zoom: 10, // 🔥 più zoomato
+      attributionControl: false
     });
-
+  
     this.map.addControl(new maplibregl.NavigationControl());
+    this.aggiungiMarkerSede();
+  }
+  
+  aggiungiMarkerSede(): void {
+    const sedeLat = 44.55599213612909;
+    const sedeLon = 7.7361193837862015;
+
+    const sedeEl = document.createElement('div');
+    sedeEl.classList.add('marker-sede');
+    sedeEl.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" fill="#27272a" viewBox="0 0 24 24" width="40" height="40">
+        <path d="M4 22h16V2L4 8v14zm2-2v-6h4v6H6zm6 0v-6h4v6h-4zm6 0v-8h2v8h-2zM4 20v-9.5l14-5.25V4.5L4 10V20z"/>
+      </svg>
+    `;
+    sedeEl.style.cursor = 'default';
+
+    new maplibregl.Marker({ element: sedeEl })
+      .setLngLat([sedeLon, sedeLat])
+      .setPopup(
+        new maplibregl.Popup({ offset: 25 })
+          .setHTML('<div class="text-white">🏢 Sede Ufficio<br>Via San Michele, 68</div>')
+      )
+      .addTo(this.map);
   }
 
   selezionaUtente(utente: any): void {
@@ -93,31 +139,164 @@ export class MappaUtentiComponent implements OnInit, AfterViewInit {
     this.periziaSelezionata = null;
     setTimeout(() => this.renderMarkers(), 0);
   }
-
   mostraTutte(): void {
-    if (!this.utenteAttivo) return;
     this.chiudiPopupAperti();
-    const id = this.utenteAttivo._id.toString();
-    this.perizieFiltrate = this.perizieTotali.filter(
-      (p) => p.codiceOperatore?.toString() === id
-    );
+    this.perizieFiltrate = [...this.perizieTotali];
+    this.utenteAttivo = null; // 🔥 quando clicchi "Mostra Tutte" DESELEZIONI l'utente!
     this.periziaSelezionata = null;
     setTimeout(() => this.renderMarkers(), 0);
   }
 
   filtraPerizie(stato: string): void {
-    if (!this.utenteAttivo) return;
     this.chiudiPopupAperti();
-    const id = this.utenteAttivo._id?.toString();
-    this.perizieFiltrate =
-      stato === 'tutte'
-        ? this.perizieTotali.filter((p) => p.codiceOperatore?.toString() === id)
-        : this.perizieTotali.filter(
-            (p) =>
-              p.codiceOperatore?.toString() === id && p.stato === stato
-          );
+    if (this.utenteAttivo) {
+      const id = this.utenteAttivo._id.toString();
+      this.perizieFiltrate = this.perizieTotali.filter(
+        (p) => p.codiceOperatore?.toString() === id && p.stato === stato
+      );
+    } else {
+      this.perizieFiltrate = this.perizieTotali.filter(
+        (p) => p.stato === stato
+      );
+    }
     this.periziaSelezionata = null;
     setTimeout(() => this.renderMarkers(), 0);
+  }
+
+  renderMarkers(): void {
+    if (!this.map) return;
+  
+    // 🔵 Pulisce tutti i marker precedenti
+    const markerElements = document.querySelectorAll('.maplibregl-marker');
+    markerElements.forEach(el => el.remove());
+  
+    const bounds = new maplibregl.LngLatBounds();
+    let markerCount = 0;
+  
+    this.perizieFiltrate.forEach(perizia => {
+      const { codicePerizia, descrizione, coordinate, dataOra, codiceOperatore } = perizia;
+      if (!coordinate || !codiceOperatore) return;
+  
+      const lat = parseFloat(coordinate.latitudine);
+      const lon = parseFloat(coordinate.longitudine);
+      if (isNaN(lat) || isNaN(lon)) return;
+  
+      // 🎯 Aggiungiamo un offset casuale molto piccolo per non sovrapporre marker identici
+      const offsetLat = (Math.random() - 0.5) * 0.0006;
+      const offsetLon = (Math.random() - 0.5) * 0.0006;
+      const lngLat: [number, number] = [lon + offsetLon, lat + offsetLat];
+  
+      const user = this.utenti.find(u => u._id === codiceOperatore.toString());
+      const userImage = user?.profilePicture || '/assets/default-profile.jpg';
+  
+      bounds.extend(lngLat);
+      markerCount++;
+  
+      const markerEl = document.createElement('div');
+      markerEl.style.width = '40px';
+      markerEl.style.height = '40px';
+      markerEl.style.backgroundImage = 'url("https://cdn-icons-png.flaticon.com/512/149/149071.png")';
+      markerEl.style.backgroundSize = 'cover';
+      markerEl.style.backgroundPosition = 'center';
+      markerEl.style.borderRadius = '50%';
+      markerEl.style.overflow = 'hidden';
+      markerEl.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+      markerEl.style.border = '2px solid white';
+      markerEl.style.cursor = 'pointer';
+
+  
+      const punta = document.createElement('div');
+      punta.style.width = '12px';
+      punta.style.height = '12px';
+      punta.style.backgroundColor = 'white';
+      punta.style.position = 'absolute';
+      punta.style.bottom = '-6px';
+      punta.style.left = '50%';
+      punta.style.transform = 'translateX(-50%) rotate(45deg)';
+      punta.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+      punta.style.zIndex = '0';
+  
+      const img = document.createElement('img');
+      img.src = userImage;
+      img.alt = 'Foto';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      img.style.position = 'relative';
+      img.style.zIndex = '1';
+      img.onerror = () => { img.style.display = 'none'; };
+  
+      markerEl.appendChild(img);
+      markerEl.appendChild(punta);
+  
+      const distanzaKm = this.calcolaDistanza(44.55599213612909, 7.7361193837862015, lat, lon);
+  
+      const popupContent = `
+        <div style="background-color: #111; color: white; padding: 16px; border-radius: 8px; max-width: 280px; font-family: 'Poppins', sans-serif;">
+          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px;">
+            <p><strong>ID:</strong> ${codicePerizia}</p>
+            <p><strong>Data:</strong> ${new Date(dataOra).toLocaleString()}</p>
+            <p><strong>Descrizione:</strong> ${descrizione}</p>
+            <p><strong>Distanza dalla sede:</strong> ${distanzaKm} km</p>
+            <button 
+              style="background-color: black; color: white; border: 1px solid white; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;"
+              onmouseover="this.style.backgroundColor='white';this.style.color='black';"
+              onmouseout="this.style.backgroundColor='black';this.style.color='white';"
+              class="popup-btn"
+              data-id="${codicePerizia}">
+              Dettagli
+            </button>
+          </div>
+        </div>
+      `;
+  
+      const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupContent);
+  
+      new maplibregl.Marker({ element: markerEl })
+        .setLngLat(lngLat)
+        .setPopup(popup)
+        .addTo(this.map);
+  
+      markerEl.addEventListener('click', () => {
+        this.map.flyTo({
+          center: lngLat,
+          zoom: 16,
+          speed: 1.2,
+          curve: 1
+        });
+      });
+  
+      popup.on('open', () => {
+        setTimeout(() => {
+          const btn = document.querySelector(`.popup-btn[data-id="${codicePerizia}"]`);
+          if (btn) {
+            btn.addEventListener('click', () => {
+              this.vaiAlDettaglio(perizia);
+            });
+          }
+        }, 0);
+      });
+    });
+  
+    if (markerCount > 0) {
+      this.map.fitBounds(bounds, { padding: 80, duration: 1000 });
+    } else {
+      console.warn('Nessun marker valido da visualizzare.');
+    }
+  }
+  
+  
+  
+  
+  calcolaDistanza(lat1: number, lon1: number, lat2: number, lon2: number): string {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI/180;
+    const dLon = (lon2 - lon1) * Math.PI/180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return (R * c).toFixed(2);
   }
 
   vaiAlDettaglio(perizia: any): void {
@@ -127,118 +306,74 @@ export class MappaUtentiComponent implements OnInit, AfterViewInit {
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   }
-
   salvaModifiche(): void {
     if (!this.periziaSelezionata) return;
-
-    const { _id, descrizione, coordinate, indirizzo, fotografie, revisioneAdmin } = this.periziaSelezionata;
-
+  
+    const currentUser = this.authService.getUser();
+    if (!currentUser) {
+      alert('Utente non autenticato.');
+      return;
+    }
+  
+    const { _id, descrizione, coordinate, indirizzo, fotografie, revisioneAdmin, commentoAdmin } = this.periziaSelezionata;
+  
     this.authService
       .updatePerizia(_id, {
         descrizione,
         coordinate,
         indirizzo,
         fotografie,
-        revisioneAdmin  // ✅ AGGIUNGI QUESTO CAMPO
+        revisioneAdmin,
+        commentoAdmin,
+        aggiornatoDa: {
+          id: currentUser._id,
+          username: currentUser.username,
+          profilePicture: currentUser.profilePicture || ''
+        }
       })
       .subscribe({
-        next: () => alert('Modifiche salvate con successo'),
-        error: () => alert('Errore durante il salvataggio')
+        next: (res: any) => {
+          alert('✅ Modifiche salvate con successo');
+          const index = this.perizieTotali.findIndex(p => p._id === _id);
+          if (index !== -1) {
+            this.perizieTotali[index] = { ...this.perizieTotali[index], ...res };
+          }
+          if (this.periziaSelezionata._id === res._id) {
+            this.periziaSelezionata = { ...this.periziaSelezionata, ...res };
+          }
+        },
+        error: () => alert('❌ Errore durante il salvataggio')
       });
   }
-
-
+  
   aggiornaStato(stato: string): void {
     if (!this.periziaSelezionata) return;
+  
+    const currentUser = this.authService.getUser();
+    if (!currentUser) {
+      alert('Utente non autenticato.');
+      return;
+    }
+  
     this.authService
-      .updatePerizia(this.periziaSelezionata._id, { stato })
+      .updatePerizia(this.periziaSelezionata._id, {
+        stato,
+        aggiornatoDa: {
+          id: currentUser._id,
+          username: currentUser.username,
+          profilePicture: currentUser.profilePicture || ''
+        }
+      })
       .subscribe({
         next: () => {
-          alert(`Stato aggiornato: ${stato}`);
+          alert(`✅ Stato aggiornato a ${stato}`);
           this.periziaSelezionata.stato = stato;
         },
-        error: () => alert('Errore durante aggiornamento stato')
+        error: () => alert('❌ Errore durante aggiornamento stato')
       });
   }
-
-  renderMarkers(): void {
-    if (!this.map) return;
-    document.querySelectorAll('.maplibregl-marker').forEach((el) =>
-      el.remove()
-    );
-    this.chiudiPopupAperti();
-
-    this.perizieFiltrate.forEach((perizia) => {
-      const { codicePerizia, descrizione, coordinate, dataOra, fotografie } =
-        perizia;
-      if (!coordinate) return;
-
-      const lat = parseFloat(coordinate.latitudine);
-      const lon = parseFloat(coordinate.longitudine);
-      if (isNaN(lat) || isNaN(lon)) return;
-
-      const el = document.createElement('span');
-      el.className = 'material-icons';
-      el.textContent = 'place';
-      el.style.cssText = 'font-size: 36px; color: #e53935; cursor: pointer';
-
-      const fotoHTML =
-        (fotografie || [])
-          .map(
-            (foto, i) =>
-              `<img src="${foto.url}" style="width: 50px; border-radius: 6px; cursor: pointer;" onclick="document.querySelector('#imgModal').src='${foto.url}';document.querySelector('#modalContainer').style.display='flex'" />`
-          )
-          .join('') || '<p class="no-images">Nessuna immagine</p>';
-
-      const popupContent = `
-        <div class="maplibregl-popup-content bg-zinc-900 text-white p-3 rounded-lg max-w-xs shadow-lg">
-          <div class="popup-wrapper space-y-2 text-sm">
-            <div class="flex gap-2 overflow-x-auto">${fotoHTML}</div>
-            <div>
-              <p><strong>ID:</strong> ${codicePerizia}</p>
-              <p><strong>Data:</strong> ${new Date(dataOra).toLocaleString()}</p>
-              <p><strong>Descrizione:</strong> ${descrizione}</p>
-              <button class="popup-btn bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded mt-2 text-xs" data-id="${codicePerizia}">Dettaglio</button>
-            </div>
-          </div>
-        </div>`;
-
-      const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupContent);
-      const marker = new maplibregl.Marker({ element: el })
-        .setLngLat([lon, lat])
-        .setPopup(popup)
-        .addTo(this.map);
-
-      this.popupAperti.push(popup);
-
-      popup.on('open', () => {
-        setTimeout(() => {
-          const btn = document.querySelector(
-            `.popup-btn[data-id="${codicePerizia}"]`
-          );
-          if (btn) {
-            btn.addEventListener('click', () => {
-              this.ngZone.run(() => this.vaiAlDettaglio(perizia));
-            });
-          }
-        }, 0);
-      });
-    });
-  }
-
-  chiudiPopupAperti(): void {
-    this.popupAperti.forEach((popup) => popup.remove());
-    this.popupAperti = [];
-  }
-
-  chiudiImmagine(): void {
-    this.immagineIngrandita = null;
-    const modal = document.querySelector('#modalContainer') as HTMLElement;
-    if (modal) modal.style.display = 'none';
-  }
-
-  hideImage(event: Event) {
-    const target = event.target as HTMLImageElement;
-    if (target) target.style.display = 'none';
-  }
+  
+  chiudiPopupAperti(): void { this.popupAperti.forEach(p => p.remove()); this.popupAperti = []; }
+  chiudiImmagine(): void { this.immagineIngrandita = null; const modal = document.querySelector('#modalContainer') as HTMLElement; if (modal) modal.style.display = 'none'; }
+  hideImage(event: Event) { const target = event.target as HTMLImageElement; if (target) target.style.display = 'none'; }
 }
