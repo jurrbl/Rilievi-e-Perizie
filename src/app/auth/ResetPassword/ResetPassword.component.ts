@@ -8,8 +8,8 @@ import { DataStorageService } from '../../shared/data-storage.service';
   selector: 'app-reset-password',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
-  templateUrl: './resetpassword.component.html',
-  styleUrls: ['./resetpassword.component.css']
+  templateUrl: './ResetPassword.component.html',
+  styleUrls: ['./ResetPassword.component.css']
 })
 export class ResetPasswordComponent implements OnInit {
   resetForm!: FormGroup;
