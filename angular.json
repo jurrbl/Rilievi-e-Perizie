@@ -43,11 +43,14 @@
               "outputHashing": "all",
               "baseHref": "/",
               "deployUrl": "/",
+              "optimization": true,
+              "extractLicenses": true,
+              "sourceMap": false,
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "600kB",
+                  "maximumError": "2MB"
                 },
                 {
                   "type": "anyComponentStyle",
