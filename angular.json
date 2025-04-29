@@ -15,6 +15,9 @@
             "outputPath": "dist/rilievi-e-perizie",
             "index": "src/index.html",
             "browser": "src/main.ts",
+            "allowedCommonJsDependencies": [
+              "maplibre-gl"
+            ],
             "polyfills": [
               "zone.js"
             ],
