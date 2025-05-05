@@ -69,18 +69,26 @@ export class DashboardAdminComponent implements OnInit {
   aggiungiOperatore() {
     const payload = {
       username: this.nuovoOperatore.username,
-      email: this.nuovoOperatore.email,
+      email:    this.nuovoOperatore.email,
       password: this.nuovoOperatore.password,
-      role: this.nuovoOperatore.abilitato ? 'user' : 'viewer'
+      role:     'user'
     };
-
+  
+    // 👉 Loggiamo il payload prima della richiesta
+    console.log('📤 Payload new operator:', payload);
+  
     this.dataStorage.inviaRichiesta('post', '/admin/users', payload)!.subscribe({
-      next: () => {
+      next: res => {
+        console.log('✅ Risposta creazione operatore:', res);
         this.nuovoOperatore = { username: '', email: '', password: '', abilitato: true };
         this.caricaUtenti();
       },
       error: err => {
+        // 👉 Logghiamo l’intero HttpErrorResponse
         console.error('❌ Errore aggiunta operatore:', err);
+        // 👉 Logghiamo il body di risposta (spesso contiene message + details)
+        console.error('❌ Dettaglio error.body:', err.error);
+        alert(err.error?.message || 'Errore creazione operatore');
       }
     });
   }
