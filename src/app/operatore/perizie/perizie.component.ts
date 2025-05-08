@@ -27,10 +27,10 @@ export class PerizieComponent implements OnInit {
   lightboxUrl: string | null = null;
   revisioneNotificata = signal(false);
   primaPeriziaRevisionata: any = null;
-  larevisione : any
+  larevisione: any;
   perizie = signal<any[]>([]);
   selectedPerizia: any = null;
-  immaginiSelezionate: { file: File, commento: string }[] = [];
+  immaginiSelezionate: { file: File; commento: string }[] = [];
 
   periziaModifica: any = null;
 
@@ -39,7 +39,7 @@ export class PerizieComponent implements OnInit {
     dataOra: '',
     descrizione: '',
     stato: '',
-    revisioneAdmin: ''
+    revisioneAdmin: '',
   };
 
   constructor(
@@ -56,7 +56,9 @@ export class PerizieComponent implements OnInit {
     if (token) {
       localStorage.setItem('token', token);
       const urlWithoutToken = this.route.snapshot.pathFromRoot
-        .map(route => route.url.map(segment => segment.toString()).join('/'))
+        .map((route) =>
+          route.url.map((segment) => segment.toString()).join('/')
+        )
         .join('/');
       this.location.replaceState(urlWithoutToken);
     }
@@ -68,19 +70,24 @@ export class PerizieComponent implements OnInit {
   }
   async fetchPerizieDalServer() {
     try {
-      const response: any = await this.dataStorage.inviaRichiesta('get', '/operator/perizie')?.toPromise();
+      const response: any = await this.dataStorage
+        .inviaRichiesta('get', '/operator/perizie')
+        ?.toPromise();
       if (response?.perizie) {
         const perizieConDate = response.perizie.map((p: any) => ({
           ...p,
           dataOra: new Date(p.dataOra),
-          revisioneAdmin: p.revisioneAdmin || ''
+          revisioneAdmin: p.revisioneAdmin || '',
         }));
-  
+        console.log('Perizie ricevute:', perizieConDate);
         this.perizie.set(perizieConDate);
         this.authService.setPerizie(perizieConDate);
-  
+
         // 👇 Cerca la prima perizia revisionata
-        const revisionata = perizieConDate.find(p => p.revisioneAdmin && p.revisioneAdmin !== 'In Attesa Di Revisione');
+        const revisionata = perizieConDate.find(
+          (p) =>
+            p.revisioneAdmin && p.revisioneAdmin !== 'In Attesa Di Revisione'
+        );
         if (revisionata && !this.revisioneNotificata()) {
           this.primaPeriziaRevisionata = revisionata;
           this.revisioneNotificata.set(true);
@@ -90,7 +97,7 @@ export class PerizieComponent implements OnInit {
       console.error('❌ Errore caricamento perizie:', err);
     }
   }
-  
+
   vaiAllaPeriziaRevisione() {
     this.selectedPerizia = this.periziaDaMostrare;
     this.mostraAlertRevisione = false;
@@ -99,23 +106,20 @@ export class PerizieComponent implements OnInit {
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }, 100);
   }
-  
-  
 
-  
   async aggiungiPerizia() {
     try {
       const { indirizzo, dataOra, descrizione, stato } = this.nuovaPerizia;
       const currentUser = this.authService.getUser();
       const coords = await this.getCoordinateDaIndirizzo(indirizzo);
-  
+
       const immaginiUploadate = await Promise.all(
         this.immaginiSelezionate.map(async (img) => {
           const url = await this.uploadToCloudinary(img.file);
           return { url, commento: img.commento };
         })
       );
-  
+
       const nuova = {
         coordinate: coords,
         dataOra,
@@ -128,37 +132,48 @@ export class PerizieComponent implements OnInit {
           id: currentUser._id,
           username: currentUser.username,
           profilePicture: currentUser.profilePicture || '',
-          commento: 'In attesa di revisione'
+          commento: 'In attesa di revisione',
         },
-        dataRevisione: null
+        dataRevisione: null,
       };
-  
+
       const nuovaSalvata: any = await this.perizieService.salvaPerizia(nuova);
-  
+
       const nuovaPerizia = {
         ...nuovaSalvata,
         dataOra: new Date(nuovaSalvata.dataOra),
         fotografie: immaginiUploadate,
-        revisioneAdmin: nuovaSalvata.revisioneAdmin || ''
+        revisioneAdmin: nuovaSalvata.revisioneAdmin || '',
       };
-  
+
       this.perizie.set([nuovaPerizia, ...this.perizie()]);
       this.authService.setPerizie(this.perizie());
-  
+
       for (const img of immaginiUploadate) {
-        await this.dataStorage.inviaRichiesta('post', `/operator/perizie/${nuovaPerizia._id}/foto`, {
-          url: img.url,
-          commento: img.commento
-        })?.toPromise();
+        await this.dataStorage
+          .inviaRichiesta(
+            'post',
+            `/operator/perizie/${nuovaPerizia._id}/foto`,
+            {
+              url: img.url,
+              commento: img.commento,
+            }
+          )
+          ?.toPromise();
       }
-  
+
       this.messaggioAlert = 'Perizia aggiunta con successo!';
       this.alertSuccesso = true;
       this.immaginiSelezionate = [];
-      this.nuovaPerizia = { indirizzo: '', dataOra: '', descrizione: '', stato: '', revisioneAdmin: '' };
+      this.nuovaPerizia = {
+        indirizzo: '',
+        dataOra: '',
+        descrizione: '',
+        stato: '',
+        revisioneAdmin: '',
+      };
       this.currentPage.set(1);
       setTimeout(() => (this.messaggioAlert = ''), 5000);
-  
     } catch (error: any) {
       console.error('❌ Errore nel salvataggio:', error);
       this.messaggioAlert = error.message || 'Errore durante il salvataggio';
@@ -166,15 +181,18 @@ export class PerizieComponent implements OnInit {
       setTimeout(() => (this.messaggioAlert = ''), 5000);
     }
   }
-  
+
   async uploadToCloudinary(file: File): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', 'rilievi_preset');
-    const response = await fetch('https://api.cloudinary.com/v1_1/dvkczvtfs/image/upload', {
-      method: 'POST',
-      body: formData
-    });
+    const response = await fetch(
+      'https://api.cloudinary.com/v1_1/dvkczvtfs/image/upload',
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
     const data = await response.json();
     if (!data.secure_url) throw new Error('Upload immagine fallito');
     return data.secure_url;
@@ -183,21 +201,25 @@ export class PerizieComponent implements OnInit {
   onFileSelect(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input?.files) {
-      this.immaginiSelezionate = Array.from(input.files).map(file => ({
+      this.immaginiSelezionate = Array.from(input.files).map((file) => ({
         file,
-        commento: ''
+        commento: '',
       }));
     }
   }
 
-  async getCoordinateDaIndirizzo(indirizzo: string): Promise<{ latitudine: number, longitudine: number }> {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(indirizzo)}`;
+  async getCoordinateDaIndirizzo(
+    indirizzo: string
+  ): Promise<{ latitudine: number; longitudine: number }> {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+      indirizzo
+    )}`;
     const response = await fetch(url);
     const data = await response.json();
     if (!data.length) throw new Error('Indirizzo non trovato');
     return {
       latitudine: parseFloat(data[0].lat),
-      longitudine: parseFloat(data[0].lon)
+      longitudine: parseFloat(data[0].lon),
     };
   }
 
@@ -220,7 +242,7 @@ export class PerizieComponent implements OnInit {
   mostraDettagli(perizia: any) {
     this.selectedPerizia = {
       ...perizia,
-      revisioneAdmin: perizia.revisioneAdmin || ''
+      revisioneAdmin: perizia.revisioneAdmin || '',
     };
   }
 
@@ -238,20 +260,29 @@ export class PerizieComponent implements OnInit {
 
   async salvaModifica() {
     try {
-      const coords = await this.getCoordinateDaIndirizzo(this.periziaModifica.indirizzo);
-      const aggiornata = await this.dataStorage.inviaRichiesta('put', `/operator/perizie/${this.periziaModifica._id}`, {
-        descrizione: this.periziaModifica.descrizione,
-        indirizzo: this.periziaModifica.indirizzo,
-        coordinate: coords,
-        revisioneAdmin: this.periziaModifica.revisioneAdmin || ''
-      })?.toPromise();
-
-      const nuovaLista = this.perizie().map(p => {
+      console.log('Perizia da modificare:', this.periziaModifica);
+      const coords = await this.getCoordinateDaIndirizzo(
+        this.periziaModifica.indirizzo
+      );
+      const aggiornata = await this.dataStorage
+        .inviaRichiesta(
+          'put',
+          `/operator/perizie/${this.periziaModifica._id}`,
+          {
+            descrizione: this.periziaModifica.descrizione,
+            indirizzo: this.periziaModifica.indirizzo,
+            coordinate: coords,
+            revisioneAdmin: this.periziaModifica.revisioneAdmin || '',
+          }
+        )
+        ?.toPromise();
+      console.log('Perizia prima di la modifica:', this.periziaModifica);
+      const nuovaLista = this.perizie().map((p) => {
         if (p._id === this.periziaModifica._id) {
           return {
             ...p,
             ...this.periziaModifica,
-            coordinate: coords
+            coordinate: coords,
           };
         }
         return p;
@@ -274,8 +305,10 @@ export class PerizieComponent implements OnInit {
 
   async eliminaPerizia(id: string) {
     try {
-      await this.dataStorage.inviaRichiesta('delete', `/operator/perizie/${id}`)?.toPromise();
-      const nuovaLista = this.perizie().filter(p => p._id !== id);
+      await this.dataStorage
+        .inviaRichiesta('delete', `/operator/perizie/${id}`)
+        ?.toPromise();
+      const nuovaLista = this.perizie().filter((p) => p._id !== id);
       this.perizie.set(nuovaLista);
       this.authService.setPerizie(nuovaLista);
 
@@ -293,10 +326,11 @@ export class PerizieComponent implements OnInit {
   filtered = computed(() => {
     const searchTerm = this.search().toLowerCase().trim();
     const statusFilter = this.selectedStatus();
-    return this.perizie().filter(p =>
-      (p.codicePerizia?.toLowerCase().includes(searchTerm) ||
-        p.descrizione?.toLowerCase().includes(searchTerm)) &&
-      (statusFilter === '' || p.stato === statusFilter)
+    return this.perizie().filter(
+      (p) =>
+        (p.codicePerizia?.toLowerCase().includes(searchTerm) ||
+          p.descrizione?.toLowerCase().includes(searchTerm)) &&
+        (statusFilter === '' || p.stato === statusFilter)
     );
   });
 

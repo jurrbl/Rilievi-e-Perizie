@@ -38,6 +38,29 @@ export class AuthService {
     }
   }
 
+  private readonly SESSION_ERROR_KEY = 'session_error_count';
+
+  getSessionErrorCount(): number {
+    return parseInt(localStorage.getItem(this.SESSION_ERROR_KEY) || '0', 10);
+  }
+
+  incrementSessionErrorCount(): void {
+    const count = this.getSessionErrorCount() + 1;
+    localStorage.setItem(this.SESSION_ERROR_KEY, count.toString());
+  }
+
+  resetSessionErrorCount(): void {
+    localStorage.setItem(this.SESSION_ERROR_KEY, '0');
+  }
+
+  disableSessionCheck(): void {
+    localStorage.setItem('session_check_disabled', 'true');
+  }
+
+  isSessionCheckDisabled(): boolean {
+    return localStorage.getItem('session_check_disabled') === 'true';
+  }
+
   public setUser(user: any): void {
     this.user = user;
     localStorage.setItem('user', JSON.stringify(user));
@@ -47,12 +70,20 @@ export class AuthService {
     return this.http.get<any>(`${this.api}/auth/me`, { withCredentials: true });
   }
 
-  public fetchPerizieTotali(): Observable<{ perizie: any[], nPerizie: number }> {
-    return this.http.get<{ perizie: any[], nPerizie: number }>(`${this.api}/operator/perizie`, { withCredentials: true });
+  public fetchPerizieTotali(): Observable<{
+    perizie: any[];
+    nPerizie: number;
+  }> {
+    return this.http.get<{ perizie: any[]; nPerizie: number }>(
+      `${this.api}/operator/perizie`,
+      { withCredentials: true }
+    );
   }
 
   public fetchUtentiCompleti() {
-    return this.http.get<any[]>(`${this.api}/operator/users`, { withCredentials: true });
+    return this.http.get<any[]>(`${this.api}/operator/users`, {
+      withCredentials: true,
+    });
   }
 
   public getUser(): any {
@@ -95,11 +126,15 @@ export class AuthService {
   }
 
   public register(user: { username: string; email: string; password: string }) {
-    return this.http.post(`${this.api}/auth/register`, user, { withCredentials: true });
+    return this.http.post(`${this.api}/auth/register`, user, {
+      withCredentials: true,
+    });
   }
 
   public login(user: { email: string; password: string }) {
-    return this.http.post(`${this.api}/auth/login`, user, { withCredentials: true });
+    return this.http.post(`${this.api}/auth/login`, user, {
+      withCredentials: true,
+    });
   }
 
   public getMe() {
@@ -107,19 +142,30 @@ export class AuthService {
   }
 
   public fetchPerizie() {
-    return this.http.get(`${this.api}/operator/perizie`, { withCredentials: true });
+    return this.http.get(`${this.api}/operator/perizie`, {
+      withCredentials: true,
+    });
   }
 
-  public fetchPerizieAdmin(): Observable<{ perizie: any[], nPerizie: number }> {
-    return this.http.get<{ perizie: any[], nPerizie: number }>(`${this.api}/admin/all-perizie`, { withCredentials: true });
+  public fetchPerizieAdmin(): Observable<{ perizie: any[]; nPerizie: number }> {
+    return this.http.get<{ perizie: any[]; nPerizie: number }>(
+      `${this.api}/admin/all-perizie`,
+      { withCredentials: true }
+    );
   }
 
   public updatePerizia(id: string, data: any) {
-    return this.http.put(`${this.api}/admin/perizie/${id}`, data, { withCredentials: true });
+    return this.http.put(`${this.api}/admin/perizie/${id}`, data, {
+      withCredentials: true,
+    });
   }
 
   public forgotPassword(email: string) {
-    return this.http.post(`${this.api}/auth/forgot-password`, { email }, { withCredentials: true });
+    return this.http.post(
+      `${this.api}/auth/forgot-password`,
+      { email },
+      { withCredentials: true }
+    );
   }
 
   public resetPassword(data: {
@@ -127,7 +173,9 @@ export class AuthService {
     email: string;
     nuovaPassword: string;
   }) {
-    return this.http.post(`${this.api}/auth/reset-password`, data, { withCredentials: true });
+    return this.http.post(`${this.api}/auth/reset-password`, data, {
+      withCredentials: true,
+    });
   }
 
   public logout(): Observable<any> {
@@ -135,13 +183,15 @@ export class AuthService {
     this.user = null;
     this.perizie = null;
     localStorage.removeItem('user');
-    localStorage.removeItem('perizie');  
+    localStorage.removeItem('perizie');
     // Poi chiamo il server per cancellare il cookie
-    return this.http.get(`${this.api}/auth/logout`, { withCredentials: true }).pipe(
-      tap(() => {
-        console.log('✅ Logout completato anche lato server.');
-      })
-    );
+    return this.http
+      .get(`${this.api}/auth/logout`, { withCredentials: true })
+      .pipe(
+        tap(() => {
+          console.log('✅ Logout completato anche lato server.');
+        })
+      );
   }
   public checkSession(): Observable<any> {
     return this.http.get(`${this.api}/auth/me`, { withCredentials: true });
@@ -152,14 +202,16 @@ export class AuthService {
   }
 
   public fetchUtenti(): void {
-    this.http.get<any[]>(`${this.api}/admin/users`, { withCredentials: true }).subscribe({
-      next: (utenti) => {
-        localStorage.setItem('utenti', JSON.stringify(utenti));
-      },
-      error: (err) => {
-        console.error('❌ Errore nel caricamento utenti:', err);
-      }
-    });
+    this.http
+      .get<any[]>(`${this.api}/admin/users`, { withCredentials: true })
+      .subscribe({
+        next: (utenti) => {
+          localStorage.setItem('utenti', JSON.stringify(utenti));
+        },
+        error: (err) => {
+          console.error('❌ Errore nel caricamento utenti:', err);
+        },
+      });
   }
 
   public getUtenti(): any[] {
