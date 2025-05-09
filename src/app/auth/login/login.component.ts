@@ -99,8 +99,9 @@ export class LoginComponent implements AfterViewInit {
       ?.subscribe({
         next: (res: any) => {
           console.log('✅ Login effettuato:', res);
-
-          this.router.navigate(['/home/dashboard']);
+          if (res.user.role === 'admin')
+            this.router.navigate(['/home/dashboard-admin']);
+          else this.router.navigate(['/home/dashboard']);
 
           localStorage.removeItem('perizie'); // ✅ Cancella le perizie salvate del vecchio utente
 
