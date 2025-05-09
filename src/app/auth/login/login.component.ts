@@ -1,20 +1,12 @@
 declare var gapi: any;
 
-import {
-  Component,
-  AfterViewInit,
-  Inject,
-  PLATFORM_ID
-} from '@angular/core';
-import {
-  CommonModule,
-  isPlatformBrowser
-} from '@angular/common';
+import { Component, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   ReactiveFormsModule,
   FormBuilder,
   FormGroup,
-  Validators
+  Validators,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { LoginEffectsService } from '../login-effects.service';
@@ -64,7 +56,6 @@ export class LoginComponent implements AfterViewInit {
     }
   }
 
-
   onForgotPassword(): void {
     const email = this.loginForm.get('email')?.value;
     if (!email) {
@@ -79,7 +70,7 @@ export class LoginComponent implements AfterViewInit {
       error: (err) => {
         console.error('Errore invio nuova password', err);
         alert('Errore durante l’invio. Riprova.');
-      }
+      },
     });
   }
 
@@ -98,49 +89,50 @@ export class LoginComponent implements AfterViewInit {
     }
   }
 
-
   onSubmit(): void {
     if (this.loginForm.invalid) return;
 
     const { email, password } = this.loginForm.value;
 
-    this.dataStorage.inviaRichiesta('post', '/auth/login', { email, password })?.subscribe({
-      next: (res: any) => {
-        console.log('✅ Login effettuato:', res);
+    this.dataStorage
+      .inviaRichiesta('post', '/auth/login', { email, password })
+      ?.subscribe({
+        next: (res: any) => {
+          console.log('✅ Login effettuato:', res);
 
-                this.router.navigate(['/home']);
+          this.router.navigate(['/home/dashboard']);
 
-        localStorage.removeItem('perizie'); // ✅ Cancella le perizie salvate del vecchio utente
+          localStorage.removeItem('perizie'); // ✅ Cancella le perizie salvate del vecchio utente
 
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('user', JSON.stringify(res.user));
-
-      },
-      error: (err) => {
-        console.error('❌ Errore login:', err);
-        alert(err.error?.message || 'Email o password errati.');
-      }
-    });
+          localStorage.setItem('token', res.token);
+          localStorage.setItem('user', JSON.stringify(res.user));
+        },
+        error: (err) => {
+          console.error('❌ Errore login:', err);
+          alert(err.error?.message || 'Email o password errati.');
+        },
+      });
   }
 
-    onRegister(): void {
+  onRegister(): void {
     if (this.registerForm.invalid) return;
 
     const newUser = this.registerForm.value;
 
-    this.dataStorage.inviaRichiesta('post', '/auth/register', newUser)?.subscribe({
-      next: (res: any) => {
-        console.log('✅ Utente registrato:', res);
-        alert('Registrazione avvenuta con successo!');
-        this.toggleForm(); // switcha al login
-      },
-      error: (err) => {
-        console.error('❌ Errore registrazione:', err);
-        alert(err.error?.message || 'Errore durante la registrazione.');
-      }
-    });
+    this.dataStorage
+      .inviaRichiesta('post', '/auth/register', newUser)
+      ?.subscribe({
+        next: (res: any) => {
+          console.log('✅ Utente registrato:', res);
+          alert('Registrazione avvenuta con successo!');
+          this.toggleForm(); // switcha al login
+        },
+        error: (err) => {
+          console.error('❌ Errore registrazione:', err);
+          alert(err.error?.message || 'Errore durante la registrazione.');
+        },
+      });
   }
-
 
   initializeGoogleAuth(): void {
     const interval = setInterval(() => {
@@ -149,7 +141,8 @@ export class LoginComponent implements AfterViewInit {
 
         gapi.load('auth2', () => {
           const auth2 = gapi.auth2.init({
-            client_id: '494287917430-rtudqvlh033mrc90rq767q35puaj22tl.apps.googleusercontent.com',
+            client_id:
+              '494287917430-rtudqvlh033mrc90rq767q35puaj22tl.apps.googleusercontent.com',
             cookie_policy: 'single_host_origin',
           });
 
@@ -160,8 +153,13 @@ export class LoginComponent implements AfterViewInit {
               {},
               (googleUser: any) => {
                 const profile = googleUser.getBasicProfile();
-                console.log('Google Login Success:', profile.getName(), profile.getEmail());
-                window.location.href = 'https://backend-rilievi.onrender.com/api/auth/google';
+                console.log(
+                  'Google Login Success:',
+                  profile.getName(),
+                  profile.getEmail()
+                );
+                window.location.href =
+                  'https://backend-rilievi.onrender.com/api/auth/google';
               },
               (err: any) => console.error('Google Login Failed:', err)
             );
