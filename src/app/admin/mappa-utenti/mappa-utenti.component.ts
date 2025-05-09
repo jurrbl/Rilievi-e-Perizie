@@ -402,10 +402,11 @@ export class MappaUtentiComponent implements OnInit, AfterViewInit {
       alert('Utente non autenticato.');
       return;
     }
-
+    console.log('Perizia del porco di: ', this.periziaSelezionata);
     this.authService
       .updatePerizia(this.periziaSelezionata._id, {
         stato,
+        revisioneAdmin: this.periziaSelezionata.revisioneAdmin,
         aggiornatoDa: {
           id: currentUser._id,
           username: currentUser.username,
